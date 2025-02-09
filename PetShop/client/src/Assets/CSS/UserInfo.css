@@ -1,0 +1,80 @@
+.user-info-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+  padding: 20px;
+}
+
+.user-info-box {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 2.5rem;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 450px;
+  text-align: center;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+}
+
+.user-info-box h1 {
+  color: #4a148c;
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+  letter-spacing: 1.2px;
+}
+
+.user-details {
+  text-align: left;
+  margin-bottom: 2rem;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 1rem;
+  border-radius: 10px;
+}
+
+.user-details p {
+  color: #6a1b9a;
+  font-size: 1.1rem;
+  margin: 0.6rem 0;
+}
+
+.user-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  margin: 0 auto 1.5rem;
+  display: block;
+  border: 3px solid #4a148c;
+}
+
+.logout-button {
+  background-color: #4a148c;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 30px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 4px 12px rgba(74, 20, 140, 0.4);
+}
+
+.logout-button:hover {
+  background-color: #6a1b9a;
+}
+
+.logout-button:active {
+  transform: scale(0.97);
+}
+
+@media (max-width: 480px) {
+  .user-info-box {
+    padding: 1.8rem;
+  }
+  
+  .user-info-box h1 {
+    font-size: 1.8rem;
+  }
+}

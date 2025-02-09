@@ -79,8 +79,46 @@ const dogs = [
     },
   ];
 
+const dataUsers  = [
+    {
+        id: 1,
+        name: "guest",
+        avatar: "https://res.cloudinary.com/dh5jcbzly/image/upload/v1726378556/ckuhcznrq7xexwibulcm.jpg",
+        email: "guest@gmail.com",
+        address: "guest address",
+        phone: "123456789",
+        username: "guest_user",
+        password: "123456",
+    },
+    {
+      id: 2,
+      name: "admin",
+      email: "admin@gmail.com",
+      avatar: "https://res.cloudinary.com/dh5jcbzly/image/upload/v1728208177/eaupfjyh0s8fft2tlzex.jpg",
+      address: "admin address",
+      phone: "987654321",
+      username: "admin_user",
+      password: "123456",
+    },
+    {
+      id: 3,
+      name: "staff",
+      email: "staff@gmail.com",
+      avatar: "https://res.cloudinary.com/dh5jcbzly/image/upload/v1728288560/hppxgbulitspzzqbo24y.png",
+      address: "staff address",
+      phone: "123456789",
+      username: "staff_user",
+      password: "123456",
+    },
+]
+
 app.get('/v1/dogs', (req, res) => {
     res.status(200).json(dogs)
+
+});
+
+app.get('/v1/users', (req, res) => {
+  res.status(200).json(dataUsers)
 
 });
 

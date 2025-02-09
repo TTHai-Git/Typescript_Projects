@@ -1,8 +1,13 @@
 import { useCart } from '../Context/Cart'
 import '../Assets/CSS/Cart.css'
+import { useSelector } from 'react-redux'
+import { RootState } from '../store'
+import { useNavigate } from 'react-router'
+import { Link } from 'react-router-dom'
 
 export const Cart = () => {
   const { cartItems, removeFromCart, increaseQuantity, decreaseQuantity, checkOutFromCart } = useCart()
+  const user = useSelector((state: RootState) => state.auth.user);
   
   const total = cartItems.reduce((sum, item) => sum + (Number(item.price) * Number(item.quantity)), 0);
 
@@ -13,6 +18,8 @@ export const Cart = () => {
   const handleDecreaseQuantity = (id: number) => {
     decreaseQuantity(id)
   }
+
+  const navigate = useNavigate();
 
   return (
     <div className="cart-container">
@@ -52,7 +59,6 @@ export const Cart = () => {
                   Remove
                 </button>
 
-               
 
               </div>
             ))}
@@ -62,12 +68,30 @@ export const Cart = () => {
               <span>Tổng thành tiền:</span>
               {total > 0 && <span>${total}</span>}
             </div>
-            <button 
+            {user?.isAuthenticated ? <>
+              <button 
               className="checkout-btn"
               onClick={checkOutFromCart}
             >
               Checkout
             </button>
+            </> : <>
+              <div>
+              <div><p>Đăng nhập để thanh toán: </p></div>
+              <div>
+                <button
+                  className="login-btn"
+                  onClick={() => navigate('/login', { state: { from: '/cart' } })}
+                >
+                  Đăng nhập
+                </button>
+              
+              </div>
+
+              </div>
+              
+            </>}
+            
           </div>
         </>
       )}

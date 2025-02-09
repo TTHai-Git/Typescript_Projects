@@ -8,32 +8,47 @@ import axios from 'axios';
 import Home from './Components/Home';
 import DogsPage from './Components/DogsPage';
 import { CartProvider } from './Context/Cart';
+import Login from './Components/Login';
+import Register from './Components/Register';
+import { Provider } from 'react-redux';
+import store from './store';
+import AuthWrapper from './Components/AuthWrapper';
+import UserInfo from './Components/UserInfo';
 
 function App() {
-  const [dogs, setDogs] = useState<Dog[]>([])
+  const [dogs, setDogs] = useState<Dog[]>([]);
+
   useEffect(() => {
     async function fetchDogs() {
-      const response = await axios.get('/v1/dogs')
-      console.log(response.data)
-      setDogs(response.data)
+      try {
+        const response = await axios.get('/v1/dogs');
+        setDogs(response.data);
+      } catch (error) {
+        console.error('Error fetching dogs:', error);
+      }
     }
-    fetchDogs()
-  }, [])
+    fetchDogs();
+  }, []);
+
   return (
-    
-    <Router>
-      <CartProvider>
-      <NavBar/>
-      <div className='page-container'>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/dogs" element={<DogsPage dogs={dogs} />} />
-        <Route path="/checkout" element={<Cart />} />
-      </Routes>
-      
-      </div>
-      </CartProvider>
-    </Router>
+    <Provider store={store}>
+      <Router>
+        <CartProvider>
+          <AuthWrapper /> {/* Move authentication logic to separate component */}
+          <NavBar />
+          <div className='page-container'>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/dogs" element={<DogsPage dogs={dogs} />} />
+              <Route path="/checkout" element={<Cart />} />
+              <Route path="/login" element={<Login/>} />
+              <Route path="/register" element={<Register/>} />
+              <Route path="/userinfo" element={<UserInfo/>} />
+            </Routes>
+          </div>
+        </CartProvider>
+      </Router>
+    </Provider>
   );
 }
 
