@@ -7,6 +7,7 @@ import '../Assets/CSS/Login.css';
 import { useNavigate } from 'react-router';
 
 const Login: React.FC = () => {
+  const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const dispatch = useDispatch<AppDispatch>();
@@ -14,31 +15,33 @@ const Login: React.FC = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+
     try {
-      const response = await axios.get('/v1/users');
-      const user = response.data.find((user: { username: string; password: string; }) => 
-        user.username === username && user.password === password
-      );
+      const response = await axios.post('/api/auth/login', {
+      username,
+      password
+      });
+      const user = response.data.user;
       if (user) {
-        dispatch(login({
-          ...user,
-          accessTokenInfo: {
-            accessToken: '',
-            expiresIn: 0,
-          },
-          isAuthenticated: false,
-        }));
-        navigate('/dogs');
+      dispatch(login({
+        ...user,
+        isAuthenticated: true,
+      }));
+      navigate('/dogs');
       } else {
-        alert('Invalid username or password');
+      alert('Invalid username or password');
       }
     } catch (error) {
       alert('Login failed. Please try again.');
+    } finally {
+      setLoading(false)
     }
   };
 
   return (
     <div className="login-container">
+      {loading && <div className="loading-spinner"></div>}
       <div className="login-box">
         <h2>Welcome Back</h2>
         <p className="login-subtitle">Please login to your account</p>
@@ -71,6 +74,12 @@ const Login: React.FC = () => {
           <button type="submit" className="login-button">
             Login
           </button>
+          <button
+                  className="register-button"
+                  onClick={() => navigate('/register', { state: { from: '/login' } })}
+                >
+                  Đăng ký
+                </button>
         </form>
       </div>
     </div>

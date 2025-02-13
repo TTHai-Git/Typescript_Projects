@@ -6,10 +6,12 @@ export interface User {
 export interface AccessTokenInfo {
     accessToken: string;
     expiresIn: number;
+    refreshToken: string;
   }
 
 export interface UserState extends User {
     isAuthenticated: boolean;
+    id: Number
     name: string;
     avatar: string;
     email: string;

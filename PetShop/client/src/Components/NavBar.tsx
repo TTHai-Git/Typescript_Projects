@@ -18,7 +18,7 @@ export const NavBar = () => {
         </Link>
         {user ? <><Link to={"/userinfo"} >User Account</Link></> : <><Link to={"/login"} >Login</Link></>}
         
-        <Link to={"/register"}>Register</Link>
+        {!user ? <Link to={"/register"}>Register</Link> : <></>}
     </nav>
     </>
   )

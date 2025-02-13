@@ -1,12 +1,11 @@
 const jwt = require('jsonwebtoken');
-const bcrypt = require ('bcryptjs');
+const bcrypt = require('bcryptjs');
 const User = require('../models/user.model.js');
 
 const SECRET_KEY = process.env.JWT_SECRET;
 
-// Register User
 const register = async (req, res) => {
-  const { username, password } = req.body;
+  const { id, username, password, name, email, phone, address, avatar } = req.body;
 
   try {
     // Check if user exists
@@ -19,7 +18,7 @@ const register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Save user to MongoDB
-    const newUser = new User({ username, password: hashedPassword });
+    const newUser = new User({ id, username, password: hashedPassword, name, email, phone, address, avatar });
     await newUser.save();
 
     res.status(201).json({ message: 'User registered successfully' });
@@ -47,7 +46,25 @@ const login = async (req, res) => {
     // Generate JWT token
     const token = jwt.sign({ id: user._id, username: user.username }, SECRET_KEY, { expiresIn: '1h' });
 
-    res.json({ token });
+    // Generate refresh token
+    const refreshToken = jwt.sign({ id: user._id, username: user.username }, SECRET_KEY, { expiresIn: '7d' });
+
+    res.json({
+      user: {
+        id: user.id,
+        username: user.username,
+        name: user.name,
+        avatar: user.avatar,
+        email: user.email,
+        phone: user.phone,
+        address: user.address,
+        accessTokenInfo: {
+          accessToken: token,
+          expiresIn: 3600,
+          refreshToken: refreshToken
+        },
+      }
+    });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });
   }
@@ -57,6 +74,9 @@ const login = async (req, res) => {
 const protectedRoute = (req, res) => {
   res.json({ message: 'This is a protected route', user: req.user });
 };
+
 module.exports = {
-  register,login,protectedRoute
-}
+  register,
+  login,
+  protectedRoute,
+};

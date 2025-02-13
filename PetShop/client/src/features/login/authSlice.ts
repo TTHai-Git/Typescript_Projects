@@ -15,10 +15,6 @@ const authSlice = createSlice({
   reducers: {
     login: (state, action: PayloadAction<UserState>) => {
       state.user = action.payload;
-      state.user.accessTokenInfo = {
-        accessToken: Math.random().toString(36).substring(7),
-        expiresIn: 3600,
-      };
       state.user.isAuthenticated = true;
     },
     logout: (state) => {
