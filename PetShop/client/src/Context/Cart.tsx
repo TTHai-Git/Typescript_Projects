@@ -5,11 +5,11 @@ import { useNavigate } from "react-router";
 interface CartContextType {
   cartItems: DogsCart[];
   addToCart: (item: DogsCart) => void;
-  removeFromCart: (id: number) => void;
-  increaseQuantity: (id: number) => void;
-  decreaseQuantity: (id: number) => void;
+  removeFromCart: (_id: string) => void;
+  increaseQuantity: (_id: string) => void;
+  decreaseQuantity: (_id: string) => void;
   checkOutFromCart: () => void;
-
+  caculateTotalOfCart: () => Number;
 }
 
 interface CartProviderProps {
@@ -23,6 +23,7 @@ const CartContext = createContext<CartContextType>({
   increaseQuantity: () => {},
   decreaseQuantity: () => {},
   checkOutFromCart: () => {},
+  caculateTotalOfCart:  Number,
 });
 
 export const useCart = () => useContext(CartContext);
@@ -33,10 +34,10 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   const addToCart = (item: DogsCart) => {
     setCartItems((prevItems) => {
-      const itemInCart = prevItems.find((i) => i.id === item.id);
+      const itemInCart = prevItems.find((i) => i._id === item._id);
       if (itemInCart) {
         return prevItems.map((i) =>
-          i.id === item.id ? { ...i, quantity: (i.quantity || 1) + 1 } : i
+          i._id === item._id ? { ...i, quantity: (i.quantity || 1) + 1 } : i
         );
       }
       return [...prevItems, { ...item, quantity: 1 }];
@@ -44,47 +45,50 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     alert(`${item.name} has been added to your cart!`)
   };
 
-  const removeFromCart = (id: number) => {
-    setCartItems(prev => prev.filter(item => item.id !== id));
+  const removeFromCart = (_id: string) => {
+    setCartItems(prev => prev.filter(item => item._id !== _id ));
   };
 
-  const increaseQuantity = (id: number) => {
+  const increaseQuantity = (_id: string) => {
     setCartItems((prevItems) => {
-      const itemInCart = prevItems.find((i) => i.id === id);
+      const itemInCart = prevItems.find((i) => i._id === _id);
       if (itemInCart) {
         return prevItems.map((i) =>
-          i.id === id ? { ...i, quantity: (i.quantity || 1) + 1 } : i
+          i._id === _id ? { ...i, quantity: (i.quantity || 1) + 1 } : i
         );
       }
       return [...prevItems];
     });
   };
 
-  const decreaseQuantity = (id: number) => {
+  const decreaseQuantity = (_id: string) => {
     setCartItems((prevItems) => {
-      const itemInCart = prevItems.find((i) => i.id === id);
+      const itemInCart = prevItems.find((i) => i._id === _id);
       if (itemInCart && itemInCart.quantity && itemInCart.quantity > 1) {
         return prevItems.map((i) =>
-          i.id === id ? { ...i, quantity: (i.quantity || 1) - 1 } : i
+          i._id === _id ? { ...i, quantity: (i.quantity || 1) - 1 } : i
         );
       }
       else{
-        return prevItems.filter((i) => i.id !== id);
+        return prevItems.filter((i) => i._id !== _id);
       }
       
     });
   };
 
-  const checkOutFromCart = () => {
+  const caculateTotalOfCart = () => {
     const total:Number = cartItems.reduce((sum:number, item) => sum + (Number(item.price) * Number(item.quantity)), 0);
-    alert(`Thank you for shopping with us! Total: $${Number(total)}`);
+    return total
+  }
+
+  const checkOutFromCart = () => {
+    alert(`Thank you for shopping with us! Total: $${Number(caculateTotalOfCart())}`);
     setCartItems([]);
     navigate('/');
-
   }
 
   return (
-    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, decreaseQuantity, increaseQuantity, checkOutFromCart }}>
+    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, decreaseQuantity, increaseQuantity, checkOutFromCart, caculateTotalOfCart }}>
       {children}
     </CartContext.Provider>
   );

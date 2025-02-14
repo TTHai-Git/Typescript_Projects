@@ -1,10 +1,6 @@
 const mongoose = require('mongoose');
 
 const DogSchema = new mongoose.Schema({
-        id: {
-            type: Number,
-            
-        },
         name: {
             type: String,
             

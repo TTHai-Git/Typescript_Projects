@@ -8,7 +8,6 @@ const Register = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [userRegister, setUserRegister] = useState({
-    id: Math.floor(Math.random() * 100) + 1, // Generate a random integer between 1 and 100
     username: "",
     password: "",
     avatar: null as File | null,
@@ -41,11 +40,11 @@ const Register = () => {
     try {
       const res_1 = await axios.post(
         "https://api.cloudinary.com/v1_1/dh5jcbzly/image/upload", data);
-      console.log(res_1);
+      // console.log(res_1);
       userRegister.avatar = res_1.data.secure_url;
 
       const res_2 = await axios.post('/api/auth/register', userRegister);
-      console.log(res_2);
+      // console.log(res_2);
       if (res_2.status === 201) {
         navigate('/login');
       }

@@ -1,6 +1,5 @@
 const express = require("express");
-const Dog = require("../models/dog.model");
-const { getDogs, getDog, createDog, updateDog, deleteDog } = require("../controllers/dog.controller");
+const { getDogs, getDog, createDog, updateDog, deleteDog } = require("../controllers/dog");
 
 const router = express.Router();
 

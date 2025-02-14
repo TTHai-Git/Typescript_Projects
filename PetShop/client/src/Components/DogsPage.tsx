@@ -9,24 +9,18 @@ interface Prop {
 
 const DogsPage:React.FC<Prop> = (pros) => {
   const dogs = pros.dogs
-  const {addToCart, cartItems} = useCart()
+  const {addToCart} = useCart()
   
   const handleAddToCart = (dog: DogsCart) => {
     addToCart(dog)
-    console.log(cartItems)
   };
-
-  useEffect(() => {
-    console.log(dogs)}
-    ,[])
-    
   return (
     <>
     <section className="dogs-container">
       <h1 className="header">Our Dogs</h1>
       <div className="dog-list">
         {dogs.map((dog) => (
-          <div key={dog.id} className="dog-card">
+          <div key={dog._id} className="dog-card">
             <img src={dog.imageUrl} alt={dog.name} />
             <h3>{dog.name}</h3>
             <p>{dog.breed}</p>

@@ -1,11 +1,11 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const User = require('../models/user.model.js');
+const User = require('../models/user.js');
 
 const SECRET_KEY = process.env.JWT_SECRET;
 
 const register = async (req, res) => {
-  const { id, username, password, name, email, phone, address, avatar } = req.body;
+  const {username, password, name, email, phone, address, avatar } = req.body;
 
   try {
     // Check if user exists
@@ -18,7 +18,7 @@ const register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Save user to MongoDB
-    const newUser = new User({ id, username, password: hashedPassword, name, email, phone, address, avatar });
+    const newUser = new User({username, password: hashedPassword, name, email, phone, address, avatar });
     await newUser.save();
 
     res.status(201).json({ message: 'User registered successfully' });
@@ -51,7 +51,7 @@ const login = async (req, res) => {
 
     res.json({
       user: {
-        id: user.id,
+        _id: user._id,
         username: user.username,
         name: user.name,
         avatar: user.avatar,

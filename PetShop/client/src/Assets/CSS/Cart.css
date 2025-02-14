@@ -140,7 +140,34 @@
   .login-btn:hover {
     background-color: #0acdf0;
   }
+
+  .loading-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid #4a90e2;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+  }
   
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  @media (max-width: 480px) {
+    .register-form {
+      padding: 1.5rem;
+    }
+    
+    .register-form h2 {
+      font-size: 1.5rem;
+    }
+  }
   @media (max-width: 600px) {
     .cart-item {
       flex-direction: column;

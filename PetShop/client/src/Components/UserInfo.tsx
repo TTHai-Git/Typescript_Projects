@@ -10,6 +10,8 @@ const UserInfo = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  console.log(user)
+
   const handleLogOut = () => {
     dispatch(logout());
     navigate('/login');
@@ -26,11 +28,12 @@ const UserInfo = () => {
         {user && (
           <div className="user-details">
             <img src={user.avatar} alt="User Avatar" className="user-avatar" />
-            
+            <p><strong>Code:</strong> {user._id}</p>
             <p><strong>Name:</strong> {user.name}</p>
             <p><strong>Email:</strong> {user.email}</p>
             <p><strong>Phone:</strong> {user.phone}</p>
             <p><strong>Address:</strong> {user.address}</p>
+            
             
           </div>
         )}

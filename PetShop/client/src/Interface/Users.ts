@@ -11,7 +11,7 @@ export interface AccessTokenInfo {
 
 export interface UserState extends User {
     isAuthenticated: boolean;
-    id: Number
+    _id:string;
     name: string;
     avatar: string;
     email: string;
