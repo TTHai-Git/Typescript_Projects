@@ -12,11 +12,11 @@ export const NavBar = () => {
     <>
     <nav className="navbar">
         <Link to={"/"}>Home</Link>
-        <Link to={"/dogs"}>Dogs Page</Link>
+        <Link to={"/dogs/1"}>Dogs Page</Link>
         <Link to={"/checkout"}>
           Checkout {cartItems.length > 0 && `(${cartItems.length})`}
         </Link>
-        {user ? <><Link to={"/userinfo"} >User Account</Link></> : <><Link to={"/login"} >Login</Link></>}
+        {user && user.isAuthenticated ? <><Link to={"/userinfo"} >Xin chào {user.username}</Link></> : <><Link to={"/login"} >Login</Link></>}
         
         {!user ? <Link to={"/register"}>Register</Link> : <></>}
     </nav>

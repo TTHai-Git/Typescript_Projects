@@ -3,7 +3,7 @@ const { getDogs, getDog, createDog, updateDog, deleteDog } = require("../control
 
 const router = express.Router();
 
-router.get("/", getDogs);
+router.get("/:page", getDogs);
 router.get('/:id', getDog)
 router.post('/',createDog)
 router.put('/:id', updateDog)

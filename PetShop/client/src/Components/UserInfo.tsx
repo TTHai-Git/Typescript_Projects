@@ -10,16 +10,16 @@ const UserInfo = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  console.log(user)
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+    }
+  }, [user, navigate]);
 
   const handleLogOut = () => {
     dispatch(logout());
     navigate('/login');
   };
-
-  useEffect(() => {
-    console.log(user);
-  }, [user]);
 
   return (
     <div className="user-info-container">
@@ -37,7 +37,11 @@ const UserInfo = () => {
             
           </div>
         )}
-        <button className="logout-button" onClick={handleLogOut}>Logout</button>
+        <div className='user-info-buttons'>
+          <button className="logout-button" onClick={handleLogOut}>Logout</button>
+          <button className="follow-button" onClick={() => navigate(`${user?._id}/orders/1`)}>Follow Orders</button>
+        </div>
+        
       </div>
     </div>
   );

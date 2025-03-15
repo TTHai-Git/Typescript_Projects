@@ -1,10 +1,25 @@
 import mongoose from "mongoose";
 import Dog from "../models/dog.js"; // Ensure the correct import
 
-export const getDogs = async (req, res) => {
+export const getDogs = async (req , res) => {
+    const perPage = 5; // Number of items per page
+    const page = parseInt(req.params.page) || 1; // Convert page to a number
+
     try {
-        const dogs = await Dog.find();
-        res.status(200).json(dogs);
+        // Fetch dogs with pagination
+        const dogs = await Dog.find()
+            .skip((perPage * (page - 1))) // Corrected the skip logic
+            .limit(perPage);
+
+        // Count total documents
+        const count = await Dog.countDocuments();
+
+        res.status(200).json({
+            dogs,
+            current: page, // Current page
+            pages: Math.ceil(count / perPage), // Total number of pages
+            total: count, // Total number of dogs
+        });
     } catch (error) {
         console.error("Error fetching dogs:", error);
         res.status(500).json({ message: "Server error", error });

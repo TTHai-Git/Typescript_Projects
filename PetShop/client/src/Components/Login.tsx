@@ -28,7 +28,7 @@ const Login: React.FC = () => {
         ...user,
         isAuthenticated: true,
       }));
-      navigate('/dogs');
+      navigate('/dogs/1');
       } else {
       alert('Invalid username or password');
       }

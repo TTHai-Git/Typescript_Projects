@@ -9,6 +9,12 @@ const mongoose = require('mongoose')
         },
         status: {
             type: String, enum: ['Pending', 'Shipped', 'Delivered'], default: 'Pending'
+        },
+        createdDate: {
+            type: Date, default: Date
+        },
+        updatedDate: {
+            type: Date, default: Date
         }
     }
 )
