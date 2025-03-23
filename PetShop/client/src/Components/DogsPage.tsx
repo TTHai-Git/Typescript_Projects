@@ -4,6 +4,9 @@ import { Dog, DogsCart } from "../Interface/Dogs";
 import '../Assets/CSS/DogsPage.css';
 import { useCart } from "../Context/Cart";
 import axios from "axios";
+import { Button } from "@mui/material";
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
+import InfoIcon from '@mui/icons-material/Info';
 
 const DogsPage: React.FC = () => {
   const { addToCart } = useCart();
@@ -21,6 +24,7 @@ const DogsPage: React.FC = () => {
       try {
         const response = await axios.get(`/v1/dogs/${current}`);
         setDogs(response.data.dogs);
+        console.log(response.data.dogs)
         setPages(response.data.pages);
         setTotal(response.data.total);
       } catch (error) {
@@ -32,8 +36,8 @@ const DogsPage: React.FC = () => {
     fetchDogs();
   }, [current]); // Fetch new dogs when `current` page changes
 
-  const handleAddToCart = (dog: DogsCart) => {
-    addToCart(dog);
+  const handleAddToCart = (dog: DogsCart, quantity: number) => {
+    addToCart(dog, quantity);
   };
 
   const changePage = (newPage: number) => {
@@ -45,18 +49,19 @@ const DogsPage: React.FC = () => {
 
   return (
     <section className="dogs-container">
-      <h1 className="header">Our Dogs</h1>
-      <p className="total-count">Total Dogs: {total}</p>
+      {/* <h1 className="header">Our Dogs</h1> */}
+      {/* <p className="total-count">Total Dogs: {total}</p> */}
       {loading ? (<p className="loading">🔄 Loading order details...</p>) : (<div className="dog-list">
         {dogs.map((dog) => (
           <div key={dog._id} className="dog-card">
             <img src={dog.imageUrl} alt={dog.name} />
             <h3>{dog.name}</h3>
-            <p>{dog.breed}</p>
+            
             <p>${dog.price}</p>
-            <button className="add-to-cart-btn" onClick={() => handleAddToCart(dog)}>
-              Add to Cart
+            <button className="add-to-cart-btn" onClick={() => handleAddToCart(dog,1)}>
+              <AddShoppingCartIcon/> Add to Cart
             </button>
+            <Button variant="contained" onClick={() => navigate(`/dogs/${current}/dog/${dog._id}/info`)}><InfoIcon/> See Details </Button>
           </div>
         ))}
       </div>)}

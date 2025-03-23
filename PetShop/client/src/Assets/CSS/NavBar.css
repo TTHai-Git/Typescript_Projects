@@ -36,7 +36,6 @@
   
   /* User Greeting */
   .navbar a:last-child {
-    background: #4caf50;
     color: white;
     border-radius: 5px;
   }

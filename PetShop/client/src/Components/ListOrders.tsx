@@ -3,15 +3,18 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import '../Assets/CSS/ListOrders.css';
 import formatDate from '../Convert/formatDate ';
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
+import Order from '../Interface/Order';
 
 const ListOrders = () => {
   const { user_id } = useParams()
   const { page } = useParams<{ page?: string }>(); // Get page number from URL
-  const [orders, setOrders] = useState<any[]>([])
+  const [orders, setOrders] = useState<Order[]>([])
   const [current, setCurrent] = useState<number>(Number(page) || 1);
   const [pages, setPages] = useState<number>(0);
   const [total, setTotal] = useState<number>(0);
   const [loading, setLoading] = useState(false)
+  const [count, setCount] = useState<number>(1)
   const navigate = useNavigate()
 
   const getListOrders = async () => {
@@ -20,7 +23,9 @@ const ListOrders = () => {
       const response = await axios.get(`/v1/orders/${user_id}/${current}`)
       // console.log(response.data)
       if (response.status === 200) {
+        console.log(response.data.orders)
         setOrders(response.data.orders)
+        console.log(orders)
         setPages(response.data.pages)
         setTotal(response.data.total)
       } else {
@@ -66,8 +71,8 @@ const ListOrders = () => {
           <tbody>
             {orders.length > 0 ? (
               orders.map((order) => (
-                <tr key={order._id} className="text-center">
-                  <td className="border px-4 py-2">{order._id}</td>
+                <tr key={order.orderId} className="text-center">
+                  <td className="border px-4 py-2">{order.orderId}</td>
                   <td className="border px-4 py-2">${order.totalPrice}</td>
                   <td className="border px-4 py-2">{order.status}</td>
                   <td className="border px-4 py-2">
@@ -77,7 +82,7 @@ const ListOrders = () => {
                   {formatDate(order.createdDate)}
                   </td>
                   <td className="border px-4 py-2">
-                    <button className="btn btn-primary" onClick={() => navigate(`/userinfo/${user_id}/orders/${order._id}/orderDetails/1`)} >View</button>
+                    <button className="btn btn-primary" onClick={() => navigate(`/userinfo/${user_id}/orders/${order.orderId}/orderDetails/1`)} ><RemoveRedEyeIcon/> View </button>
                   </td>
                 </tr>
               ))

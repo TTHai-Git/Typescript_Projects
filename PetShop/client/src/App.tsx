@@ -12,6 +12,7 @@ import store from './store';
 import UserInfo from './Components/UserInfo';
 import ListOrders from './Components/ListOrders';
 import ListOrderDetails from './Components/ListOrderDetails';
+import DogInfo from './Components/DogInfo';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
               <Route path="/userinfo" element={<UserInfo/>} />
               <Route path="/userinfo/:user_id/orders/:page" element={<ListOrders/>}/>
               <Route path="/userinfo/:user_id/orders/:order_id/orderDetails/:page" element={<ListOrderDetails/>}/>
+              <Route path="/dogs/:page/dog/:dog_id/info" element={<DogInfo/>}/>
             </Routes>
           </div>
         </CartProvider>

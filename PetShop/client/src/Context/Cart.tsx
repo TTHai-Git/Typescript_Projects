@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 
 interface CartContextType {
   cartItems: DogsCart[];
-  addToCart: (item: DogsCart) => void;
+  addToCart: (item: DogsCart, quantity: number) => void;
   removeFromCart: (_id: string) => void;
   increaseQuantity: (_id: string) => void;
   decreaseQuantity: (_id: string) => void;
@@ -32,18 +32,19 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [cartItems, setCartItems] = useState<DogsCart[]>([]);
   const navigate = useNavigate();
 
-  const addToCart = (item: DogsCart) => {
+  const addToCart = (item: DogsCart, quantity:number) => {
+    console.log(quantity)
     setCartItems((prevItems) => {
       const itemInCart = prevItems.find((i) => i._id === item._id);
       if (itemInCart) {
-        return prevItems.map((i) =>
-          i._id === item._id ? { ...i, quantity: (i.quantity || 1) + 1 } : i
-        );
+          return prevItems.map((i) => i._id === item._id ? { ...i, quantity: (i.quantity || 1) + quantity } : i);
       }
-      return [...prevItems, { ...item, quantity: 1 }];
+      return [...prevItems, { ...item, quantity: quantity }];
     })
     alert(`${item.name} has been added to your cart!`)
   };
+
+  
 
   const removeFromCart = (_id: string) => {
     setCartItems(prev => prev.filter(item => item._id !== _id ));

@@ -4,6 +4,8 @@ import { RootState } from '../store';
 import { useNavigate } from 'react-router';
 import { logout } from '../features/login/authSlice';
 import '../Assets/CSS/UserInfo.css';
+import LogoutIcon from '@mui/icons-material/Logout';
+import ReceiptIcon from '@mui/icons-material/Receipt';
 
 const UserInfo = () => {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -28,7 +30,6 @@ const UserInfo = () => {
         {user && (
           <div className="user-details">
             <img src={user.avatar} alt="User Avatar" className="user-avatar" />
-            <p><strong>Code:</strong> {user._id}</p>
             <p><strong>Name:</strong> {user.name}</p>
             <p><strong>Email:</strong> {user.email}</p>
             <p><strong>Phone:</strong> {user.phone}</p>
@@ -38,8 +39,8 @@ const UserInfo = () => {
           </div>
         )}
         <div className='user-info-buttons'>
-          <button className="logout-button" onClick={handleLogOut}>Logout</button>
-          <button className="follow-button" onClick={() => navigate(`${user?._id}/orders/1`)}>Follow Orders</button>
+          <button className="logout-button" onClick={handleLogOut}> <LogoutIcon/> Logout </button>
+          <button className="follow-button" onClick={() => navigate(`${user?._id}/orders/1`)}><ReceiptIcon/> Follow Orders </button>
         </div>
         
       </div>
