@@ -18,6 +18,14 @@ h1 {
   font-weight: bold;
 }
 
+h2.count {
+  text-align: center;
+  font-size: 26px;
+  color: #bf1e0e;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
 /* Table Styles */
 .table-container {
   overflow-x: auto;

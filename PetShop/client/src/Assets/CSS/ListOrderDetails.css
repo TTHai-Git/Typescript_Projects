@@ -84,6 +84,16 @@ tbody tr:hover {
     transition: background 0.3s ease-in-out;
 }
 
+
+h2.count {
+    text-align: center;
+    font-size: 26px;
+    color: #bf1e0e;
+    margin-bottom: 20px;
+    font-weight: bold;
+    }
+
+
 /* Pagination Buttons */
 .page-btn {
     background-color: #ff9800;

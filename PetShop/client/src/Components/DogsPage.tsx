@@ -49,8 +49,8 @@ const DogsPage: React.FC = () => {
 
   return (
     <section className="dogs-container">
-      {/* <h1 className="header">Our Dogs</h1> */}
-      {/* <p className="total-count">Total Dogs: {total}</p> */}
+      <h1 className="header">Our Dogs</h1>
+      
       {loading ? (<p className="loading">🔄 Loading order details...</p>) : (<div className="dog-list">
         {dogs.map((dog) => (
           <div key={dog._id} className="dog-card">
@@ -66,7 +66,7 @@ const DogsPage: React.FC = () => {
         ))}
       </div>)}
       
-
+      <h2 className="count">Total Dogs: {total}</h2>
       {/* Pagination Controls */}
       <div className="pagination">
         <button className="page-btn" onClick={() => changePage(1)} disabled={current === 1}>

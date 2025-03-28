@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router'
 import '../Assets/CSS/ListOrders.css';
 import formatDate from '../Convert/formatDate ';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-import Order from '../Interface/Order';
+import Order from '../Interface/Orders';
 
 const ListOrders = () => {
   const { user_id } = useParams()
@@ -52,7 +52,7 @@ const ListOrders = () => {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-xl font-bold mb-4">DANH SÁCH ĐƠN ĐẶT HÀNG</h1>
-      <p className="total-count">Total Orders: {total}</p>
+      
 
       {loading ? (
         <p className="loading">🔄 Loading order details...</p>
@@ -97,6 +97,7 @@ const ListOrders = () => {
         </table>
         
       )}
+      <h2 className="count">Total Orders: {total}</h2>
       <div className="pagination">
         <button className="page-btn" onClick={() => changePage(1)} disabled={current === 1}>
           First

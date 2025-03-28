@@ -62,13 +62,10 @@ const getOrderDetails = async (req, res) => {
       const dog = await Dog.findById(item.dog);
       if (dog) {
         results.push({
-          STT: index++,
-          DogName: dog.name,
-          DogBreed: dog.breed,
-          DogDescription: dog.description,
-          DogImageUrl: dog.imageUrl,
-          Quantity: item.quantity,
-          DogPrice: dog.price,
+          sTT: index++,
+          orderId: orderId,
+          dog: dog,
+          quantity: item.quantity,
           totalPrice: dog.price * item.quantity,
         });
       }

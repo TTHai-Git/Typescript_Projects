@@ -2,12 +2,13 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import '../Assets/CSS/ListOrderDetails.css';
+import OrderDetails from '../Interface/OrderDetails';
 
 export const ListOrderDetails = () => {
   const { order_id } = useParams();
   const { user_id } = useParams()
   const { page } = useParams<{ page?: string }>(); // Get page number from URL
-  const [orderDetails, setOrderDetails] = useState<any[]>([]);
+  const [orderDetails, setOrderDetails] = useState<OrderDetails[]>([]);
   const [current, setCurrent] = useState<number>(Number(page) || 1);
   const [pages, setPages] = useState<number>(0);
   const [total, setTotal] = useState<number>(0);
@@ -46,7 +47,7 @@ export const ListOrderDetails = () => {
 
   return (
     <div className="container">
-      <h1 className="title">🐶 DANH SÁCH CHI TIẾT CỦA ĐƠN ĐẶT HÀNG</h1>
+      <h1 className="title">🐶 DANH SÁCH CHI TIẾT CỦA ĐƠN ĐẶT HÀNG</h1>      
 
       {loading ? (
         <p className="loading">🔄 Loading order details...</p>
@@ -67,16 +68,16 @@ export const ListOrderDetails = () => {
             </thead>
             <tbody>
               {orderDetails.map((order) => (
-                <tr key={order.STT}>
-                  <td>{order.STT}</td>
+                <tr key={order.sTT}>
+                  <td>{order.sTT}</td>
                   <td>
-                    <img src={order.DogImageUrl} alt={order.DogName} className="dog-image" />
+                    <img src={order.dog.imageUrl} alt={order.dog.name} className="dog-image" />
                   </td>
-                  <td>{order.DogName}</td>
-                  <td>{order.DogBreed}</td>
-                  <td>{order.DogDescription}</td>
-                  <td>{order.Quantity}</td>
-                  <td>${order.DogPrice}</td>
+                  <td>{order.dog.name}</td>
+                  <td>{order.dog.breed}</td>
+                  <td>{order.dog.description}</td>
+                  <td>{order.quantity}</td>
+                  <td>${order.dog.price}</td>
                   <td className="total-price">${order.totalPrice}</td>
                 </tr>
               ))}
@@ -86,6 +87,7 @@ export const ListOrderDetails = () => {
       ) : (
         <p className="no-data">❌ No order details found.</p>
       )}
+      <h2 className='count'>Tổng Số Con Chó Trong Đơn Hàng Là {orderDetails.length}</h2>
       <div className="pagination">
         <button className="page-btn" onClick={() => changePage(1)} disabled={current === 1}>
           First
