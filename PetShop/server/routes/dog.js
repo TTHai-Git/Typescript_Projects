@@ -1,18 +1,18 @@
-const express = require("express");
-const {
+import { Router } from "express";
+import {
   getDogs,
   getDog,
   createDog,
   updateDog,
   deleteDog,
-} = require("../controllers/dog");
+} from "../controllers/dog.js";
 
-const router = express.Router();
+const dogRoutes = Router();
 
-router.get("/:page", getDogs);
-router.get("/:page/dog/:id/info", getDog);
-router.post("/", createDog);
-router.put("/:id", updateDog);
-router.delete("/:id", deleteDog);
+dogRoutes.get("/:page", getDogs);
+dogRoutes.get("/:page/dog/:id/info", getDog);
+dogRoutes.post("/", createDog);
+dogRoutes.put("/:id", updateDog);
+dogRoutes.delete("/:id", deleteDog);
 
-module.exports = router;
+export default dogRoutes;

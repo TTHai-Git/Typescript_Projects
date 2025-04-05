@@ -3,7 +3,7 @@ interface Order {
     userId: string,
     totalPrice:number,
     status: string,
-    createdDate: string,
-    updatedDate: string,
+    createdAt: string,
+    updatedAt: string,
 }
 export default Order

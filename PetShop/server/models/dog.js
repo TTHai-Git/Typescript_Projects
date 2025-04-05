@@ -1,21 +1,27 @@
-const mongoose = require("mongoose");
+import { Schema, model } from "mongoose";
 
-const DogSchema = new mongoose.Schema(
+const DogSchema = new Schema(
   {
     name: {
       type: String,
+      required: true,
+      unique: true,
     },
     breed: {
       type: String,
+      required: true,
     },
     price: {
       type: Number,
+      required: true,
     },
     description: {
       type: String,
+      default: "",
     },
     imageUrl: {
       type: String,
+      default: "",
     },
   },
   {
@@ -23,5 +29,5 @@ const DogSchema = new mongoose.Schema(
   }
 );
 
-const Dog = mongoose.model("Dog", DogSchema);
-module.exports = Dog;
+const Dog = model("Dog", DogSchema);
+export default Dog;

@@ -76,10 +76,10 @@ const ListOrders = () => {
                   <td className="border px-4 py-2">${order.totalPrice}</td>
                   <td className="border px-4 py-2">{order.status}</td>
                   <td className="border px-4 py-2">
-                  {formatDate(order.createdDate)}
+                  {formatDate(order.createdAt)}
                   </td>
                   <td className="border px-4 py-2">
-                  {formatDate(order.createdDate)}
+                  {formatDate(order.createdAt)}
                   </td>
                   <td className="border px-4 py-2">
                     <button className="btn btn-primary" onClick={() => navigate(`/userinfo/${user_id}/orders/${order.orderId}/orderDetails/1`)} ><RemoveRedEyeIcon/> View </button>

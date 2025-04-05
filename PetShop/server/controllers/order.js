@@ -1,7 +1,9 @@
-const Dog = require("../models/dog.js");
-const Order = require("../models/order.js");
-const OrderDetails = require("../models/orderdetails.js");
-const createOrder = async (req, res) => {
+import Dog from "../models/dog.js";
+import Order from "../models/order.js";
+import OrderDetails from "../models/orderdetails.js";
+import mongoose from "mongoose";
+
+export const createOrder = async (req, res) => {
   try {
     const newOrder = await Order.create(req.body);
     res.status(201).json(newOrder);
@@ -10,17 +12,22 @@ const createOrder = async (req, res) => {
   }
 };
 
-const getOrdersOfCustomer = async (req, res) => {
+export const getOrdersOfCustomer = async (req, res) => {
   const perPage = 5;
   const page = parseInt(req.params.page) || 1;
   try {
     const { user_id } = req.params;
-    // console.log(user_id)
+
     const orders = await Order.find({ user: user_id })
       .skip(perPage * (page - 1))
       .limit(perPage);
+    // console.log(orders);
     const count = await Order.find({ user: user_id }).countDocuments();
-    // console.log(orders)
+
+    if (!orders || orders.length === 0) {
+      return res.status(404).json({ message: "No orders found" });
+    }
+
     const data = [];
     for (const order of orders) {
       data.push({
@@ -28,8 +35,8 @@ const getOrdersOfCustomer = async (req, res) => {
         userId: order.user,
         totalPrice: order.totalPrice,
         status: order.status,
-        createdDate: order.createdDate,
-        updatedDate: order.updatedDate,
+        createdAt: order.createdAt,
+        updatedAt: order.updatedAt,
       });
     }
 
@@ -44,8 +51,9 @@ const getOrdersOfCustomer = async (req, res) => {
   }
 };
 
-const getOrderDetails = async (req, res) => {
+export const getOrderDetails = async (req, res) => {
   const orderId = req.params.orderId;
+
   const perPage = 5;
   const page = parseInt(req.params.page) || 1;
 
@@ -53,6 +61,12 @@ const getOrderDetails = async (req, res) => {
     const orderDetails = await OrderDetails.find({ order: orderId })
       .skip(perPage * (page - 1))
       .limit(perPage);
+
+    if (!orderDetails || orderDetails.lenght === 0) {
+      return res.status(404).json({ message: "No order details found" });
+    }
+    // console.log(orderDetails)
+
     const count = await OrderDetails.countDocuments({ order: orderId });
     const pages = Math.ceil(count / perPage);
     const results = [];
@@ -81,10 +95,4 @@ const getOrderDetails = async (req, res) => {
     console.error("Error getting order details:", error);
     res.status(500).json({ message: "Server error", error });
   }
-};
-
-module.exports = {
-  createOrder,
-  getOrdersOfCustomer,
-  getOrderDetails,
 };

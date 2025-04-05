@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import Dog from "../models/dog.js"; // Ensure the correct import
+import Dog from "../models/dog.js";
 
 export const getDogs = async (req, res) => {
   const perPage = 5; // Number of items per page
@@ -13,6 +13,10 @@ export const getDogs = async (req, res) => {
 
     // Count total documents
     const count = await Dog.countDocuments();
+
+    if (!dogs || dogs.length === 0) {
+      return res.status(404).json({ message: "No dogs found" });
+    }
 
     const data = [];
     for (const dog of dogs) {
@@ -39,10 +43,6 @@ export const getDog = async (req, res) => {
   try {
     const { id } = req.params;
     // console.log("Received ID:", id);
-
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid ID format" });
-    }
 
     const dog = await Dog.findById(id);
     if (!dog) {
@@ -71,13 +71,18 @@ export const updateDog = async (req, res) => {
     const { id } = req.params;
     // console.log("Received ID:", id);
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid ID format" });
+    // Ensure request body is not empyt
+    if (Object.keys(req.body).lenghth === 0) {
+      return res.status(400).json({ message: "Update data is required" });
     }
 
-    const dog = await Dog.findByIdAndUpdate(id, req.body, { new: true });
+    const dog = await Dog.findByIdAndUpdate(id, req.body, {
+      new: true, // Return the updated document
+      runValidators: true, // Validate the updated fields against the schema
+    });
+
     if (!dog) {
-      return res.status(404).json({ message: "No Dog Found" });
+      return res.status(404).json({ message: "No Dog Found To Update" });
     }
 
     res.status(200).json(dog);
@@ -92,16 +97,12 @@ export const deleteDog = async (req, res) => {
     const { id } = req.params;
     console.log("Received ID:", id);
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid ID format" });
-    }
-
     const dog = await Dog.findByIdAndDelete(id);
     if (!dog) {
       return res.status(404).json({ message: "No Dog Found" });
     }
 
-    res.status(200).json({ message: "Dog Deleted" });
+    res.status(204).json({ message: "Dog Deleted Successfully " });
   } catch (error) {
     console.error("Error deleting dog:", error);
     res.status(500).json({ message: "Error deleting dog", error });
