@@ -41,6 +41,5 @@ docker-compose.override.yml
 .vscode/
 
 # Ignore package managers lock files (optional, depending on team workflow)
-package-lock.json
 yarn.lock
 pnpm-lock.yaml
