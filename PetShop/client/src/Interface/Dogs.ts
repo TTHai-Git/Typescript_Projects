@@ -4,7 +4,7 @@ export interface Dog {
     breed: string;
     price: number;
     imageUrl: string;
-    description:string
+    description:string;
 }
 
 export interface DogsCart extends Dog{

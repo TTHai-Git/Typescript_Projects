@@ -9,7 +9,7 @@ const ProductSchema = new Schema(
     status: { type: Boolean, default: true },
     category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
     brand: { type: Schema.Types.ObjectId, ref: "Brand", required: true },
-    vendor: { type: Schema.Types.ObjectId, ref: "Vendor" },
+    vendor: { type: Schema.Types.ObjectId, ref: "Vendor", required: true },
   },
   {
     timestamps: true,

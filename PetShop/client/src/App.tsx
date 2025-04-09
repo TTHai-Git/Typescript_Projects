@@ -13,6 +13,10 @@ import UserInfo from './Components/UserInfo';
 import ListOrders from './Components/ListOrders';
 import ListOrderDetails from './Components/ListOrderDetails';
 import DogInfo from './Components/DogInfo';
+import Products from './Components/Products';
+import ProductClothesType from './Components/ProductClothesType';
+import ProductAccessoryType from './Components/ProductAccessoryType';
+import ProductFoodType from './Components/ProductFoodType';
 
 function App() {
   return (
@@ -31,6 +35,10 @@ function App() {
               <Route path="/userinfo/:user_id/orders/:page" element={<ListOrders/>}/>
               <Route path="/userinfo/:user_id/orders/:order_id/orderDetails/:page" element={<ListOrderDetails/>}/>
               <Route path="/dogs/:page/dog/:dog_id/info" element={<DogInfo/>}/>
+              <Route path="/products" element={<Products />} />
+              <Route path="/products/food/:product_id" element={<ProductFoodType/>}/>
+              <Route path="/products/clothes/:product_id" element={<ProductClothesType/>}/>
+              <Route path="/products/accessory/:product_id" element={<ProductAccessoryType/>}/>
             </Routes>
           </div>
         </CartProvider>
