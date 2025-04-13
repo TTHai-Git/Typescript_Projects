@@ -11,9 +11,11 @@ import {
   Box,
   Button,
   Stack,
+  Autocomplete,
+  TextField,
+  InputAdornment,
 } from '@mui/material';
 import {
-  ShoppingCart as ShoppingCartIcon,
   Info as InfoIcon,
   LabelOutlined as LabelOutlinedIcon,
   ChatBubbleOutline as ChatBubbleOutlineIcon,
@@ -24,11 +26,14 @@ import {
   CheckCircleOutline as CheckCircleOutlineIcon,
   CancelOutlined as CancelOutlinedIcon,
 } from '@mui/icons-material';
+import SearchIcon from '@mui/icons-material/Search';
+import SortIcon from '@mui/icons-material/Sort';
 
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Product from '../Interface/Product';
 import { Category } from '../Interface/Category';
 import '../Assets/CSS/Pagination.css';
+import { useCart } from '../Context/Cart';
 
 const Products = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -41,6 +46,10 @@ const Products = () => {
   const categoryId = searchParams.get('category') || '';
   const currentPage = parseInt(searchParams.get('page') || '1');
 
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState('');
+
+
   const navigate = useNavigate();
 
   const loadProducts = async () => {
@@ -48,8 +57,10 @@ const Products = () => {
       setLoading(true);
       const query = new URLSearchParams();
       if (categoryId) query.append('category', categoryId);
+      if (searchTerm) query.append('search', searchTerm);
+      if (sortBy) query.append('sort', sortBy);
       query.append('page', currentPage.toString());
-
+  
       const res = await axios.get(`/v1/products?${query.toString()}`);
       setProducts(res.data.products || []);
       setTotal(res.data.total || 0);
@@ -72,8 +83,11 @@ const Products = () => {
   };
 
   useEffect(() => {
+    const newSearchTerm = searchParams.get('search') || '';
+    const newSortBy = searchParams.get('sort') || '';
+    setSearchTerm(newSearchTerm);
+    setSortBy(newSortBy);
     loadProducts();
-    
   }, [searchParams.toString()]);
 
   useEffect(() => {
@@ -87,11 +101,16 @@ const Products = () => {
       setSearchParams(params);
     }
   };
-
-  const handleAddToCart = (productId: string) => {
-    console.log('Add to cart:', productId);
-  };
-
+  const options = [
+    { label: 'Increasing By Price', id: 'price_asc' },
+    { label: 'Decrease By Price', id: 'price_desc' },
+    { label: 'Latest', id: 'latest' },
+    { label: 'Oldest', id: 'oldest' },
+    { label: 'A-Z', id: 'az' },
+    { label: 'Z-A', id: 'za' },
+  ];
+  
+ 
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" mt={5}>
@@ -106,32 +125,118 @@ const Products = () => {
         Product List: {total} Products
       </Typography>
 
-      {/* Filter Chips */}
-      <Box sx={{ mb: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+      
+      <Box sx={{ mb: 3, display: 'flex', flexDirection: 'column', gap: 3 }}>
+  {/* 🔍 Search Bar - Top Center */}
+  <TextField
+    label="Search"
+    variant="outlined"
+    value={searchTerm}
+    onChange={(e) => setSearchTerm((e.target as HTMLInputElement).value)}
+    onKeyDown={(e) => {
+      if (e.key === 'Enter') {
+        setSearchParams({
+          page: '1',
+          category: categoryId,
+          sort: sortBy,
+          search: searchTerm,
+        });
+      }
+    }}
+    InputProps={{
+      startAdornment: (
+        <InputAdornment position="start">
+          <SearchIcon color="primary" />
+        </InputAdornment>
+      ),
+    }}
+    sx={{
+      width: '100%',
+      maxWidth: 400,
+      alignSelf: 'center',
+      bgcolor: 'white',
+      borderRadius: 2,
+      boxShadow: 2,
+    }}
+  />
+
+  {/* Filter Row: Category on Left, Sort on Right */}
+  <Box sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+    {/* 🏷 Category Chips - Left-aligned */}
+    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+      <Chip
+        label="All"
+        icon={<CategoryIcon />}
+        onClick={() => setSearchParams({ page: '1' })}
+        sx={{
+          cursor: 'pointer',
+          backgroundColor: !categoryId ? 'primary.main' : 'grey.300',
+          color: !categoryId ? 'white' : 'black',
+          '&:hover': {
+            backgroundColor: 'primary.dark',
+            color: 'white',
+          },
+        }}
+      />
+      {categories.map((cat) => (
         <Chip
-          label="All"
+          key={cat._id}
+          label={cat.name}
           icon={<CategoryIcon />}
-          onClick={() => setSearchParams({ page: '1' })}
+          onClick={() => setSearchParams({ category: cat._id, page: '1' })}
           sx={{
             cursor: 'pointer',
-            backgroundColor: !categoryId ? 'primary.main' : 'grey.300',
-            color: !categoryId ? 'white' : 'black',
+            backgroundColor: categoryId === cat._id ? 'primary.main' : 'grey.300',
+            color: categoryId === cat._id ? 'white' : 'black',
+            '&:hover': {
+              backgroundColor: categoryId === cat._id ? 'primary.dark' : 'grey.400',
+              color: 'white',
+            },
           }}
         />
-        {categories.map((cat) => (
-          <Chip
-            key={cat._id}
-            label={cat.name}
-            icon={<CategoryIcon />}
-            onClick={() => setSearchParams({ category: cat._id, page: '1' })}
-            sx={{
-              cursor: 'pointer',
-              backgroundColor: categoryId === cat._id ? 'primary.main' : 'grey.300',
-              color: categoryId === cat._id ? 'white' : 'black',
-            }}
-          />
-        ))}
-      </Box>
+      ))}
+    </Box>
+
+    {/* ⬇️ Sort Dropdown - Right-aligned */}
+    <Autocomplete
+      disablePortal
+      options={options}
+      value={options.find((opt) => opt.id.toString() === sortBy) || null}
+      onChange={(event, newValue) => {
+        const selectedSort = newValue?.id.toString() || '';
+        setSortBy(selectedSort);
+        setSearchParams({
+          page: '1',
+          category: categoryId,
+          search: searchTerm,
+          sort: selectedSort,
+        });
+      }}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label="Sort By"
+          InputProps={{
+            ...params.InputProps,
+            startAdornment: (
+              <InputAdornment position="start">
+                <SortIcon color="secondary" />
+              </InputAdornment>
+            ),
+          }}
+        />
+      )}
+      sx={{
+        width: 300,
+        bgcolor: 'white',
+        borderRadius: 2,
+        boxShadow: 2,
+      }}
+    />
+  </Box>
+</Box>
+
+      
 
       {/* Product Cards */}
       <Grid container spacing={3}>
@@ -183,14 +288,7 @@ const Products = () => {
                 />
 
                 <Stack direction="row" spacing={1}>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    startIcon={<ShoppingCartIcon />}
-                    onClick={() => handleAddToCart(item._id)}
-                  >
-                    Add to Cart
-                  </Button>
+                 
                   <Button
                     variant="outlined"
                     color="info"

@@ -19,8 +19,8 @@ export const NavBar = () => {
   return (
     <>
     <nav className="navbar">
-        <Link to={"/"}> <HomeIcon fontSize="large" /> Home </Link>
-        <Link to={"/dogs/1"}><PetsIcon fontSize='large'/> Dogs Page</Link>
+        <Link to={"/"}> <PetsIcon fontSize="large" /> Introduction </Link>
+        <Link to={"/products"}><HomeIcon fontSize='large'/> Home </Link>
         <Link to={"/checkout"}>
         <Badge badgeContent={cartItems.length > 0 ? `${cartItems.length}`: 0} color="primary" >
         <ShoppingCartIcon fontSize='large'/> 

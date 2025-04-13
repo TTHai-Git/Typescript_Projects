@@ -23,19 +23,22 @@ import {
   SportsEsports,
   Favorite,
   ShoppingCart,
-  Pets,
   Category,
   LocalShipping,
   ArrowBack
 } from '@mui/icons-material';
-import { ProductAccessories } from '../Interface/Product';
+import Product, { ProductAccessories } from '../Interface/Product';
+import { useCart } from '../Context/Cart';
+import NumberInput from './Customs/NumberInput';
 
 const ProductAccessoryType = () => {
+  const {addToCart} = useCart();
   const { product_id } = useParams();
   const location = useLocation();
   const type = location.state;
   const [loading, setLoading] = useState<boolean>(false);
   const [productAccessory, setProductAccessory] = useState<ProductAccessories>();
+  const [selectedQuantity, setSelectedQuantity] = useState<number>(1)
   const navigate = useNavigate()
 
   const loadInfoDetailsOfProduct = async () => {
@@ -50,6 +53,12 @@ const ProductAccessoryType = () => {
       setLoading(false);
     }
   };
+
+  const handleAddToCart = (ProductAccessory: Product, quantity: number) => {
+    ProductAccessory.note = 
+    `Dimensions: ${productAccessory?.dimensions} - Material: ${productAccessory?.material} - Usage: ${productAccessory?.usage}`
+    addToCart(ProductAccessory, quantity)
+  }
 
   const handleBack = () => {
     navigate('/products');
@@ -151,17 +160,19 @@ const ProductAccessoryType = () => {
               </Typography>
 
               {/* Actions */}
-              <Box mt={2}>
+              <Box mt={2} display="flex" alignItems="center" gap={2} mb={2}>
                 <Tooltip title="Add to Wishlist">
                   <IconButton color="error">
                     <Favorite />
                   </IconButton>
                 </Tooltip>
+                
                 <Tooltip title="Add to Cart">
-                  <IconButton color="primary">
+                  <IconButton color="primary" onClick={() => handleAddToCart(productAccessory,selectedQuantity)}>
                     <ShoppingCart />
                   </IconButton>
                 </Tooltip>
+                <NumberInput min={1} defaultValue={1} onChange={(value) => setSelectedQuantity(value)} />
               </Box>
             </CardContent>
           </Card>

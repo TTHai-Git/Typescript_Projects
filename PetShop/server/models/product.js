@@ -8,8 +8,18 @@ const ProductSchema = new Schema(
     imageUrl: { type: String, required: true },
     status: { type: Boolean, default: true },
     category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
-    brand: { type: Schema.Types.ObjectId, ref: "Brand", required: true },
-    vendor: { type: Schema.Types.ObjectId, ref: "Vendor", required: true },
+    brand: {
+      type: Schema.Types.ObjectId,
+      ref: "Brand",
+      required: true,
+      default: null,
+    },
+    vendor: {
+      type: Schema.Types.ObjectId,
+      ref: "Vendor",
+      required: true,
+      default: null,
+    },
   },
   {
     timestamps: true,

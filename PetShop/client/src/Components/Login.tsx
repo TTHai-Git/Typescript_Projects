@@ -4,9 +4,11 @@ import { login } from '../features/login/authSlice';
 import { AppDispatch } from '../store';
 import axios from 'axios';
 import '../Assets/CSS/Login.css';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 
 const Login: React.FC = () => {
+  const location = useLocation();
+  const from = location.state || null;
   const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -18,17 +20,22 @@ const Login: React.FC = () => {
     setLoading(true);
 
     try {
+      console.log(from)
       const response = await axios.post('/api/auth/login', {
       username,
       password
       });
       const user = response.data.user;
       if (user) {
-      dispatch(login({
-        ...user,
-        isAuthenticated: true,
-      }));
-      navigate('/dogs/1');
+        dispatch(login({
+          ...user,
+          isAuthenticated: true,
+        }));
+        if (!from)
+          navigate('/products');
+        else {
+          navigate(`${from}`)
+        }
       } else {
       alert('Invalid username or password');
       }

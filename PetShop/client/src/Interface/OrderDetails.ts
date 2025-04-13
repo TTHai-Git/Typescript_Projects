@@ -1,10 +1,12 @@
-import { Dog } from "./Dogs"
+import { Category } from "./Category";
+import Product from "./Product";
 
 interface OrderDetails {
-    sTT: number,
     orderId: string,
-    dog: Dog,
+    product: Product,
+    category: Category
     quantity: number,
     totalPrice: number,
+    note: string
 }
 export default OrderDetails

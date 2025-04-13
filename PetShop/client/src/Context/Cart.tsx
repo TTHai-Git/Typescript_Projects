@@ -1,10 +1,10 @@
 import { createContext, ReactNode, useContext, useState } from "react";
-import { DogsCart } from "../Interface/Dogs";
 import { useNavigate } from "react-router";
+import Product from "../Interface/Product";
 
 interface CartContextType {
-  cartItems: DogsCart[];
-  addToCart: (item: DogsCart, quantity: number) => void;
+  cartItems: Product[];
+  addToCart: (item: Product, quantity: number) => void;
   removeFromCart: (_id: string) => void;
   increaseQuantity: (_id: string) => void;
   decreaseQuantity: (_id: string) => void;
@@ -29,11 +29,10 @@ const CartContext = createContext<CartContextType>({
 export const useCart = () => useContext(CartContext);
 
 export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
-  const [cartItems, setCartItems] = useState<DogsCart[]>([]);
+  const [cartItems, setCartItems] = useState<any[]>([]);
   const navigate = useNavigate();
 
-  const addToCart = (item: DogsCart, quantity:number) => {
-    console.log(quantity)
+  const addToCart = (item: Product, quantity:number) => {
     setCartItems((prevItems) => {
       const itemInCart = prevItems.find((i) => i._id === item._id);
       if (itemInCart) {

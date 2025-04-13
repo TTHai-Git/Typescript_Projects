@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import '../Assets/CSS/ListOrderDetails.css';
 import OrderDetails from '../Interface/OrderDetails';
+import { Button } from '@mui/material';
+import { ArrowBack } from '@mui/icons-material';
 
 export const ListOrderDetails = () => {
   const { order_id } = useParams();
@@ -14,6 +16,7 @@ export const ListOrderDetails = () => {
   const [total, setTotal] = useState<number>(0);
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  let [numericalOrder, setNumericalOrder] = useState<number>(1)
 
   const getListOrderDetails = async () => {
     setLoading(true);
@@ -34,6 +37,10 @@ export const ListOrderDetails = () => {
     }
   };
 
+  const handleBack = () => {
+    navigate(`/userinfo/${user_id}/orders/1`);
+  };
+
   useEffect(() => {
     getListOrderDetails();
   }, [current]);
@@ -47,6 +54,9 @@ export const ListOrderDetails = () => {
 
   return (
     <div className="container">
+      <Button startIcon={<ArrowBack />} onClick={handleBack} variant="outlined" color="primary">
+        Back to Orders
+      </Button>
       <h1 className="title">🐶 DANH SÁCH CHI TIẾT CỦA ĐƠN ĐẶT HÀNG</h1>      
 
       {loading ? (
@@ -58,27 +68,35 @@ export const ListOrderDetails = () => {
               <tr>
                 <th>#</th>
                 <th>Image</th>
-                <th>Name</th>
-                <th>Breed</th>
+                <th>Product</th>
+                <th>Category</th>
+                {/* <th>Breed</th> */}
                 <th>Description</th>
                 <th>Quantity</th>
-                <th>Price ($)</th>
-                <th>Total Price ($)</th>
+                <th>Price</th>
+                <th>Note</th>
+                <th>Total Price</th>
               </tr>
             </thead>
             <tbody>
-              {orderDetails.map((order) => (
-                <tr key={order.sTT}>
-                  <td>{order.sTT}</td>
+              {orderDetails.map((orderdetail) => (
+                <tr key={orderdetail.orderId}>
+                  <td>{numericalOrder++}</td>
                   <td>
-                    <img src={order.dog.imageUrl} alt={order.dog.name} className="dog-image" />
+                    <img src={orderdetail.product.imageUrl} alt={orderdetail.product.name} className="dog-image" />
                   </td>
-                  <td>{order.dog.name}</td>
-                  <td>{order.dog.breed}</td>
-                  <td>{order.dog.description}</td>
-                  <td>{order.quantity}</td>
-                  <td>${order.dog.price}</td>
-                  <td className="total-price">${order.totalPrice}</td>
+                  <td>{orderdetail.product.name}</td>
+                  <td>{orderdetail.category.name}</td>
+                  {/* <td>{order.product.breed}</td> */}
+                  <td>{orderdetail.product.description}</td>
+                  <td>{orderdetail.quantity}</td>
+                  <td>${orderdetail.product.price}</td>
+                  <td>
+                    {orderdetail.note?.split(' - ').map((line, index) => (
+                      <div key={index}>{line}</div>
+                    ))}
+                  </td>
+                  <td className="total-price">${orderdetail.totalPrice}</td>
                 </tr>
               ))}
             </tbody>
@@ -105,7 +123,10 @@ export const ListOrderDetails = () => {
           Last
         </button>
       </div>
+      
     </div>
+    
+    
   );
 };
 

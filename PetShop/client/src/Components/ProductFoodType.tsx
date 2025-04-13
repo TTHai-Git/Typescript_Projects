@@ -28,9 +28,13 @@ import {
   ArrowBack,
   ShoppingCart,
 } from '@mui/icons-material';
-import { ProductFood } from '../Interface/Product';
+import{ ProductFood } from '../Interface/Product';
+import { useCart } from '../Context/Cart';
+import formatDate from '../Convert/formatDate ';
+import NumberInput from './Customs/NumberInput';
 
 const ProductFoodType = () => {
+  const {addToCart} = useCart()
   const {product_id } = useParams();
   const location = useLocation();
   const type = location.state
@@ -38,6 +42,8 @@ const ProductFoodType = () => {
   const [productFoods, setProductFoods] = useState<ProductFood>();
   const [loading, setLoading] = useState<boolean>(false);
   const [isFavorited, setIsFavorited] = useState<boolean>(false);
+  const [selectedQuantity, setSelectedQuantity] = useState<number>(1)
+  
 
   const loadInfoDetailsOfProduct = async () => {
     try {
@@ -59,10 +65,28 @@ const ProductFoodType = () => {
     setIsFavorited(!isFavorited);
   };
 
-  const handleAddToCart = () => {
-    // You can replace this with actual cart logic
-    alert('Added to cart!');
+  const handleAddToCart = (ProductFood: ProductFood, quantity: number) => {
+    let note = "Ingredients: ";
+  
+    if (ProductFood.ingredients && ProductFood.ingredients.length > 0) {
+      note += ProductFood.ingredients.join(", ");
+    }
+  
+    note += " - RecommendedFor: ";
+  
+    if (ProductFood.recommendedFor && ProductFood.recommendedFor.length > 0) {
+      note += ProductFood.recommendedFor.join(", ");
+    }
+  
+    const formatted = formatDate(`${ProductFood.expirationDate}`)
+    
+    note += ` - ExpirationDate: ${formatted}`;
+  
+    ProductFood.note = note;
+  
+    addToCart(ProductFood, quantity);
   };
+  
 
   const handleBack = () => {
     navigate('/products');
@@ -102,7 +126,7 @@ const ProductFoodType = () => {
           sx={{ objectFit: 'contain', background: '#f9f9f9' }}
         />
         <CardContent>
-          <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Box display="flex" justifyContent="space-between" alignItems="center" gap={2} mb={2}>
             <Typography variant="h4" fontWeight="bold" gutterBottom>
               {productFoods.name}
             </Typography>
@@ -110,10 +134,11 @@ const ProductFoodType = () => {
               startIcon={<ShoppingCart />}
               variant="contained"
               color="success"
-              onClick={handleAddToCart}
+              onClick={() => handleAddToCart(productFoods, selectedQuantity)}
             >
               Add to Cart
             </Button>
+            <NumberInput min={1} defaultValue={1} onChange={(value) => setSelectedQuantity(value)} />
           </Box>
 
           <Typography variant="subtitle1" color="text.secondary" gutterBottom>

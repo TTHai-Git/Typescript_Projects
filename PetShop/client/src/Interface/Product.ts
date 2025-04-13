@@ -1,5 +1,6 @@
 
 import { Brand } from "./Brand";
+import Breed from "./Breed";
 import { Category } from "./Category";
 import { Vendor } from "./Vendor";
 
@@ -14,8 +15,10 @@ export default interface Product {
     type: string;
     brand: Brand;
     vendor: Vendor;
-    createAt: Date;
-    updateAt: Date;
+    createdAt: Date;
+    updatedAt: Date;
+    quantity?: number;
+    note?: string;
 }
 
 export interface ProductFood extends Product {
@@ -36,4 +39,13 @@ export interface ProductAccessories extends Product {
     dimensions: string;
     material: string[];
     usage: string;
+}
+
+export interface ProductDog extends Product {
+    size: string[];
+    age: number;
+    color: string[];
+    weight: number;
+    height: number;
+    breed: Breed;
 }

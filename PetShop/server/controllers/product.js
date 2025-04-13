@@ -1,12 +1,15 @@
 import Brand from "../models/brand.js";
+import Breed from "../models/breed.js";
 import Category from "../models/category.js";
 import Product from "../models/product.js";
 import AccessoryProduct from "../models/productaccessory.js";
 import ClothesProduct from "../models/productclothes.js";
+import DogProduct from "../models/productdog.js";
 import FoodProduct from "../models/productfood.js";
 import Vendor from "../models/vendor.js";
 
 const productTypes = {
+  dog: DogProduct,
   food: FoodProduct,
   clothes: ClothesProduct,
   accessory: AccessoryProduct,
@@ -15,19 +18,55 @@ const productTypes = {
 export const getAllProducts = async (req, res) => {
   const perPage = parseInt(req.query.limit) || 5;
   const page = parseInt(req.query.page) || 1;
-  const { category } = req.query;
+  const { category, search, sort } = req.query;
 
   try {
     const filter = {};
+
+    // 🟦 Category filter
     if (category) {
       filter.category = category;
     }
 
+    // 🔍 Search by name or description (case-insensitive)
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    // ⬆️⬇️ Sort logic
+    let sortOption = {};
+    switch (sort) {
+      case "price_asc": // Increasing by price
+        sortOption.price = 1;
+        break;
+      case "price_desc": // Decrease by price
+        sortOption.price = -1;
+        break;
+      case "latest": // Latest
+        sortOption.createdAt = -1;
+        break;
+      case "oldest": // Oldest
+        sortOption.createdAt = 1;
+        break;
+      case "az": // A-Z by name
+        sortOption.name = 1;
+        break;
+      case "za": // Z-A by name
+        sortOption.name = -1;
+        break;
+      default:
+        sortOption.createdAt = -1;
+    }
+
     const productsFromDB = await Product.find(filter)
+      .sort(sortOption)
       .skip(perPage * (page - 1))
       .limit(perPage);
 
-    const categoryDocs = {}; // cache categories
+    const categoryDocs = {};
     const products = [];
 
     for (const product of productsFromDB) {
@@ -83,6 +122,13 @@ export const getProductById = async (req, res) => {
     const category = await Category.findById(product.category);
     const vendor = await Vendor.findById(product.vendor);
     const brand = await Brand.findById(product.brand);
+    if (type === "dog") {
+      const breed = await Breed.findById(product.breed);
+      if (!breed) {
+        return res.status(404).json({ message: "Breed not found" });
+      }
+      product.breed = breed;
+    }
     const data = {
       ...product._doc,
       category: category,

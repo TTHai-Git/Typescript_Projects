@@ -14,7 +14,7 @@ const ListOrders = () => {
   const [pages, setPages] = useState<number>(0);
   const [total, setTotal] = useState<number>(0);
   const [loading, setLoading] = useState(false)
-  const [count, setCount] = useState<number>(1)
+  let [count, setCount] = useState<number>(1)
   const navigate = useNavigate()
 
   const getListOrders = async () => {
@@ -51,7 +51,7 @@ const ListOrders = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-xl font-bold mb-4">DANH SÁCH ĐƠN ĐẶT HÀNG</h1>
+      <h1 className="text-xl font-bold mb-4">List Orders</h1>
       
 
       {loading ? (
@@ -60,6 +60,7 @@ const ListOrders = () => {
         <table className="min-w-full border border-gray-300">
           <thead>
             <tr className="bg-gray-100">
+              <th className="border px-4 py-2">#</th>
               <th className="border px-4 py-2">Order ID</th>
               <th className="border px-4 py-2">Total Price</th>
               <th className="border px-4 py-2">Status</th>
@@ -72,6 +73,7 @@ const ListOrders = () => {
             {orders.length > 0 ? (
               orders.map((order) => (
                 <tr key={order.orderId} className="text-center">
+                   <td className="border px-4 py-2">{count++}</td>
                   <td className="border px-4 py-2">{order.orderId}</td>
                   <td className="border px-4 py-2">${order.totalPrice}</td>
                   <td className="border px-4 py-2">{order.status}</td>

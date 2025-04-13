@@ -1,9 +1,10 @@
-import Dog from "../models/dog.js";
 import Order from "../models/order.js";
 import OrderDetails from "../models/orderdetails.js";
-import mongoose from "mongoose";
+import Product from "../models/product.js";
+import Category from "../models/category.js";
 
 export const createOrder = async (req, res) => {
+  console.log(req.body);
   try {
     const newOrder = await Order.create(req.body);
     res.status(201).json(newOrder);
@@ -70,17 +71,18 @@ export const getOrderDetails = async (req, res) => {
     const count = await OrderDetails.countDocuments({ order: orderId });
     const pages = Math.ceil(count / perPage);
     const results = [];
-    let index = 1;
 
     for (const item of orderDetails) {
-      const dog = await Dog.findById(item.dog);
-      if (dog) {
+      const product = await Product.findById(item.product);
+      const category = await Category.findById(product.category);
+      if (product) {
         results.push({
-          sTT: index++,
           orderId: orderId,
-          dog: dog,
+          product: product,
+          category: category,
           quantity: item.quantity,
-          totalPrice: dog.price * item.quantity,
+          totalPrice: product.price * item.quantity,
+          note: item.note,
         });
       }
     }

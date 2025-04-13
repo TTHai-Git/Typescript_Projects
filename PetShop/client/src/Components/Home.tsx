@@ -28,14 +28,6 @@ const Home = () => {
           <p>Professional guidance and support even after adoption</p>
         </div>
       </div>
-
-      <div className="cta-section">
-        <h2>Ready to Meet Your New Best Friend?</h2>
-        <p>Browse our selection of lovely dogs waiting for their forever homes</p>
-        <button className="cta-button" onClick={() => navigate('/dogs/1')}>
-          View Our Dogs
-        </button>
-      </div>
       <div className="cta-section">
         <h2>Ready to Explore All Of Our Products For Your New Best Friends ?</h2>
         <p>Browse our selection of lovely Product waiting for their forever homes</p>

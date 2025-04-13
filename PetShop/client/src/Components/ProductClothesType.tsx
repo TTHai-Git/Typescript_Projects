@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router';
 import axios from 'axios';
-import { ProductClothes } from '../Interface/Product';
+import Product, { ProductClothes } from '../Interface/Product';
 import {
   Container,
   Grid,
@@ -19,8 +19,11 @@ import {
   Tooltip
 } from '@mui/material';
 import { Favorite, ShoppingCart, ColorLens, FitnessCenter, LocalOffer, ArrowBack } from '@mui/icons-material';
+import { useCart } from '../Context/Cart';
+import NumberInput from './Customs/NumberInput';
 
 const ProductClothesType = () => {
+  const { addToCart } = useCart()
   const { product_id } = useParams();
   const location = useLocation();
   const type = location.state;
@@ -29,6 +32,7 @@ const ProductClothesType = () => {
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedMaterial, setSelectedMaterial] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [selectedQuantity, setSelectedQuantity] = useState<number>(1)
   const navigate = useNavigate()
 
   const loadInfoDetailsOfProduct = async () => {
@@ -36,7 +40,7 @@ const ProductClothesType = () => {
       setLoading(true);
       const response = await axios.get(`/v1/products/${type}/${product_id}`);
       setProductClothes(response.data.product);
-      console.log('Product Clothes: ', response.data.product);
+      // console.log('Product Clothes: ', response.data.product);
     } catch (error) {
       console.error(error);
     } finally {
@@ -55,6 +59,11 @@ const ProductClothesType = () => {
   const handleSizeClick = (size: string) => setSelectedSize(size);
   const handleMaterialClick = (material: string) => setSelectedMaterial(material);
   const handleColorClick = (color: string) => setSelectedColor(color);
+
+  const handleaddToCart = (ProductClothes: Product, quantity: number) => {
+    ProductClothes.note = `Size: ${selectedSize} - Material: ${selectedMaterial} - Color: ${selectedColor}`
+    addToCart(ProductClothes,quantity)
+  }
 
   if (loading) {
     return (
@@ -206,17 +215,18 @@ const ProductClothesType = () => {
               </Typography>
 
               {/* Add to Wishlist / Cart Button */}
-              <Box mt={2}>
+              <Box display="flex" alignItems="center" mt={2} mb={2} >
                 <Tooltip title="Add to Wishlist">
                   <IconButton color="error">
                     <Favorite />
                   </IconButton>
                 </Tooltip>
                 <Tooltip title="Add to Cart">
-                  <IconButton color="primary">
-                    <ShoppingCart />
+                  <IconButton color="primary" onClick={() => handleaddToCart(productClothes, selectedQuantity)}>
+                    <ShoppingCart/>
                   </IconButton>
                 </Tooltip>
+                <NumberInput min={1} defaultValue={1} onChange={(value) => setSelectedQuantity(value)} />
               </Box>
             </CardContent>
           </Card>
