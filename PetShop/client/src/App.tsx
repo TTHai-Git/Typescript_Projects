@@ -16,6 +16,8 @@ import ProductClothesType from './Components/ProductClothesType';
 import ProductAccessoryType from './Components/ProductAccessoryType';
 import ProductFoodType from './Components/ProductFoodType';
 import ProductDogType from './Components/ProductDogType';
+import GenerateOTP from './Components/GenerateOTP';
+import ResetPassword from './Components/ResetPassword';
 
 function App() {
   return (
@@ -28,6 +30,8 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/checkout" element={<Cart />} />
               <Route path="/login" element={<Login/>} />
+              <Route path="/generate-otp" element={<GenerateOTP/>} />
+              <Route path="/reset-password" element={<ResetPassword/>} />
               <Route path="/register" element={<Register/>} />
               <Route path="/userinfo" element={<UserInfo/>} />
               <Route path="/userinfo/:user_id/orders/:page" element={<ListOrders/>}/>

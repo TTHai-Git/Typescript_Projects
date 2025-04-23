@@ -12,6 +12,8 @@ import productRoutes from "./routes/product.js";
 import vendorRouter from "./routes/vendor.js";
 import brandRouter from "./routes/brand.js";
 import breedRoutes from "./routes/breed.js";
+import roleRoutes from "./routes/role.js";
+import userRoutes from "./routes/user.js";
 
 dotenv.config();
 
@@ -23,7 +25,9 @@ app.use(cors());
 app.use(json());
 
 // Routes
-app.use("/api/auth", authRoutes);
+app.use("/v1/auth", authRoutes);
+app.use("/v1/roles", roleRoutes);
+app.use("/v1/users", userRoutes);
 app.use("/v1/orders", orderRoutes);
 app.use("/v1/orderDetails", orderDetailsRoutes);
 app.use("/v1/categories", categoryRoutes);

@@ -29,6 +29,27 @@
   margin-bottom: 2rem;
 }
 
+.line {
+  align-items: center;
+  border-bottom: 1px solid #dadde1;
+  display: flex;
+  margin: 20px 16px;
+  text-align: center;
+}
+
+.forgotpassword-subtitle {
+  color: #666;
+  text-align: left;
+  cursor: pointer;
+ 
+}
+
+.errorMessage {
+  color: #eb0909;
+  text-align: left;
+  margin: 1rem;
+}
+
 .login-form {
   display: flex;
   flex-direction: column;
@@ -82,7 +103,7 @@
   transform: scale(0.98);
 }
 
-.register-button {
+.register-button  {
   background-color: #63e24a;
   color: white;
   padding: 0.75rem;
@@ -93,6 +114,19 @@
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
+
+.back-button {
+  background-color: rgb(85, 81, 81);
+  color: white;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
 
 
 .register-button:hover {

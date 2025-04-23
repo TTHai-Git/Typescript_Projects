@@ -46,7 +46,7 @@ const ProductAccessoryType = () => {
       setLoading(true);
       const response = await axios.get(`/v1/products/${type}/${product_id}`);
       setProductAccessory(response.data.product);
-      console.log('Product Accessory: ', response.data.product);
+      // console.log('Product Accessory: ', response.data.product);
     } catch (error) {
       console.error(error);
     } finally {

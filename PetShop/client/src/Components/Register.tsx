@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../Assets/CSS/Register.css";
 import axios from "axios";
 import { useNavigate } from "react-router";
 
-
 const Register = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [previewAvatar, setPreviewAvatar] = useState<string | null>(null);
+
   const [userRegister, setUserRegister] = useState({
     username: "",
     password: "",
@@ -20,7 +21,9 @@ const Register = () => {
   const handleSetState = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, files } = e.target;
     if (name === "avatar" && files && files.length > 0) {
-      setUserRegister((prev) => ({ ...prev, avatar: files[0] }));
+      const file = files[0];
+      setUserRegister((prev) => ({ ...prev, avatar: file }));
+      setPreviewAvatar(URL.createObjectURL(file));
     } else {
       setUserRegister((prev) => ({ ...prev, [name]: value }));
     }
@@ -34,17 +37,17 @@ const Register = () => {
     if (userRegister.avatar) {
       data.append("file", userRegister.avatar);
     }
-    data.append("upload_preset", process.env.REACT_APP_UPLOAD_PRESET );
-    data.append("cloud_name", process.env.REACT_APP_CLOUD_NAME);
+    data.append("upload_preset", process.env.REACT_APP_UPLOAD_PRESET || "");
+    data.append("cloud_name", process.env.REACT_APP_CLOUD_NAME || "");
 
     try {
       const res_1 = await axios.post(
-        "https://api.cloudinary.com/v1_1/dh5jcbzly/image/upload", data);
-      // console.log(res_1);
+        `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUD_NAME}/image/upload`,
+        data
+      );
       userRegister.avatar = res_1.data.secure_url;
 
-      const res_2 = await axios.post('/api/auth/register', userRegister);
-      // console.log(res_2);
+      const res_2 = await axios.post('/v1/auth/register', userRegister);
       if (res_2.status === 201) {
         navigate('/login');
       }
@@ -54,6 +57,15 @@ const Register = () => {
       setLoading(false);
     }
   };
+
+  // Clean up memory when component unmounts or avatar changes
+  useEffect(() => {
+    return () => {
+      if (previewAvatar) {
+        URL.revokeObjectURL(previewAvatar);
+      }
+    };
+  }, [previewAvatar]);
 
   return (
     <div className="register-container">
@@ -66,7 +78,6 @@ const Register = () => {
           type="text"
           id="username"
           name="username"
-          placeholder="Enter your username..."
           required
           value={userRegister.username}
           onChange={handleSetState}
@@ -77,7 +88,6 @@ const Register = () => {
           type="password"
           id="password"
           name="password"
-          placeholder="Enter your password..."
           required
           value={userRegister.password}
           onChange={handleSetState}
@@ -88,21 +98,32 @@ const Register = () => {
           type="text"
           id="name"
           name="name"
-          placeholder="Enter your name..."
           required
           value={userRegister.name}
           onChange={handleSetState}
         />
 
         <label>Avatar:</label>
-        <input type="file" name="avatar" accept="image/*" onChange={handleSetState} />
+        <input
+          type="file"
+          name="avatar"
+          accept="image/*"
+          onChange={handleSetState}
+        />
+        
+        {previewAvatar && (
+          <img
+            src={previewAvatar}
+            alt="Avatar Preview"
+            style={{ width: 120, height: 120, borderRadius: "50%", objectFit: "cover", marginTop: 10 }}
+          />
+        )}
 
         <label htmlFor="email">Email:</label>
         <input
           type="email"
           id="email"
           name="email"
-          placeholder="Enter your email..."
           required
           value={userRegister.email}
           onChange={handleSetState}
@@ -113,7 +134,6 @@ const Register = () => {
           type="tel"
           id="phone"
           name="phone"
-          placeholder="Enter your phone..."
           required
           value={userRegister.phone}
           onChange={handleSetState}
@@ -124,7 +144,6 @@ const Register = () => {
           type="text"
           id="address"
           name="address"
-          placeholder="Enter your address..."
           required
           value={userRegister.address}
           onChange={handleSetState}

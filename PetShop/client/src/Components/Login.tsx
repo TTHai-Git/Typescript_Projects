@@ -5,6 +5,7 @@ import { AppDispatch } from '../store';
 import axios from 'axios';
 import '../Assets/CSS/Login.css';
 import { useLocation, useNavigate } from 'react-router';
+import { UserState } from '../Interface/Users';
 
 const Login: React.FC = () => {
   const location = useLocation();
@@ -20,12 +21,12 @@ const Login: React.FC = () => {
     setLoading(true);
 
     try {
-      console.log(from)
-      const response = await axios.post('/api/auth/login', {
+      // console.log(from)
+      const response = await axios.post('/v1/auth/login', {
       username,
       password
       });
-      const user = response.data.user;
+      const user:UserState = response.data.user;
       if (user) {
         dispatch(login({
           ...user,
@@ -77,16 +78,23 @@ const Login: React.FC = () => {
               required
             />
           </div>
-          
+          <div className="form-group">
+          <a className="forgotpassword-subtitle" onClick={() => navigate("/generate-otp")}>Do you forgot password?</a>
+          </div>
+          <div className="form-group">
           <button type="submit" className="login-button">
             Login
           </button>
+          <div className="line">
+            
+          </div>
           <button
-                  className="register-button"
-                  onClick={() => navigate('/register', { state: { from: '/login' } })}
-                >
-                  Đăng ký
-                </button>
+            className="register-button"
+            onClick={() => navigate('/register', { state: { from: '/login' } })}
+          >
+           Register
+          </button>
+          </div>
         </form>
       </div>
     </div>

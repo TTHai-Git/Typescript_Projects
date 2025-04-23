@@ -23,9 +23,9 @@ const ListOrders = () => {
       const response = await axios.get(`/v1/orders/${user_id}/${current}`)
       // console.log(response.data)
       if (response.status === 200) {
-        console.log(response.data.orders)
+        // console.log(response.data.orders)
         setOrders(response.data.orders)
-        console.log(orders)
+        // console.log(orders)
         setPages(response.data.pages)
         setTotal(response.data.total)
       } else {

@@ -36,7 +36,7 @@ export const createCategory = async (req, res) => {
 
     // Check if a category with the same name already exists
     const existsCategory = await Category.find({ name: name }); // returns an array of documents
-    console.log("existsCategory", existsCategory);
+    // console.log("existsCategory", existsCategory);
     if (existsCategory.length > 0) {
       return res.status(400).json({ message: "Category already exists" });
     }
