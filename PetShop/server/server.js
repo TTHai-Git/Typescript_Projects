@@ -20,15 +20,8 @@ dotenv.config();
 
 const app = express();
 
-// Connect to MongoDB (run once)
-connect(process.env.MONGO_URI)
-  .then(() => console.log("Connected to MongoDB!"))
-  .catch((error) =>
-    console.error("Error connecting to MongoDB:", error.message)
-  );
-
 // Middleware
-app.use(urlencoded({ extended: false }));
+app.use(urlencoded({ extended: false })); // request with form data
 app.use(cors());
 app.use(json());
 
@@ -45,5 +38,20 @@ app.use("/v1/products", productRoutes);
 app.use("/v1/breeds", breedRoutes);
 app.use("/v1/favorites", favoriteRoutes);
 
-// Export for Vercel
+// const port = 8080;
+// app.listen(port, () => {
+//   console.log(`Server is running on http://localhost:${port}`);
+// });
+
+app.get("/", (req, res) => {
+  res.send("Hello from Vercel!");
+});
+
+// Connect to MongoDB
+connect(process.env.MONGO_URI)
+  .then(() => console.log("Connected to MongoDB!"))
+  .catch((error) =>
+    console.error("Error connecting to MongoDB:", error.message)
+  );
+
 export default app;
