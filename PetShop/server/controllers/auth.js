@@ -47,13 +47,13 @@ export const login = async (req, res) => {
   try {
     const user = await User.findOne({ username }).populate("role");
     if (!user) {
-      return res.status(400).json({ message: "Invalid username or password" });
+      return res.status(400).json({ message: "Invalid username" });
     }
 
     // Compare passwords
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: "Invalid username or password" });
+      return res.status(400).json({ message: "Invalid password" });
     }
 
     // Generate JWT token

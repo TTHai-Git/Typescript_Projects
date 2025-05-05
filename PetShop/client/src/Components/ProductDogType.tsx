@@ -11,9 +11,12 @@ import {
   Chip,
   Stack,
   Divider,
+  Tooltip,
+  IconButton,
+  Snackbar,
 } from '@mui/material';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
+// import axios from 'axios';
 import PetsIcon from '@mui/icons-material/Pets';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
@@ -24,9 +27,13 @@ import CakeIcon from '@mui/icons-material/Cake';
 import { useCart } from '../Context/Cart';
 import NumberInput from './Customs/NumberInput';
 import { ProductDog } from '../Interface/Product';
-import { ArrowBack, ColorLens, FitnessCenter } from '@mui/icons-material';
+import { ArrowBack, ColorLens, Favorite, FitnessCenter } from '@mui/icons-material';
+import APIs, { authApi, endpoints } from '../Config/APIs';
+import { useSelector } from 'react-redux';
+import { RootState } from '../store';
 
 const ProductDogType: React.FC = () => {
+  const user = useSelector((state: RootState) => state.auth.user)
   const { addToCart } = useCart();
   const { product_id } = useParams();
   const location = useLocation();
@@ -35,7 +42,10 @@ const ProductDogType: React.FC = () => {
   const [loading, setLoading] = React.useState<boolean>(true);
   const [selectedQuantity, setSelectedQuantity] = React.useState<number>(1)
   const [selectedSize, setSelectedSize] = React.useState<string>("")
-  const [selectedColor, setSelectedColor] = React.useState<string>("")
+  const [selectedColor] = React.useState<string>("")
+  const [checkFavorite, setCheckFavorite] = React.useState<Boolean>(false)
+  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
+  const [snackbarMessage, setSnackbarMessage] =React.useState('');
   const navigate = useNavigate()
   const handleBack = () => {
     navigate('/products');
@@ -55,20 +65,55 @@ const ProductDogType: React.FC = () => {
    
   };
 
-  React.useEffect(() => {
-    const fetchDog = async () => {
+  const handleCheckFavorite = async () => {
       try {
-        const response = await axios.get(`/v1/products/${type}/${product_id}`);
+        setLoading(true)
+        const res = await authApi(user?.tokenInfo.accessToken).get(endpoints['getFavoriteProductOfUser'](product_id, user?._id))
+        setCheckFavorite(res.data.isFavorite)
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false)
+      }
+    }
+  
+    const handleAddToFavoriteList = async (userId: string, productId: string) => {
+      try {
+        setLoading(true)
+        const res = await authApi(user?.tokenInfo.accessToken).post(endpoints['createOrUpdateFavorite'], {
+          userId: userId,
+          productId: productId
+        });
+        setCheckFavorite(res.data.isFavorite)
+        if (res.data.isFavorite === true) {
+          setSnackbarMessage("Add Product To FavoriteList Success")
+        }
+        else {
+          setSnackbarMessage("Remove Product To FavoriteList Success")
+        }
+        setSnackbarOpen(true)
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false)
+      }
+    };
+
+    const loadDogs = async () => {
+      try {
+        // const response = await axios.get(`/v1/products/${type}/${product_id}`);
+        const response = await APIs.get(`${endpoints['getProductById'](type, product_id)}`);
         setDog(response.data.product);
       } catch (error) {
         console.error('Error fetching dog:', error);
       } finally {
         setLoading(false);
       }
-    };
-
-    fetchDog();
-  }, [product_id]);
+    }
+  React.useEffect(() => {
+    loadDogs()
+    handleCheckFavorite()
+  }, []);
 
   const handleSizeClick = (size: string) => {
     setSelectedSize(size)
@@ -95,6 +140,12 @@ const ProductDogType: React.FC = () => {
   return (
     
     <Box sx={{ flexGrow: 1, p: { xs: 2, md: 5 }, backgroundColor: '#f9f9f9' }}>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={() => setSnackbarOpen(false)}
+        message={snackbarMessage}
+      />
       <Box mb={2} display="flex" alignItems="center" gap={2}>
         <Button startIcon={<ArrowBack />} onClick={handleBack} variant="outlined" color="primary">
           Back to Products
@@ -170,7 +221,7 @@ const ProductDogType: React.FC = () => {
 
               <Typography variant="h6" color="primary" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                 <AttachMoneyIcon sx={{ mr: 1 }} />
-                Price: {dog.price} $
+                Price: {dog.price.toFixed(2)} $
               </Typography>
 
               <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
@@ -204,6 +255,15 @@ const ProductDogType: React.FC = () => {
                 >
                   Add to Cart
                 </Button>
+                {user?<Tooltip title={checkFavorite ? 'Remove To FavoriteList' : 'Add To FavoriteList'}>
+                  <IconButton
+                    color={checkFavorite ? 'error' : 'default'}
+                    onClick={() => handleAddToFavoriteList(user._id, dog._id)}
+                  >
+                    <Favorite />
+                  </IconButton>
+                </Tooltip>
+                : <></> }
               </Box>
             </CardContent>
           </Card>

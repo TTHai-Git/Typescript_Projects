@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import '../Assets/CSS/Login.css';
-import axios from 'axios';
+// import axios from 'axios';
+import APIs, { endpoints } from '../Config/APIs';
 
 const GenerateOTP = () => {
     const [email, setEmail] = useState<string>("")
@@ -13,9 +14,12 @@ const GenerateOTP = () => {
         e.preventDefault();
         try {
             setLoading(true)
-            const res = await axios.post('/v1/users/generate-otp', {
-               email
-            })
+            // const res = await axios.post('/v1/users/generate-otp', {
+            //    email
+            // })
+            const res = await APIs.post(endpoints['generateOTP'], {
+              email
+           })
             // console.log(res)
             if (res.status === 200) {
                 alert(res.data.message)
@@ -23,11 +27,8 @@ const GenerateOTP = () => {
             }
             
         } catch (error:any) {
-            setIsError(true)
-            console.log(error)
-            if (error.status >= 400) {
-               setErrorMessage(error.response.data.message)
-            }
+          setIsError(true);
+          setErrorMessage(error.response?.data?.message || 'Something went wrong');
             
         } finally {
             setLoading(false)

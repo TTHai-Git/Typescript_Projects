@@ -18,20 +18,25 @@ import { useCart } from '../Context/Cart';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { useNavigate } from 'react-router';
-import axios from 'axios';
-import { useState } from 'react';
+// import axios from 'axios';
+import { useEffect, useState } from 'react';
+import APIs, { authApi, endpoints } from '../Config/APIs';
 
 export const Cart = () => {
   const { cartItems, removeFromCart, increaseQuantity, decreaseQuantity, checkOutFromCart, caculateTotalOfCart } = useCart();
   const user = useSelector((state: RootState) => state.auth.user);
   const [loading, setLoading] = useState(false);
-  let [numericalOrder, setNumericalOrder] = useState<number>(1)
+  let [numericalOrder] = useState<number>(1)
   const navigate = useNavigate();
 
   const handleMakeOrder = async () => {
     setLoading(true);
     try {
-      const res_1 = await axios.post('/v1/orders', {
+      // const res_1 = await axios.post('/v1/orders', {
+      //   user: user?._id,
+      //   totalPrice: caculateTotalOfCart()
+      // });
+      const res_1 = await authApi(user?.tokenInfo.accessToken).post(endpoints['createOrder'], {
         user: user?._id,
         totalPrice: caculateTotalOfCart()
       });
@@ -43,7 +48,8 @@ export const Cart = () => {
         note: cartItem.note,
       }));
       if (res_1.status === 201) {
-        const res_2 = await axios.post('/v1/orderDetails', { data });
+        // const res_2 = await axios.post('/v1/orderDetails', { data });
+        const res_2 = await authApi(user?.tokenInfo.accessToken).post(endpoints['createOrderDetails'], { data });
         if (res_2.status === 201) checkOutFromCart();
       }
     } catch {
@@ -51,7 +57,9 @@ export const Cart = () => {
     } finally {
       setLoading(false);
     }
+   
   };
+  
 
   return (
     <Box p={3}>
@@ -79,6 +87,8 @@ export const Cart = () => {
                   <TableCell>Image</TableCell>
                   <TableCell>Product</TableCell>
                   <TableCell>Category</TableCell>
+                  <TableCell>Brand</TableCell>
+                  <TableCell>Vendor</TableCell>
                   <TableCell>Description</TableCell>
                   <TableCell>Price</TableCell>
                   <TableCell>Note</TableCell>
@@ -98,6 +108,8 @@ export const Cart = () => {
                     </TableCell>
                     <TableCell>{item.name}</TableCell>
                     <TableCell>{item.category.name}</TableCell>
+                    <TableCell>{item.brand.name}</TableCell>
+                    <TableCell>{item.vendor.name}</TableCell>
                     <TableCell>{item.description}</TableCell>
                     <TableCell>${item.price}</TableCell>
                     <TableCell>

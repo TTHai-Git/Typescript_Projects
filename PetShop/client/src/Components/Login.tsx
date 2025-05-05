@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { login } from '../features/login/authSlice';
 import { AppDispatch } from '../store';
-import axios from 'axios';
+// import axios from 'axios';
 import '../Assets/CSS/Login.css';
 import { useLocation, useNavigate } from 'react-router';
 import { UserState } from '../Interface/Users';
+import { Alert } from '@mui/material';
+import APIs, { endpoints } from '../Config/APIs';
 
 const Login: React.FC = () => {
   const location = useLocation();
@@ -13,6 +15,8 @@ const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [isError, setIsError] = useState<Boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("")
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
@@ -22,10 +26,14 @@ const Login: React.FC = () => {
 
     try {
       // console.log(from)
-      const response = await axios.post('/v1/auth/login', {
-      username,
-      password
-      });
+      // const response = await axios.post('/v1/auth/login', {
+      // username,
+      // password
+      // });
+      const response = await APIs.post(endpoints['login'], {
+        username,
+        password
+        });
       const user:UserState = response.data.user;
       if (user) {
         dispatch(login({
@@ -40,12 +48,17 @@ const Login: React.FC = () => {
       } else {
       alert('Invalid username or password');
       }
-    } catch (error) {
-      alert('Login failed. Please try again.');
+    } catch (error:any) {
+      setIsError(true);
+      setErrorMessage(error.response?.data?.message || 'Something went wrong');
     } finally {
       setLoading(false)
     }
   };
+
+  useEffect(() => {
+
+  }, [isError])
 
   return (
     <div className="login-container">
@@ -77,6 +90,13 @@ const Login: React.FC = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+          </div>
+          <div className="form-group">
+            {isError && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                  {errorMessage}
+                </Alert>
+              )}  
           </div>
           <div className="form-group">
           <a className="forgotpassword-subtitle" onClick={() => navigate("/generate-otp")}>Do you forgot password?</a>

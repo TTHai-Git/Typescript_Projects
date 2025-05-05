@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { useNavigate } from 'react-router';
 import { logout } from '../features/login/authSlice';
-import axios from 'axios';
+// import axios from 'axios';
 
 import {
   Avatar,
@@ -22,6 +22,8 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
+import { authApi, endpoints } from '../Config/APIs';
+import { Favorite } from '@mui/icons-material';
 
 const UserInfo = () => {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -67,20 +69,28 @@ const UserInfo = () => {
 
   const handleSave = async () => {
     try {
-      const res = await axios.put(
-        `/v1/users/${user?._id}/update-infor`,
-        {
-          name: editedUser.name,
-          email: editedUser.email,
-          phone: editedUser.phone,
-          address: editedUser.address
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${user?.tokenInfo.accessToken}`
-          }
-        }
-      );
+      // const res = await axios.put(
+      //   `/v1/users/${user?._id}/update-infor`,
+      //   {
+      //     name: editedUser.name,
+      //     email: editedUser.email,
+      //     phone: editedUser.phone,
+      //     address: editedUser.address
+      //   },
+      //   {
+      //     headers: {
+      //       Authorization: `Bearer ${user?.tokenInfo.accessToken}`
+      //     }
+      //   }
+      // );
+
+      let url = `${endpoints['updateInfor'](user?._id)}`
+      const res = await authApi(user?.tokenInfo.accessToken).put(url, {
+        name: editedUser.name,
+        email: editedUser.email,
+        phone: editedUser.phone,
+        address: editedUser.address
+      });
 
       if (res.status === 200) {
         alert("Saving user data successfully...");
@@ -197,6 +207,15 @@ const UserInfo = () => {
               onClick={() => navigate(`${user?._id}/orders/1`)}
             >
               Follow Orders
+            </Button>
+            <Button
+              variant="contained"
+              color="info"
+              startIcon={<Favorite />}
+              fullWidth
+              onClick={() => navigate(`${user?._id}/favoritelist?page=1`)}
+            >
+              Follow Favoritelist
             </Button>
           </Stack>
         </CardContent>

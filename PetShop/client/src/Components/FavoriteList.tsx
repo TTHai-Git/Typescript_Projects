@@ -1,110 +1,110 @@
 import React, { useEffect, useState } from 'react';
-// import axios from 'axios';
+import Favorite from '../Interface/Favorite';
+import { useSelector } from 'react-redux';
+import { RootState } from '../store';
+import APIs, { authApi, endpoints } from '../Config/APIs';
 import {
-  Grid,
+  Box,
   Card,
   CardContent,
+  CardMedia,
   Typography,
-  Avatar,
-  Chip,
+  Grid,
   CircularProgress,
-  Box,
-  Button,
+  IconButton,
+  Tooltip,
   Stack,
-  Autocomplete,
+  Button,
+  Chip,
   TextField,
   InputAdornment,
-  Tooltip,
+  Autocomplete,
 } from '@mui/material';
-import {
-  Info as InfoIcon,
-  LabelOutlined as LabelOutlinedIcon,
-  ChatBubbleOutline as ChatBubbleOutlineIcon,
-  AttachMoney as AttachMoneyIcon,
-  Category as CategoryIcon,
-  Factory as FactoryIcon,
-  LocalShipping as LocalShippingIcon,
-  CheckCircleOutline as CheckCircleOutlineIcon,
-  CancelOutlined as CancelOutlinedIcon,
-} from '@mui/icons-material';
 import SearchIcon from '@mui/icons-material/Search';
-import SortIcon from '@mui/icons-material/Sort';
-
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import Product from '../Interface/Product';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import CategoryIcon from '@mui/icons-material/Category';
+import StoreIcon from '@mui/icons-material/Store';
+import BrandingWatermarkIcon from '@mui/icons-material/BrandingWatermark';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import DescriptionIcon from '@mui/icons-material/Description';
+import DeleteIcon from '@mui/icons-material/Delete';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import { pink, blue, green, deepPurple, red } from '@mui/material/colors';
+import { useNavigate } from 'react-router';
+import { useSearchParams } from 'react-router-dom';
+import { SportsCricketOutlined } from '@mui/icons-material';
 import { Category } from '../Interface/Category';
-import '../Assets/CSS/Pagination.css';
-import APIs, { endpoints } from '../Config/APIs';
 
-const Products = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+const FavoriteList = () => {
+  const user = useSelector((state: RootState) => state.auth.user);
+  const [favoriteList, setFavoriteList] = useState<Favorite[]>([]);
+   const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
   const [total, setTotal] = useState<number>(0);
   const [pages, setPages] = useState<number>(0);
-
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryId = searchParams.get('category') || '';
   const currentPage = parseInt(searchParams.get('page') || '1');
-
-  const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState('');
-
-
+  const [searchTerm, setSearchTerm] = useState<string>('')
+  const [sortBy, setSortBy] = useState<string>('')
   const navigate = useNavigate();
 
-  const loadProducts = async () => {
+  const getFavoriteProductsList = async () => {
     try {
       setLoading(true);
       const query = new URLSearchParams();
       if (categoryId) query.append('category', categoryId);
-      if (searchTerm) query.append('search', searchTerm);
-      if (sortBy) query.append('sort', sortBy);
+      if(searchTerm) query.append('search', searchTerm);
+      if(sortBy) query.append('sort', sortBy)
       query.append('page', currentPage.toString());
-  
-      // const res = await axios.get(`/v1/products?${query.toString()}`);
-      const res = await APIs.get(`${endpoints['getAllProducts']}?${query.toString()}`)
-      setProducts(res.data.products || []);
-      setTotal(res.data.total || 0);
-      setPages(res.data.pages || 1);
-    } catch (err) {
-      console.error(err);
-      setProducts([]);
+      const res = await authApi(user?.tokenInfo.accessToken).get(
+        `${endpoints['getFavoriteProductsList'](user?._id)}?${query.toString()}`
+      );
+      setFavoriteList(res.data.results);
+      setTotal(res.data.total);
+      setPages(res.data.pages);
+    } catch (error) {
+      console.log(error);
+      setFavoriteList([]);
     } finally {
       setLoading(false);
     }
   };
 
   const loadCategories = async () => {
+      try {
+        setLoading(true)
+        // const res = await axios.get('/v1/categories');
+        const res = await APIs.get(endpoints['getCategories'])
+        setCategories(res.data || []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false)
+      }
+    };
+
+  const removeFavorite = async (favoriteId: string) => {
+    if (!window.confirm('Are you sure you want to remove this item from favorites?')) return;
     try {
-      // const res = await axios.get('/v1/categories');
-      const res = await APIs.get(endpoints['getCategories'])
-      setCategories(res.data || []);
-    } catch (err) {
-      console.error(err);
+      await authApi(user?.tokenInfo.accessToken).delete(endpoints['deleteFavorite'](favoriteId));
+      setFavoriteList((prev) => prev.filter((fav) => fav._id !== favoriteId));
+    } catch (error) {
+      console.log(error);
     }
   };
 
-  useEffect(() => {
-    const newSearchTerm = searchParams.get('search') || '';
-    const newSortBy = searchParams.get('sort') || '';
-    setSearchTerm(newSearchTerm);
-    setSortBy(newSortBy);
-    loadProducts();
-  }, [searchParams.toString()]);
-
-  useEffect(() => {
-    loadCategories();
-  }, []);
+  const viewProductDetails = (productId: string, type: string) => {
+    navigate(`/products/${type}/${productId}`, { state: type });
+  };
 
   const changePage = (newPage: number) => {
     if (newPage >= 1 && newPage <= pages) {
       const params: any = { page: newPage.toString() };
-      if (categoryId) params.category = categoryId;
       setSearchParams(params);
     }
   };
-  
+
   const options = [
     { label: 'Increasing By Price', id: 'price_asc' },
     { label: 'Decrease By Price', id: 'price_desc' },
@@ -113,23 +113,31 @@ const Products = () => {
     { label: 'A-Z', id: 'az' },
     { label: 'Z-A', id: 'za' },
   ];
-  
- 
+
+
+  useEffect(() => {
+    loadCategories()
+  }, [])
+  useEffect(() => {
+    const newSearchTerm = searchParams.get('search') || '';
+    const newSortBy = searchParams.get('sort') || ''
+    setSearchTerm(newSearchTerm)
+    setSortBy(newSortBy)
+    getFavoriteProductsList();
+  }, [searchParams.toString()]);
+
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" mt={5}>
+      <Box display="flex" justifyContent="center" alignItems="center" height="70vh">
         <CircularProgress />
       </Box>
     );
   }
-
   return (
     <Box p={4}>
       <Typography variant="h4" mb={4} fontWeight="bold" color="primary">
-        Product List: {total} Products
+        Your Favorite Products
       </Typography>
-  
-      {/* Search and Filter Section */}
       <Box sx={{ mb: 4, display: 'flex', flexDirection: 'column', gap: 3 }}>
         {/* 🔍 Search Bar */}
         <TextField
@@ -224,7 +232,7 @@ const Products = () => {
                   ...params.InputProps,
                   startAdornment: (
                     <InputAdornment position="start">
-                      <SortIcon color="secondary" />
+                      <SportsCricketOutlined color="secondary" />
                     </InputAdornment>
                   ),
                 }}
@@ -240,9 +248,7 @@ const Products = () => {
         </Box>
       </Box>
   
-      {/* Main Content with Advertisements */}
       <Grid container spacing={2}>
-        
         {/* Left Advertisement */}
         <Grid item xs={12} md={2}>
           <Box
@@ -257,78 +263,120 @@ const Products = () => {
             }}
           >
             <Typography variant="h6" color="secondary">Advertisement</Typography>
-            {/* You can replace this with an image/banner */}
           </Box>
         </Grid>
-  
-        {/* Product List */}
-        <Grid item xs={12} md={8}>
-          <Grid container spacing={3}>
-            {products.map((item) => (
-              <Grid item xs={12} sm={6} md={6} key={item._id}>
+        {favoriteList ? <>
+          {/* Center Favorite Products */}
+          <Grid item xs={12} md={8}>
+          <Grid container spacing={4}>
+            {favoriteList.map((fav) => (
+              <Grid item xs={12} sm={6} md={6} key={fav._id}>
                 <Card
                   sx={{
                     borderRadius: 3,
                     boxShadow: 5,
+                    position: 'relative',
                     backgroundColor: '#fafafa',
                     transition: '0.3s',
+                    height: '100%',
                     '&:hover': {
                       transform: 'scale(1.03)',
                       boxShadow: 10,
                     },
                   }}
                 >
-                  <Box sx={{ p: 2, display: 'flex', gap: 2, alignItems: 'center' }}>
-                    <Avatar
-                      variant="rounded"
-                      src={item.imageUrl}
-                      alt={item.name}
-                      sx={{ width: 80, height: 80 }}
-                    />
-                    <Box>
-                      <Typography variant="h6" noWrap>
-                        <LabelOutlinedIcon fontSize="small" /> {item.name}
+                  <CardMedia
+                    component="img"
+                    height="200"
+                    image={fav.product.imageUrl}
+                    alt={fav.product.name}
+                    sx={{ objectFit: 'cover' }}
+                  />
+                  <CardContent sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                    <Box display="flex" justifyContent="space-between" alignItems="center">
+                      <Typography variant="h6" component="div" noWrap>
+                        {fav.product.name}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary" noWrap>
-                        <ChatBubbleOutlineIcon fontSize="small" /> {item.description}
-                      </Typography>
-                      <Typography variant="subtitle1" fontWeight="bold" color="primary">
-                        <AttachMoneyIcon fontSize="small" /> {item.price.toFixed(2)}
-                      </Typography>
+                      <Tooltip title="Favorite" arrow>
+                        <FavoriteIcon sx={{ color: pink[500] }} />
+                      </Tooltip>
                     </Box>
-                  </Box>
   
-                  <CardContent>
-                    <Stack spacing={1} mb={2}>
-                      <Chip icon={<CategoryIcon />} label={`Category: ${item.category?.name}`} />
-                      <Chip icon={<FactoryIcon />} label={`Brand: ${item.brand?.name}`} />
-                      <Chip icon={<LocalShippingIcon />} label={`Vendor: ${item.vendor?.name}`} />
-                      <Chip
-                        icon={item.status ? <CheckCircleOutlineIcon /> : <CancelOutlinedIcon />}
-                        label={item.status ? 'Active' : 'Inactive'}
-                        color={item.status ? 'success' : 'default'}
-                      />
+                    <Stack spacing={1} mt={2}>
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <DescriptionIcon sx={{ color: deepPurple[400] }} />
+                        <Typography variant="body2" color="text.secondary">
+                          {fav.product.description}
+                        </Typography>
+                      </Box>
+  
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <AttachMoneyIcon sx={{ color: green[600] }} />
+                        <Typography variant="body2" fontWeight="bold" color="secondary">
+                          ${fav.product.price}
+                        </Typography>
+                      </Box>
+  
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <CategoryIcon sx={{ color: blue[600] }} />
+                        <Typography variant="body2" color="text.secondary">
+                          Category: {fav.product.category?.name}
+                        </Typography>
+                      </Box>
+  
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <StoreIcon sx={{ color: blue[800] }} />
+                        <Typography variant="body2" color="text.secondary">
+                          Vendor: {fav.product.vendor?.name}
+                        </Typography>
+                      </Box>
+  
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <BrandingWatermarkIcon sx={{ color: pink[600] }} />
+                        <Typography variant="body2" color="text.secondary">
+                          Brand: {fav.product.brand?.name}
+                        </Typography>
+                      </Box>
                     </Stack>
   
-                    <Stack direction="row" spacing={1} justifyContent="center">
+                    <Box display="flex" justifyContent="space-between" alignItems="center" mt={3}>
                       <Tooltip title="View Details" arrow>
                         <Button
                           variant="outlined"
-                          color="info"
-                          startIcon={<InfoIcon />}
-                          onClick={() => navigate(`/products/${item.type}/${item._id}`, { state: item.type })}
+                          size="small"
+                          startIcon={<VisibilityIcon />}
+                          onClick={() => viewProductDetails(fav.product._id, fav.product.type)}
                         >
-                          Details
+                          View
                         </Button>
                       </Tooltip>
-                    </Stack>
+  
+                      <Tooltip title="Remove Favorite" arrow>
+                        <IconButton onClick={() => removeFavorite(fav._id)}>
+                          <DeleteIcon sx={{ color: red[500] }} />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
                   </CardContent>
                 </Card>
               </Grid>
             ))}
           </Grid>
         </Grid>
-  
+        </> : <>
+          <Grid xs={12} md={8}>
+            <Grid container spacing={4}>
+              <Grid item xs={12} sm={6} md={6} key={'none'}>
+                <Box textAlign="center" mt={4}>
+                  <Typography variant="h5" color="text.secondary">
+                    You haven't added any favorites yet!
+                  </Typography>
+                </Box>
+              </Grid>
+            </Grid>
+          </Grid> 
+        </>
+        }
         {/* Right Advertisement */}
         <Grid item xs={12} md={2}>
           <Box
@@ -348,7 +396,7 @@ const Products = () => {
       </Grid>
   
       {/* Pagination */}
-      <Stack direction="row" spacing={2} justifyContent="center" mt={4}>
+      <Stack direction="row" spacing={2} justifyContent="center" mt={3}>
         <Button onClick={() => changePage(1)} disabled={currentPage === 1}>First</Button>
         <Button onClick={() => changePage(currentPage - 1)} disabled={currentPage === 1}>Previous</Button>
         <Typography variant="body1">Page {currentPage} of {pages}</Typography>
@@ -358,7 +406,6 @@ const Products = () => {
     </Box>
   );
   
-  
 };
 
-export default Products;
+export default FavoriteList;

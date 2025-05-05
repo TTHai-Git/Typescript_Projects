@@ -14,6 +14,7 @@ import brandRouter from "./routes/brand.js";
 import breedRoutes from "./routes/breed.js";
 import roleRoutes from "./routes/role.js";
 import userRoutes from "./routes/user.js";
+import favoriteRoutes from "./routes/favorite.js";
 
 dotenv.config();
 
@@ -35,6 +36,7 @@ app.use("/v1/vendors", vendorRouter);
 app.use("/v1/brands", brandRouter);
 app.use("/v1/products", productRoutes);
 app.use("/v1/breeds", breedRoutes);
+app.use("/v1/favorites", favoriteRoutes);
 
 const port = 8080;
 app.listen(port, () => {

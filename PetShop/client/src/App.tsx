@@ -18,6 +18,8 @@ import ProductFoodType from './Components/ProductFoodType';
 import ProductDogType from './Components/ProductDogType';
 import GenerateOTP from './Components/GenerateOTP';
 import ResetPassword from './Components/ResetPassword';
+import { Footer } from './Components/Footer';
+import FavoriteList from './Components/FavoriteList';
 
 function App() {
   return (
@@ -36,6 +38,7 @@ function App() {
               <Route path="/userinfo" element={<UserInfo/>} />
               <Route path="/userinfo/:user_id/orders/:page" element={<ListOrders/>}/>
               <Route path="/userinfo/:user_id/orders/:order_id/orderDetails/:page" element={<ListOrderDetails/>}/>
+              <Route path="/userinfo/:user_id/favoritelist" element={<FavoriteList/>}/>
               
               <Route path="/products" element={<Products />} />
               <Route path="/products/food/:product_id" element={<ProductFoodType/>}/>
@@ -44,6 +47,7 @@ function App() {
               <Route path="/products/dog/:product_id/" element={<ProductDogType/>}/>
             </Routes>
           </div>
+          <Footer/>
         </CartProvider>
       </Router>
     </Provider>

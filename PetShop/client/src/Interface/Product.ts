@@ -4,7 +4,7 @@ import Breed from "./Breed";
 import { Category } from "./Category";
 import { Vendor } from "./Vendor";
 
-export default interface Product {
+export default interface Product extends ProductCart {
     _id: string;
     name: string;
     price: number;
@@ -17,6 +17,10 @@ export default interface Product {
     vendor: Vendor;
     createdAt: Date;
     updatedAt: Date;
+    
+}
+
+export interface ProductCart {
     quantity?: number;
     note?: string;
 }

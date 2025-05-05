@@ -46,6 +46,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   
 
   const removeFromCart = (_id: string) => {
+    if (!window.confirm('Are you sure you want to remove this item from cart?')) return;
     setCartItems(prev => prev.filter(item => item._id !== _id ));
   };
 
@@ -64,20 +65,30 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const decreaseQuantity = (_id: string) => {
     setCartItems((prevItems) => {
       const itemInCart = prevItems.find((i) => i._id === _id);
-      if (itemInCart && itemInCart.quantity && itemInCart.quantity > 1) {
+      if (!itemInCart) return prevItems;
+  
+      // If quantity > 1, just decrease
+      if (itemInCart.quantity && itemInCart.quantity > 1) {
         return prevItems.map((i) =>
           i._id === _id ? { ...i, quantity: (i.quantity || 1) - 1 } : i
         );
       }
-      else{
+  
+      // If quantity === 1, ask for confirmation before removing
+      const confirmed = window.confirm(
+        "Quantity will reach 0. Do you want to remove this item from the cart?"
+      );
+      if (confirmed) {
         return prevItems.filter((i) => i._id !== _id);
       }
-      
+  
+      return prevItems; // Don't change anything if not confirmed
     });
   };
+  
 
   const caculateTotalOfCart = () => {
-    const total:Number = cartItems.reduce((sum:number, item) => sum + (Number(item.price) * Number(item.quantity)), 0);
+    const total:Number = cartItems.reduce((sum:number, item) => sum + (Number(item.price.toFixed(2)) * Number(item.quantity)), 0);
     return total
   }
 

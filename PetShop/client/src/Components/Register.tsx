@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import "../Assets/CSS/Register.css";
-import axios from "axios";
+// import axios from "axios";
 import { useNavigate } from "react-router";
+import APIs, { endpoints } from "../Config/APIs";
+import axios from "axios";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -41,13 +43,22 @@ const Register = () => {
     data.append("cloud_name", process.env.REACT_APP_CLOUD_NAME || "");
 
     try {
+      // const res_1 = await axios.post(
+      //   `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUD_NAME}/image/upload`,
+      //   data
+      // );
       const res_1 = await axios.post(
-        `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUD_NAME}/image/upload`,
+        `${endpoints['uploadAvatarToCloudinary'](
+          process.env.REACT_APP_BASE_CLOUD_URL, 
+          process.env.REACT_APP_CLOUD_NAME,
+          process.env.REACT_APP_DIR_CLOUD
+        )}`,
         data
       );
       userRegister.avatar = res_1.data.secure_url;
 
-      const res_2 = await axios.post('/v1/auth/register', userRegister);
+      // const res_2 = await axios.post('/v1/auth/register', userRegister);
+      const res_2 = await APIs.post(endpoints['register'], userRegister);
       if (res_2.status === 201) {
         navigate('/login');
       }
@@ -60,6 +71,7 @@ const Register = () => {
 
   // Clean up memory when component unmounts or avatar changes
   useEffect(() => {
+    console.log(process.env)
     return () => {
       if (previewAvatar) {
         URL.revokeObjectURL(previewAvatar);
@@ -148,8 +160,12 @@ const Register = () => {
           value={userRegister.address}
           onChange={handleSetState}
         />
-
-        <button type="submit" disabled={loading}>Register</button>
+        <div className="form-group">
+          <button className="register-button" type="submit" disabled={loading}>Register</button>
+          <div className="line"></div>
+          <button className="back-button" onClick={() => navigate('/login')}>Back To Login</button>
+        </div>
+        
       </form>
     </div>
   );

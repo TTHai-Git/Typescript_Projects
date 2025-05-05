@@ -1,12 +1,16 @@
-import axios from 'axios'
+// import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import '../Assets/CSS/ListOrders.css';
 import formatDate from '../Convert/formatDate ';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import Order from '../Interface/Orders';
+import { authApi, endpoints } from '../Config/APIs';
+import { useSelector } from 'react-redux';
+import { RootState } from '../store';
 
 const ListOrders = () => {
+  const user = useSelector((state: RootState)=> state.auth.user)
   const { user_id } = useParams()
   const { page } = useParams<{ page?: string }>(); // Get page number from URL
   const [orders, setOrders] = useState<Order[]>([])
@@ -14,13 +18,14 @@ const ListOrders = () => {
   const [pages, setPages] = useState<number>(0);
   const [total, setTotal] = useState<number>(0);
   const [loading, setLoading] = useState(false)
-  let [count, setCount] = useState<number>(1)
+  let [count] = useState<number>(1)
   const navigate = useNavigate()
 
   const getListOrders = async () => {
     setLoading(true)
     try {
-      const response = await axios.get(`/v1/orders/${user_id}/${current}`)
+      // const response = await axios.get(`/v1/orders/${user_id}/${current}`)
+      const response = await authApi(user?.tokenInfo.accessToken).get(`${endpoints['getOrdersOfCustomer'](user_id, current)}`)
       // console.log(response.data)
       if (response.status === 200) {
         // console.log(response.data.orders)

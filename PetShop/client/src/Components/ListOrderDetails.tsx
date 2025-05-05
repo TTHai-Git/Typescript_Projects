@@ -1,12 +1,16 @@
-import axios from 'axios';
+// import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import '../Assets/CSS/ListOrderDetails.css';
 import OrderDetails from '../Interface/OrderDetails';
 import { Button } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
+import { authApi, endpoints } from '../Config/APIs';
+import { useSelector } from 'react-redux';
+import { RootState } from '../store';
 
 export const ListOrderDetails = () => {
+  const user = useSelector((state: RootState) => state.auth.user)
   const { order_id } = useParams();
   const { user_id } = useParams()
   const { page } = useParams<{ page?: string }>(); // Get page number from URL
@@ -16,12 +20,14 @@ export const ListOrderDetails = () => {
   const [total, setTotal] = useState<number>(0);
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
-  let [numericalOrder, setNumericalOrder] = useState<number>(1)
+  let [numericalOrder] = useState<number>(1)
 
   const getListOrderDetails = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`/v1/orders/${order_id}/orderDetails/${current}`);
+      // const response = await axios.get(`/v1/orders/${order_id}/orderDetails/${current}`);
+      
+      const response = await authApi(user?.tokenInfo.accessToken).get(`${endpoints["getOrderDetails"](order_id, current)}`);
       
       if (response.status === 200) {
         setOrderDetails(response.data.results);
@@ -57,7 +63,7 @@ export const ListOrderDetails = () => {
       <Button startIcon={<ArrowBack />} onClick={handleBack} variant="outlined" color="primary">
         Back to Orders
       </Button>
-      <h1 className="title">🐶 DANH SÁCH CHI TIẾT CỦA ĐƠN ĐẶT HÀNG</h1>      
+      <h1 className="title">🐶 Detailed List Of Orders</h1>      
 
       {loading ? (
         <p className="loading">🔄 Loading order details...</p>
@@ -70,7 +76,9 @@ export const ListOrderDetails = () => {
                 <th>Image</th>
                 <th>Product</th>
                 <th>Category</th>
-                {/* <th>Breed</th> */}
+                <th>Brand</th>
+                <th>Vendor</th>
+      
                 <th>Description</th>
                 <th>Quantity</th>
                 <th>Price</th>
@@ -86,8 +94,10 @@ export const ListOrderDetails = () => {
                     <img src={orderdetail.product.imageUrl} alt={orderdetail.product.name} className="dog-image" />
                   </td>
                   <td>{orderdetail.product.name}</td>
-                  <td>{orderdetail.category.name}</td>
-                  {/* <td>{order.product.breed}</td> */}
+                  <td>{orderdetail.product.category.name}</td>
+                  <td>{orderdetail.product.brand.name}</td>
+                  <td>{orderdetail.product.vendor.name}</td>
+                 
                   <td>{orderdetail.product.description}</td>
                   <td>{orderdetail.quantity}</td>
                   <td>${orderdetail.product.price}</td>
@@ -105,7 +115,8 @@ export const ListOrderDetails = () => {
       ) : (
         <p className="no-data">❌ No order details found.</p>
       )}
-      <h2 className='count'>Tổng Số Con Chó Trong Đơn Hàng Là {orderDetails.length}</h2>
+      <h2 className='count'>Total Number of Products on Page {current} Currently in Order is {orderDetails.length}</h2>
+      <h2 className='count'>Total Number of Products in Order Is {total}</h2>
       <div className="pagination">
         <button className="page-btn" onClick={() => changePage(1)} disabled={current === 1}>
           First
@@ -123,6 +134,7 @@ export const ListOrderDetails = () => {
           Last
         </button>
       </div>
+      <h2 className='count'>Total Number of Pages Is {pages}</h2>
       
     </div>
     

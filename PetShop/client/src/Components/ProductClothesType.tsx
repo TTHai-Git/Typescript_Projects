@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router';
-import axios from 'axios';
+// import axios from 'axios';
 import Product, { ProductClothes } from '../Interface/Product';
 import {
   Container,
@@ -16,13 +16,18 @@ import {
   CircularProgress,
   Avatar,
   IconButton,
-  Tooltip
+  Tooltip,
+  Snackbar
 } from '@mui/material';
 import { Favorite, ShoppingCart, ColorLens, FitnessCenter, LocalOffer, ArrowBack } from '@mui/icons-material';
 import { useCart } from '../Context/Cart';
 import NumberInput from './Customs/NumberInput';
+import APIs, { authApi, endpoints } from '../Config/APIs';
+import { useSelector } from 'react-redux';
+import { RootState } from '../store';
 
 const ProductClothesType = () => {
+  const user = useSelector((state: RootState) => state.auth.user)
   const { addToCart } = useCart()
   const { product_id } = useParams();
   const location = useLocation();
@@ -33,12 +38,16 @@ const ProductClothesType = () => {
   const [selectedMaterial, setSelectedMaterial] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedQuantity, setSelectedQuantity] = useState<number>(1)
+  const [checkFavorite, setCheckFavorite] = useState<Boolean>(false)
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
   const navigate = useNavigate()
 
   const loadInfoDetailsOfProduct = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`/v1/products/${type}/${product_id}`);
+      // const response = await axios.get(`/v1/products/${type}/${product_id}`);
+      const response = await APIs.get(`${endpoints['getProductById'](type,product_id)}`);
       setProductClothes(response.data.product);
       // console.log('Product Clothes: ', response.data.product);
     } catch (error) {
@@ -54,6 +63,7 @@ const ProductClothesType = () => {
 
   useEffect(() => {
     loadInfoDetailsOfProduct();
+    handleCheckFavorite();
   }, []);
 
   const handleSizeClick = (size: string) => setSelectedSize(size);
@@ -73,6 +83,40 @@ const ProductClothesType = () => {
     );
   }
 
+   const handleCheckFavorite = async () => {
+      try {
+        setLoading(true)
+        const res = await authApi(user?.tokenInfo.accessToken).get(endpoints['getFavoriteProductOfUser'](product_id, user?._id))
+        setCheckFavorite(res.data.isFavorite)
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false)
+      }
+    }
+  
+    const handleAddToFavoriteList = async (userId: string, productId: string) => {
+      try {
+        setLoading(true)
+        const res = await authApi(user?.tokenInfo.accessToken).post(endpoints['createOrUpdateFavorite'], {
+          userId: userId,
+          productId: productId
+        });
+        setCheckFavorite(res.data.isFavorite)
+        if (res.data.isFavorite === true) {
+          setSnackbarMessage("Add Product To FavoriteList Success")
+        }
+        else {
+          setSnackbarMessage("Remove Product To FavoriteList Success")
+        }
+        setSnackbarOpen(true)
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false)
+      }
+    };
+
   if (!productClothes) {
     return <Typography variant="h6" align="center">No product details available</Typography>;
   }
@@ -80,6 +124,12 @@ const ProductClothesType = () => {
   return (
     
     <Container>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={() => setSnackbarOpen(false)}
+        message={snackbarMessage}
+      />
       <Box mb={2} display="flex" alignItems="center" gap={2}>
         <Button startIcon={<ArrowBack />} onClick={handleBack} variant="outlined" color="primary">
           Back to Products
@@ -216,11 +266,15 @@ const ProductClothesType = () => {
 
               {/* Add to Wishlist / Cart Button */}
               <Box display="flex" alignItems="center" mt={2} mb={2} >
-                <Tooltip title="Add to Wishlist">
-                  <IconButton color="error">
-                    <Favorite />
-                  </IconButton>
-                </Tooltip>
+                {user?<Tooltip title={checkFavorite ? 'Remove Product To FavoriteList' : 'Add Product To FavoriteList'}>
+                    <IconButton
+                      color={checkFavorite ? 'error' : 'default'}
+                      onClick={() => handleAddToFavoriteList(user._id, productClothes._id)}
+                    >
+                      <Favorite />
+                    </IconButton>
+                  </Tooltip>
+                  : <></> }
                 <Tooltip title="Add to Cart">
                   <IconButton color="primary" onClick={() => handleaddToCart(productClothes, selectedQuantity)}>
                     <ShoppingCart/>

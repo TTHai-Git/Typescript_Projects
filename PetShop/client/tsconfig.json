@@ -22,7 +22,7 @@
   "include": [
     "**/*.ts",
     "**/*.tsx"
-, "src/Config/APIs.js"  ],
+, "src/Config/APIs.js"],
   "exclude": [
     "node_modules"
   ]

@@ -10,7 +10,8 @@ import {
   Alert,
   CircularProgress
 } from '@mui/material';
-import axios from 'axios';
+// import axios from 'axios';
+import APIs, { endpoints } from '../Config/APIs';
 
 const ResetPassword = () => {
   const location = useLocation();
@@ -67,7 +68,12 @@ const ResetPassword = () => {
     }
 
     try {
-      const res = await axios.put('/v1/users/reset-password', {
+      // const res = await axios.put('/v1/users/reset-password', {
+      //   email,
+      //   otp: OTP,
+      //   newPassword,
+      // });
+      const res = await APIs.put(endpoints['resetPassword'], {
         email,
         otp: OTP,
         newPassword,

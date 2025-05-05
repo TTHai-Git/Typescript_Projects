@@ -2,6 +2,8 @@ import Order from "../models/order.js";
 import OrderDetails from "../models/orderdetails.js";
 import Product from "../models/product.js";
 import Category from "../models/category.js";
+import Brand from "../models/brand.js";
+import Vendor from "../models/vendor.js";
 
 export const createOrder = async (req, res) => {
   console.log(req.body);
@@ -75,13 +77,27 @@ export const getOrderDetails = async (req, res) => {
     for (const item of orderDetails) {
       const product = await Product.findById(item.product);
       const category = await Category.findById(product.category);
+      const brand = await Brand.findById(product.brand);
+      const vendor = await Vendor.findById(product.vendor);
       if (product) {
         results.push({
           orderId: orderId,
-          product: product,
-          category: category,
+          product: {
+            _id: product._id || null,
+            type: product.__t,
+            name: product.name,
+            description: product.description,
+            price: product.price,
+            imageUrl: product.imageUrl,
+            status: product.status,
+            createdAt: product.createdAt,
+            updatedAt: product.updatedAt,
+            category,
+            vendor,
+            brand,
+          },
           quantity: item.quantity,
-          totalPrice: product.price * item.quantity,
+          totalPrice: product.price.toFixed(2) * item.quantity,
           note: item.note,
         });
       }
