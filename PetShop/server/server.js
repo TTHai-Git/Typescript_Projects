@@ -44,8 +44,12 @@ app.use("/v1/brands", brandRouter);
 app.use("/v1/products", productRoutes);
 app.use("/v1/breeds", breedRoutes);
 app.use("/v1/favorites", favoriteRoutes);
-app.get("/", (req, res) => {
+
+app.get("/v1/", (req, res) => {
   res.send("Welcome to the Pet Shop API!");
+});
+app.listen(process.env.PORT || 5000, () => {
+  console.log("Server is running on port", process.env.PORT || 5000);
 });
 
 // Export for Vercel
