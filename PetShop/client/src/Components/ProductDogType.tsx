@@ -31,13 +31,15 @@ import { ArrowBack, ColorLens, Favorite, FitnessCenter } from '@mui/icons-materi
 import APIs, { authApi, endpoints } from '../Config/APIs';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
+import UserComment from './UserComment';
+import CommentsByProduct from './CommentsByProduct';
 
 const ProductDogType: React.FC = () => {
   const user = useSelector((state: RootState) => state.auth.user)
   const { addToCart } = useCart();
   const { product_id } = useParams();
   const location = useLocation();
-  const type = location.state;
+  const type = location.state || 'dog';
   const [dog, setDog] = React.useState<ProductDog | null>(null);
   const [loading, setLoading] = React.useState<boolean>(true);
   const [selectedQuantity, setSelectedQuantity] = React.useState<number>(1)
@@ -269,6 +271,41 @@ const ProductDogType: React.FC = () => {
           </Card>
         </Grid>
       </Grid>
+      {user?<>
+        <UserComment userId={user?._id || ""} productId={dog._id} loadInfoDetailsOfProduct={loadDogs}/>
+      </> : <>
+        <Box sx={{
+                maxWidth: '100%',
+                margin: '5% 1%',
+                padding: 4,
+                border: '1px solid #ddd',
+                borderRadius: 3,
+                backgroundColor: '#f9f9f9',
+                boxShadow: 2,
+                textAlign: 'center',
+              }}>
+              <Typography variant="h6" color="text.secondary" align="center" mt={4}>Please log in to leave a comment.</Typography>
+                <Button
+                 
+                  variant="outlined"
+                  onClick={() => navigate('/login', { state: location.pathname })}
+                >
+                  Go To Login
+                </Button>
+              </Box>
+      </>}
+      <Box sx={{
+        maxWidth: '100%',
+        margin: '5% 1%',
+        padding: 4,
+        border: '1px solid #ddd',
+        borderRadius: 3,
+        backgroundColor: '#f9f9f9',
+        boxShadow: 2,
+        textAlign: 'center',
+      }}>
+        <CommentsByProduct productId= {dog._id}/>
+      </Box>
     </Box>
   );
 };

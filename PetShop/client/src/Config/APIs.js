@@ -21,6 +21,8 @@ export const endpoints = {
   getFavoriteProductOfUser: (productId, userId) =>
     `/favorites/product/${productId}/user/${userId}`,
   getFavoriteProductsList: (userId) => `/favorites/user/${userId}`,
+  addComment: "/comments/",
+  getCommentsByProduct: (productId) => `/comments/product/${productId}`,
 };
 
 export const authApi = (accessToken) => {

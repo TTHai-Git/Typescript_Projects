@@ -15,6 +15,7 @@ import breedRoutes from "./routes/breed.js";
 import roleRoutes from "./routes/role.js";
 import userRoutes from "./routes/user.js";
 import favoriteRoutes from "./routes/favorite.js";
+import commentRoutes from "./routes/comment.js";
 
 dotenv.config();
 
@@ -44,6 +45,7 @@ app.use("/v1/brands", brandRouter);
 app.use("/v1/products", productRoutes);
 app.use("/v1/breeds", breedRoutes);
 app.use("/v1/favorites", favoriteRoutes);
+app.use("/v1/comments", commentRoutes);
 
 app.get("/v1/", (req, res) => {
   res.send("Welcome to the Pet Shop API!");

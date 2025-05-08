@@ -25,13 +25,14 @@ import NumberInput from './Customs/NumberInput';
 import APIs, { authApi, endpoints } from '../Config/APIs';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
+import UserComment from './UserComment';
 
 const ProductClothesType = () => {
   const user = useSelector((state: RootState) => state.auth.user)
   const { addToCart } = useCart()
   const { product_id } = useParams();
   const location = useLocation();
-  const type = location.state;
+  const type = location.state || 'clothes';
   const [loading, setLoading] = useState<boolean>(false);
   const [productClothes, setProductClothes] = useState<ProductClothes>();
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
@@ -286,6 +287,29 @@ const ProductClothesType = () => {
           </Card>
         </Grid>
       </Grid>
+      {user?<>
+        <UserComment userId={user?._id || ""} productId={productClothes._id} loadInfoDetailsOfProduct={loadInfoDetailsOfProduct}/>
+      </> : <>
+        <Box sx={{
+        maxWidth: '100%',
+        margin: '5% 1%',
+        padding: 4,
+        border: '1px solid #ddd',
+        borderRadius: 3,
+        backgroundColor: '#f9f9f9',
+        boxShadow: 2,
+        textAlign: 'center',
+      }}>
+      <Typography variant="h6" color="text.secondary" align="center" mt={4}>Please log in to leave a comment.</Typography>
+        <Button
+          
+          variant="outlined"
+          onClick={() => navigate('/login', { state: location.pathname })}
+        >
+          Go To Login
+        </Button>
+      </Box>
+      </>}
     </Container>
   );
 };

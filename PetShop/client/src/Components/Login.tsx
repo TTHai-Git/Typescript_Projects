@@ -43,7 +43,7 @@ const Login: React.FC = () => {
         if (!from)
           navigate('/products');
         else {
-          navigate(`${from}`)
+          navigate(`${from}`, )
         }
       } else {
       alert('Invalid username or password');
@@ -57,7 +57,7 @@ const Login: React.FC = () => {
   };
 
   useEffect(() => {
-
+    console.log(from)
   }, [isError])
 
   return (

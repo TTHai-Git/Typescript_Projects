@@ -36,13 +36,15 @@ import NumberInput from './Customs/NumberInput';
 import APIs, { authApi, endpoints } from '../Config/APIs';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
+import UserComment from './UserComment';
+import CommentsByProduct from './CommentsByProduct';
 
 const ProductFoodType = () => {
   const user = useSelector((state: RootState) => state.auth.user)
   const {addToCart} = useCart()
   const {product_id } = useParams();
   const location = useLocation();
-  const type = location.state
+  const type = location.state || "food";
   const navigate = useNavigate();
   const [productFoods, setProductFoods] = useState<ProductFood>();
   const [loading, setLoading] = useState<boolean>(false);
@@ -214,7 +216,7 @@ const ProductFoodType = () => {
             <Grid item xs={12} sm={6}>
               <Typography variant="h6" gutterBottom>
                 <CalendarMonth sx={{ mr: 1 }} /> Expiration Date:{' '}
-                {new Date(productFoods.expirationDate).toLocaleDateString()}
+                {formatDate(productFoods.expirationDate.toString())}
               </Typography>
 
               <Box mt={2}>
@@ -276,7 +278,34 @@ const ProductFoodType = () => {
           </Grid>
         </CardContent>
       </Card>
+      {user?<>
+        <UserComment userId={user?._id || ""} productId={productFoods._id} loadInfoDetailsOfProduct={loadInfoDetailsOfProduct}/>
+      </> : <>
+      <Box sx={{
+        maxWidth: '100%',
+        margin: '5% 1%',
+        padding: 4,
+        border: '1px solid #ddd',
+        borderRadius: 3,
+        backgroundColor: '#f9f9f9',
+        boxShadow: 2,
+        textAlign: 'center',
+      }}>
+      <Typography variant="h6" color="text.secondary" align="center" mt={4}>Please log in to leave a comment.</Typography>
+        <Button
+         
+          variant="outlined"
+          onClick={() => navigate('/login', { state: location.pathname })}
+        >
+          Go To Login
+        </Button>
+      </Box>
+      </>}
+      <CommentsByProduct productId= {productFoods._id}/>
     </Box>
+    
+    
+    
   );
 };
 
