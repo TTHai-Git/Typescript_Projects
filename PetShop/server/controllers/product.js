@@ -7,12 +7,96 @@ import ClothesProduct from "../models/productclothes.js";
 import DogProduct from "../models/productdog.js";
 import FoodProduct from "../models/productfood.js";
 import Vendor from "../models/vendor.js";
+import Comment from "../models/comment.js";
+import OrderDetails from "../models/orderdetails.js";
 
 const productTypes = {
   dog: DogProduct,
   food: FoodProduct,
   clothes: ClothesProduct,
   accessory: AccessoryProduct,
+};
+
+export const roundFirstDecimal = (num) => {
+  const fixed = Number(num.toFixed(2)); // e.g., 3.17 or 3.14
+
+  const intPart = Math.floor(fixed); // e.g., 3
+  const decimalPart = fixed - intPart; // e.g., 0.17 or 0.14
+
+  const firstDecimalDigit = Math.floor(decimalPart * 10); // e.g., 1
+  const secondDecimalDigit = Math.floor((decimalPart * 100) % 10); // e.g., 7 or 4
+
+  const roundedDecimal =
+    secondDecimalDigit >= 5 ? firstDecimalDigit + 1 : firstDecimalDigit;
+
+  // Handle carry-over (e.g., 3.99 → 4.0)
+  if (roundedDecimal === 10) {
+    return intPart + 1;
+  }
+
+  return parseFloat(`${intPart}.${roundedDecimal}`);
+};
+
+const calculateTotalOrderOfProduct = async (productId) => {
+  const orderDetails = await OrderDetails.find({ product: productId });
+  let totalOrder = 0;
+  for (const orderDetail of orderDetails) {
+    totalOrder = totalOrder + orderDetail.quantity;
+  }
+  return totalOrder;
+};
+
+const calculateRating = async (productId) => {
+  const comments = await Comment.find({ product: productId });
+  // console.log(comments.length);
+
+  let totalRating = 0;
+  let count_rating_one_start = 0;
+  let count_rating_two_start = 0;
+  let count_rating_three_start = 0;
+  let count_rating_four_start = 0;
+  let count_rating_five_start = 0;
+
+  if (comments.length > 0) {
+    for (const comment of comments) {
+      if (comment.rating === 1) {
+        count_rating_one_start = count_rating_one_start + 1;
+      } else if (comment.rating === 2) {
+        count_rating_two_start = count_rating_two_start + 1;
+      } else if (comment.rating === 3) {
+        count_rating_three_start = count_rating_three_start + 1;
+      } else if (comment.rating === 4) {
+        count_rating_four_start = count_rating_four_start + 1;
+      } else {
+        count_rating_five_start = count_rating_five_start + 1;
+      }
+    }
+
+    totalRating =
+      (count_rating_one_start +
+        count_rating_two_start * 2 +
+        count_rating_three_start * 3 +
+        count_rating_four_start * 4 +
+        count_rating_five_start * 5) /
+      comments.length;
+  }
+
+  const beforeTotalRatingRounded = roundFirstDecimal(totalRating);
+
+  const decimalPart = totalRating - Math.floor(totalRating);
+  // console.log("decimalPart", decimalPart);
+  if (decimalPart >= 0.5) {
+    totalRating = Math.ceil(totalRating);
+  } else {
+    totalRating = Math.floor(totalRating);
+  }
+
+  // console.log("beforeTotalRatingRound", beforeTotalRatingRound);
+  // console.log("AfterTotalRatingRound", totalRating);
+  return {
+    beforeTotalRatingRounded: beforeTotalRatingRounded,
+    totalRating: totalRating,
+  };
 };
 
 export const getAllProducts = async (req, res) => {
@@ -91,6 +175,10 @@ export const getAllProducts = async (req, res) => {
         category: categoryDocs[catId],
         vendor,
         brand,
+        totalRating: (await calculateRating(product._id)).totalRating,
+        beforeTotalRatingRounded: (await calculateRating(product._id))
+          .beforeTotalRatingRounded,
+        totalOrder: await calculateTotalOrderOfProduct(product._id),
       });
     }
 
@@ -129,11 +217,16 @@ export const getProductById = async (req, res) => {
       }
       product.breed = breed;
     }
+
     const data = {
       ...product._doc,
       category: category,
       vendor: vendor,
       brand: brand,
+      totalRating: (await calculateRating(product._id)).totalRating,
+      beforeTotalRatingRounded: (await calculateRating(product._id))
+        .beforeTotalRatingRounded,
+      totalOrder: await calculateTotalOrderOfProduct(product._id),
     };
 
     return res.status(200).json({ product: data });

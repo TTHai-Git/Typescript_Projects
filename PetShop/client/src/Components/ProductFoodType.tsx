@@ -29,6 +29,7 @@ import {
   ArrowBack,
   ShoppingCart,
 } from '@mui/icons-material';
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import{ ProductFood } from '../Interface/Product';
 import { useCart } from '../Context/Cart';
 import formatDate from '../Convert/formatDate ';
@@ -69,7 +70,7 @@ const ProductFoodType = () => {
 
    useEffect(() => {
       loadInfoDetailsOfProduct();
-      handleCheckFavorite();
+      if (user) handleCheckFavorite();
     }, []);
 
   const handleAddToCart = (ProductFood: ProductFood, quantity: number) => {
@@ -202,6 +203,9 @@ const ProductFoodType = () => {
               <Typography variant="h6" gutterBottom>
                 <LocalOffer sx={{ mr: 1 }} /> Price: ${productFoods.price.toFixed(2)}
               </Typography>
+               <Typography variant="subtitle2" fontWeight="bold" color="primary">
+                <AddShoppingCartIcon fontSize="small" /> {productFoods.totalOrder} Orders
+              </Typography>
               <Typography variant="h6" gutterBottom>
                 <Category sx={{ mr: 1 }} /> Category: {productFoods.category.name}
               </Typography>
@@ -301,7 +305,21 @@ const ProductFoodType = () => {
         </Button>
       </Box>
       </>}
-      <CommentsByProduct productId= {productFoods._id}/>
+      <Box sx={{
+        maxWidth: '100%',
+        margin: '5% 1%',
+        padding: 4,
+        border: '1px solid #ddd',
+        borderRadius: 3,
+        backgroundColor: '#f9f9f9',
+        boxShadow: 2,
+       
+      }}>
+        <CommentsByProduct productId= {productFoods._id} 
+        totalRating = {productFoods.totalRating??0} 
+        beforeTotalRatingRounded={productFoods.beforeTotalRatingRounded??0} loadInfoDetailsOfProduct={loadInfoDetailsOfProduct} />
+      </Box>
+      
     </Box>
     
     

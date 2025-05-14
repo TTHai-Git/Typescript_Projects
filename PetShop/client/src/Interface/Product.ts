@@ -17,6 +17,9 @@ export default interface Product extends ProductCart {
     vendor: Vendor;
     createdAt: Date;
     updatedAt: Date;
+    totalRating?: number;
+    beforeTotalRatingRounded?: number
+    totalOrder?:number
     
 }
 

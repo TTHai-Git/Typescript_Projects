@@ -28,6 +28,7 @@ import {
   LocalShipping,
   ArrowBack
 } from '@mui/icons-material';
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import Product, { ProductAccessories } from '../Interface/Product';
 import { useCart } from '../Context/Cart';
 import NumberInput from './Customs/NumberInput';
@@ -35,6 +36,7 @@ import APIs, { authApi, endpoints } from '../Config/APIs';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import UserComment from './UserComment';
+import CommentsByProduct from './CommentsByProduct';
 
 const ProductAccessoryType = () => {
   const user = useSelector((state: RootState) => state.auth.user)
@@ -112,7 +114,7 @@ const ProductAccessoryType = () => {
 
   useEffect(() => {
     loadInfoDetailsOfProduct();
-    handleCheckFavorite();
+    if (user) handleCheckFavorite();
   }, []);
   
 
@@ -168,6 +170,9 @@ const ProductAccessoryType = () => {
               </Typography>
               <Typography variant="h5" color="secondary" gutterBottom>
                 ${productAccessory.price.toFixed(2)}
+              </Typography>
+              <Typography variant="subtitle2" fontWeight="bold" color="primary">
+                <AddShoppingCartIcon fontSize="small" /> {productAccessory.totalOrder} Orders
               </Typography>
 
               {/* Extra Fields */}
@@ -260,6 +265,20 @@ const ProductAccessoryType = () => {
                 </Button>
               </Box>
       </>}
+     <Box sx={{
+          maxWidth: '100%',
+          margin: '5% 1%',
+          padding: 4,
+          border: '1px solid #ddd',
+          borderRadius: 3,
+          backgroundColor: '#f9f9f9',
+          boxShadow: 2,
+          
+        }}>
+        <CommentsByProduct productId= {productAccessory._id} totalRating= {productAccessory.totalRating??0} beforeTotalRatingRounded={productAccessory.beforeTotalRatingRounded ?? 0} loadInfoDetailsOfProduct = {loadInfoDetailsOfProduct} />
+      </Box>
+      
+  
     </Container>
   );
 };

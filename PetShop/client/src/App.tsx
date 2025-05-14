@@ -20,6 +20,7 @@ import GenerateOTP from './Components/GenerateOTP';
 import ResetPassword from './Components/ResetPassword';
 import { Footer } from './Components/Footer';
 import FavoriteList from './Components/FavoriteList';
+import UpdateCommentForm from './Components/Customs/UpdateCommentForm';
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
               <Route path="/products/clothes/:product_id" element={<ProductClothesType/>}/>
               <Route path="/products/accessory/:product_id" element={<ProductAccessoryType/>}/>
               <Route path="/products/dog/:product_id/" element={<ProductDogType/>}/>
+              <Route path="/comments/:commentId/update" element={<UpdateCommentForm/>}/>
             </Routes>
           </div>
           <Footer/>

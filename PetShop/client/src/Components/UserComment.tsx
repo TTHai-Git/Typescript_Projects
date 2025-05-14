@@ -13,8 +13,10 @@ import {
   CardActions
 } from '@mui/material';
 import { Delete } from '@mui/icons-material';
-import APIs, { endpoints } from '../Config/APIs';
+import APIs, { authApi, endpoints } from '../Config/APIs';
 import axios from 'axios';
+import { useSelector } from 'react-redux';
+import { RootState } from '../store';
 
 export interface Props {
   userId: string;
@@ -23,6 +25,7 @@ export interface Props {
 }
 
 const UserComment = (props: Props) => {
+  const user = useSelector((state: RootState) => state.auth.user)
   const [comment, setComment] = useState({
     content: '',
     rating: 0,
@@ -62,34 +65,47 @@ const UserComment = (props: Props) => {
 
     try {
       const uploadedUrls: string[] = [];
+      const public_ids : string[] = []
 
       for (const file of comment.urls) {
         const formData = new FormData();
         formData.append("file", file);
         formData.append("upload_preset", process.env.REACT_APP_UPLOAD_PRESET || "");
         formData.append("cloud_name", process.env.REACT_APP_CLOUD_NAME || "");
+        formData.append("folder", process.env.REACT_APP_FOLDER_CLOUD || "")
 
         const res = await axios.post(
           `${endpoints['uploadAvatarToCloudinary'](
             process.env.REACT_APP_BASE_CLOUD_URL,
             process.env.REACT_APP_CLOUD_NAME,
-            process.env.REACT_APP_DIR_CLOUD
+            process.env.REACT_APP_DIR_CLOUD,
           )}`,
           formData
         );
+        // console.log('res', res)
 
         uploadedUrls.push(res.data.secure_url);
+        public_ids.push(res.data.public_id)
       }
-      console.log('Uploaded URLs:', uploadedUrls);
-      const res = await APIs.post(`${endpoints['addComment']}`, {
+      // console.log('Uploaded URLs:', uploadedUrls);
+      // const res = await APIs.post(`${endpoints['addComment']}`, {
+      //   userId: props.userId,
+      //   productId: props.productId,
+      //   content: comment.content,
+      //   rating: comment.rating,
+      //   urls: uploadedUrls
+      // });
+
+        const res = await authApi(user?.tokenInfo.accessToken).post(`${endpoints['addComment']}`, {
         userId: props.userId,
         productId: props.productId,
         content: comment.content,
         rating: comment.rating,
-        urls: uploadedUrls
+        urls: uploadedUrls,
+        public_ids: public_ids,
       });
 
-      console.log('Comment added successfully:', res.data);
+      // console.log('Comment added successfully:', res.data);
       setComment({ content: '', rating: 0, urls: [] });
       alert('Comment added successfully!');
       props.loadInfoDetailsOfProduct();

@@ -167,11 +167,16 @@ export const deleteFavorite = async (req, res) => {
     const { favoriteId } = req.params;
     const favorite = await Favorite.findByIdAndDelete(favoriteId);
     if (!favorite) {
-      return res.status(404).json({ message: "Brand not found to delete" });
+      return res.status(404).json({ message: "Favorite not found to delete" });
     }
-    res.status(204).json({ message: "Brand deleted successfully" });
+    if (!req.user._id.equals(favorite.user)) {
+      return res
+        .status(403)
+        .json({ message: "You are not authorized to delete this favorite" });
+    }
+    res.status(204).json({ message: "Favorite deleted successfully" });
   } catch (error) {
-    console.error("Error delete brand:", error);
+    console.error("Error delete Favorite:", error);
     res.status(500).json({ message: "server error", error });
   }
 };

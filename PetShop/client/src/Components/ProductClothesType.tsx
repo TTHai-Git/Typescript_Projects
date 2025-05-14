@@ -19,6 +19,7 @@ import {
   Tooltip,
   Snackbar
 } from '@mui/material';
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import { Favorite, ShoppingCart, ColorLens, FitnessCenter, LocalOffer, ArrowBack } from '@mui/icons-material';
 import { useCart } from '../Context/Cart';
 import NumberInput from './Customs/NumberInput';
@@ -26,6 +27,7 @@ import APIs, { authApi, endpoints } from '../Config/APIs';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import UserComment from './UserComment';
+import CommentsByProduct from './CommentsByProduct';
 
 const ProductClothesType = () => {
   const user = useSelector((state: RootState) => state.auth.user)
@@ -64,7 +66,7 @@ const ProductClothesType = () => {
 
   useEffect(() => {
     loadInfoDetailsOfProduct();
-    handleCheckFavorite();
+    if (user) handleCheckFavorite();
   }, []);
 
   const handleSizeClick = (size: string) => setSelectedSize(size);
@@ -168,6 +170,9 @@ const ProductClothesType = () => {
               {/* Price */}
               <Typography variant="h5" color="secondary" gutterBottom>
                 ${productClothes.price.toFixed(2)}
+              </Typography>
+              <Typography variant="subtitle2" fontWeight="bold" color="primary">
+                <AddShoppingCartIcon fontSize="small" /> {productClothes.totalOrder} Orders
               </Typography>
 
               {/* Size Widget */}
@@ -310,6 +315,19 @@ const ProductClothesType = () => {
         </Button>
       </Box>
       </>}
+      <Box sx={{
+        maxWidth: '100%',
+        margin: '5% 1%',
+        padding: 4,
+        border: '1px solid #ddd',
+        borderRadius: 3,
+        backgroundColor: '#f9f9f9',
+        boxShadow: 2,
+      }}>
+        <CommentsByProduct productId= {productClothes._id} 
+        totalRating={productClothes.totalRating??0}
+        beforeTotalRatingRounded={productClothes.beforeTotalRatingRounded??0} loadInfoDetailsOfProduct={loadInfoDetailsOfProduct}/>
+      </Box>
     </Container>
   );
 };

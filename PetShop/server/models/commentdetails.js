@@ -5,6 +5,10 @@ const CommentDetailsSchema = new Schema({
     type: String,
     required: true,
   },
+  public_id: {
+    type: String,
+    required: true,
+  },
   comment: {
     type: Schema.Types.ObjectId,
     ref: "Comment",

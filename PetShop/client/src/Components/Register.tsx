@@ -41,6 +41,7 @@ const Register = () => {
     }
     data.append("upload_preset", process.env.REACT_APP_UPLOAD_PRESET || "");
     data.append("cloud_name", process.env.REACT_APP_CLOUD_NAME || "");
+    data.append("folder", process.env.REACT_APP_FOLDER_CLOUD || "")
 
     try {
       // const res_1 = await axios.post(
@@ -71,7 +72,7 @@ const Register = () => {
 
   // Clean up memory when component unmounts or avatar changes
   useEffect(() => {
-    console.log(process.env)
+    // console.log(process.env)
     return () => {
       if (previewAvatar) {
         URL.revokeObjectURL(previewAvatar);

@@ -101,8 +101,9 @@ const ProductDogType: React.FC = () => {
       }
     };
 
-    const loadDogs = async () => {
+    const loadInfoDetailsOfProduct = async () => {
       try {
+        setLoading(true)
         // const response = await axios.get(`/v1/products/${type}/${product_id}`);
         const response = await APIs.get(`${endpoints['getProductById'](type, product_id)}`);
         setDog(response.data.product);
@@ -113,8 +114,8 @@ const ProductDogType: React.FC = () => {
       }
     }
   React.useEffect(() => {
-    loadDogs()
-    handleCheckFavorite()
+    loadInfoDetailsOfProduct()
+    if (user) handleCheckFavorite();
   }, []);
 
   const handleSizeClick = (size: string) => {
@@ -166,12 +167,12 @@ const ProductDogType: React.FC = () => {
         </Grid>
 
         <Grid item xs={12} md={7}>
+          
           <Card sx={{ p: 3, borderRadius: 4, boxShadow: 3 }}>
             <CardContent>
               <Typography variant="h4" fontWeight="bold" gutterBottom>
                 {dog.name}
               </Typography>
-
               <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
                 <Chip icon={<PetsIcon />} label={`Breed: ${dog.breed.name}`} color="primary" />
                 <Chip icon={<CakeIcon />} label={`Age: ${new Date().getFullYear() - dog.age} years`} color="secondary" />
@@ -225,6 +226,9 @@ const ProductDogType: React.FC = () => {
                 <AttachMoneyIcon sx={{ mr: 1 }} />
                 Price: {dog.price.toFixed(2)} $
               </Typography>
+              <Typography variant="subtitle2" fontWeight="bold" color="primary">
+                <AddShoppingCartIcon fontSize="small" /> {dog.totalOrder} Orders
+              </Typography>
 
               <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
                 {dog.description}
@@ -270,9 +274,11 @@ const ProductDogType: React.FC = () => {
             </CardContent>
           </Card>
         </Grid>
+        
       </Grid>
+      
       {user?<>
-        <UserComment userId={user?._id || ""} productId={dog._id} loadInfoDetailsOfProduct={loadDogs}/>
+        <UserComment userId={user?._id || ""} productId={dog._id} loadInfoDetailsOfProduct={loadInfoDetailsOfProduct}/>
       </> : <>
         <Box sx={{
                 maxWidth: '100%',
@@ -302,9 +308,9 @@ const ProductDogType: React.FC = () => {
         borderRadius: 3,
         backgroundColor: '#f9f9f9',
         boxShadow: 2,
-        textAlign: 'center',
+       
       }}>
-        <CommentsByProduct productId= {dog._id}/>
+        <CommentsByProduct productId= {dog._id} totalRating={dog.totalRating?? 0} beforeTotalRatingRounded = {dog.beforeTotalRatingRounded??0} loadInfoDetailsOfProduct={loadInfoDetailsOfProduct}/>
       </Box>
     </Box>
   );

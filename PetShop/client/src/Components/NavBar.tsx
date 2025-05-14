@@ -21,7 +21,7 @@ export const NavBar = () => {
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
             <img
-              src="https://res.cloudinary.com/dh5jcbzly/image/upload/v1745474748/LogoDogShop_qqjit2.jpg"
+              src="https://res.cloudinary.com/dh5jcbzly/image/upload/v1747206698/DOGSHOP/p8fsrneompfetgd4h0qh.jpg"
               alt="DOGSHOP"
               style={{ height: 48, borderRadius: 8 }}
             />

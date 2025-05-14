@@ -27,9 +27,12 @@ import {
   CheckCircleOutline as CheckCircleOutlineIcon,
   CancelOutlined as CancelOutlinedIcon,
 } from '@mui/icons-material';
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import SearchIcon from '@mui/icons-material/Search';
 import SortIcon from '@mui/icons-material/Sort';
-
+import StarIcon from '@mui/icons-material/Star';
+import StarHalfIcon from '@mui/icons-material/StarHalf';
+import StarBorderIcon from '@mui/icons-material/StarBorder';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Product from '../Interface/Product';
 import { Category } from '../Interface/Category';
@@ -47,8 +50,8 @@ const Products = () => {
   const categoryId = searchParams.get('category') || '';
   const currentPage = parseInt(searchParams.get('page') || '1');
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState('');
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [sortBy, setSortBy] = useState<string>('');
 
 
   const navigate = useNavigate();
@@ -128,6 +131,8 @@ const Products = () => {
       <Typography variant="h4" mb={4} fontWeight="bold" color="primary">
         Product List: {total} Products
       </Typography>
+      
+      
   
       {/* Search and Filter Section */}
       <Box sx={{ mb: 4, display: 'flex', flexDirection: 'column', gap: 3 }}>
@@ -266,6 +271,7 @@ const Products = () => {
           <Grid container spacing={3}>
             {products.map((item) => (
               <Grid item xs={12} sm={6} md={6} key={item._id}>
+
                 <Card
                   sx={{
                     borderRadius: 3,
@@ -295,8 +301,35 @@ const Products = () => {
                       <Typography variant="subtitle1" fontWeight="bold" color="primary">
                         <AttachMoneyIcon fontSize="small" /> {item.price.toFixed(2)}
                       </Typography>
-                    </Box>
+                      <Typography variant="subtitle2" fontWeight="bold" color="primary">
+                        <AddShoppingCartIcon fontSize="small" /> {item.totalOrder} Orders
+                      </Typography>
+                      <Box>
+                    <Chip
+                      key={item._id}
+                      label={
+                        <Stack direction="row" alignItems="center" spacing={0.5}>
+                          <span>{item.beforeTotalRatingRounded}</span>
+                          {Array.from({ length: 5 }).map((_, i) => {
+                            const rating = item.totalRating ?? 0;
+                            if (rating === 0) {
+                              return <StarBorderIcon key={i} sx={{ color: '#ccc', fontSize: 18 }} />;
+                            } else if (i + 1 <= Math.floor(rating)) {
+                              return <StarIcon key={i} sx={{ color: '#fdd835', fontSize: 18 }} />;
+                            } else if (i < rating) {
+                              return <StarHalfIcon key={i} sx={{ color: '#fdd835', fontSize: 18 }} />;
+                            } else {
+                              return <StarBorderIcon key={i} sx={{ color: '#ccc', fontSize: 18 }} />;
+                            }
+                          })}
+                        </Stack>
+                      }
+                    />
                   </Box>
+                    </Box>
+                    
+                  </Box>
+                  
   
                   <CardContent>
                     <Stack spacing={1} mb={2}>

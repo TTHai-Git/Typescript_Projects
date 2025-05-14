@@ -23,6 +23,11 @@ export const endpoints = {
   getFavoriteProductsList: (userId) => `/favorites/user/${userId}`,
   addComment: "/comments/",
   getCommentsByProduct: (productId) => `/comments/product/${productId}`,
+  deleteComment: (commentId) => `/comments/${commentId}`,
+  updateComment: (commentId) => `/comments/${commentId}`,
+  deleteCommentDetails: (commentDetailsId) =>
+    `/commentDetails/${commentDetailsId}`,
+  getComment: (commentId) => `/comments/${commentId}`,
 };
 
 export const authApi = (accessToken) => {

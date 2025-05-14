@@ -57,7 +57,7 @@ const Login: React.FC = () => {
   };
 
   useEffect(() => {
-    console.log(from)
+    // console.log(from)
   }, [isError])
 
   return (
