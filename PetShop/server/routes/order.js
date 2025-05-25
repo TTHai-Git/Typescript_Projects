@@ -3,15 +3,17 @@ import {
   createOrder,
   getOrdersOfCustomer,
   getOrderDetails,
+  updateStatusOfOrder,
+  getOrder,
 } from "../controllers/order.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
+import { isAdmin } from "../middleware/isAdmin.js";
+
 const orderRoutes = Router();
 orderRoutes.post("/", authMiddleware, createOrder);
-orderRoutes.get("/:user_id/:page", authMiddleware, getOrdersOfCustomer);
-orderRoutes.get(
-  "/:orderId/orderDetails/:page",
-  authMiddleware,
-  getOrderDetails
-);
+orderRoutes.get("/user/:user_id", authMiddleware, getOrdersOfCustomer);
+orderRoutes.get("/:orderId/orderDetails/", authMiddleware, getOrderDetails);
+orderRoutes.get("/:orderId", getOrder);
+orderRoutes.put("/:orderId", updateStatusOfOrder);
 
 export default orderRoutes;

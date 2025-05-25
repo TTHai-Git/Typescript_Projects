@@ -16,8 +16,8 @@ export const createOrder = async (req, res) => {
 };
 
 export const getOrdersOfCustomer = async (req, res) => {
-  const perPage = 5;
-  const page = parseInt(req.params.page) || 1;
+  const perPage = parseInt(req.query.limt) || 5;
+  const page = parseInt(req.query.page) || 1;
   try {
     const { user_id } = req.params;
 
@@ -57,8 +57,8 @@ export const getOrdersOfCustomer = async (req, res) => {
 export const getOrderDetails = async (req, res) => {
   const orderId = req.params.orderId;
 
-  const perPage = 5;
-  const page = parseInt(req.params.page) || 1;
+  const perPage = parseInt(req.query.limit) || 5;
+  const page = parseInt(req.query.page) || 1;
 
   try {
     const orderDetails = await OrderDetails.find({ order: orderId })
@@ -97,7 +97,7 @@ export const getOrderDetails = async (req, res) => {
             brand,
           },
           quantity: item.quantity,
-          totalPrice: product.price.toFixed(2) * item.quantity,
+          totalPrice: product.price * item.quantity,
           note: item.note,
         });
       }
@@ -112,5 +112,41 @@ export const getOrderDetails = async (req, res) => {
   } catch (error) {
     console.error("Error getting order details:", error);
     res.status(500).json({ message: "Server error", error });
+  }
+};
+
+export const updateStatusOfOrder = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    console.log("orderId", orderId);
+    const { status } = req.body;
+    console.log("status: ", status);
+    const updatedOrder = await Order.findByIdAndUpdate(
+      orderId,
+      { status },
+      {
+        new: true, // Return the updated document
+        runValidators: true, // Ensure the updated fields follow schema validation
+      }
+    );
+    if (!updateStatusOfOrder) {
+      return res
+        .status(400)
+        .json({ message: "Order not found to update status" });
+    }
+    return res.status(200).json(updatedOrder);
+  } catch {
+    return res.status(500).json({ message: "Server Error" });
+  }
+};
+
+export const getOrder = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const order = await Order.findById(orderId);
+    if (!order) return res.status(400).json({ message: "Order not found" });
+    return res.status(200).json(order);
+  } catch (error) {
+    console.log(error);
   }
 };

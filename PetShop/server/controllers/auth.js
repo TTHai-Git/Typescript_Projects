@@ -50,23 +50,38 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: "Invalid username" });
     }
 
-    // Compare passwords
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid password" });
     }
 
-    // Generate JWT token
+    // Create JWT tokens
     const accessToken = jwt.sign({ id: user._id }, SECRET_KEY, {
       expiresIn: "1h",
     });
 
-    // Generate refresh token
     const refreshToken = jwt.sign({ id: user._id }, SECRET_KEY, {
       expiresIn: "7d",
     });
 
-    res.json({
+    // ✅ Set HttpOnly Cookie
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // use HTTPS in prod
+      sameSite: "Strict",
+      maxAge: 60 * 60 * 1000, // 1 hour
+    });
+
+    // ✅ Optionally: Set refresh token in cookie too
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    // ✅ Only return user data (no token)
+    res.status(200).json({
       user: {
         _id: user._id,
         role: user.role,
@@ -76,13 +91,33 @@ export const login = async (req, res) => {
         email: user.email,
         phone: user.phone,
         address: user.address,
-        tokenInfo: {
-          accessToken: accessToken,
-          expiresIn: 3600,
-          refreshToken: refreshToken,
-        },
       },
     });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+export const logout = (req, res) => {
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "Strict",
+  });
+  res.status(200).json({ message: "Logged out" });
+};
+
+export const authMe = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id)
+      .populate("role")
+      .select("-password");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json(user);
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }

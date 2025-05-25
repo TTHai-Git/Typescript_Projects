@@ -30,20 +30,22 @@ import {
 } from '@mui/icons-material';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import Product, { ProductAccessories } from '../Interface/Product';
-import { useCart } from '../Context/Cart';
+
 import NumberInput from './Customs/NumberInput';
 import APIs, { authApi, endpoints } from '../Config/APIs';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import UserComment from './UserComment';
 import CommentsByProduct from './CommentsByProduct';
+import { useCart } from '../Context/Cart';
 
 const ProductAccessoryType = () => {
   const user = useSelector((state: RootState) => state.auth.user)
   const {addToCart} = useCart();
   const { product_id } = useParams();
   const location = useLocation();
-  const type = location.state || 'accessory';
+  const type = "accessory";
+  // const from = location.state.from || null;
   const [loading, setLoading] = useState<boolean>(false);
   const [productAccessory, setProductAccessory] = useState<ProductAccessories>();
   const [selectedQuantity, setSelectedQuantity] = useState<number>(1)
@@ -56,6 +58,7 @@ const ProductAccessoryType = () => {
   const loadInfoDetailsOfProduct = async () => {
     try {
       setLoading(true);
+      
       // const response = await axios.get(`/v1/products/${type}/${product_id}`);
       const response = await APIs.get(`${endpoints['getProductById'](type,product_id)}`);
       setProductAccessory(response.data.product);
@@ -76,7 +79,7 @@ const ProductAccessoryType = () => {
   const handleCheckFavorite = async () => {
     try {
       setLoading(true)
-      const res = await authApi(user?.tokenInfo.accessToken).get(endpoints['getFavoriteProductOfUser'](product_id, user?._id))
+      const res = await authApi.get(endpoints['getFavoriteProductOfUser'](product_id, user?._id))
       setCheckFavorite(res.data.isFavorite)
     } catch (error) {
       console.error(error);
@@ -88,7 +91,10 @@ const ProductAccessoryType = () => {
   const handleAddToFavoriteList = async (userId: string, productId: string) => {
     try {
       setLoading(true)
-      const res = await authApi(user?.tokenInfo.accessToken).post(endpoints['createOrUpdateFavorite'], {
+      if(checkFavorite){
+        if (!window.confirm('Are you sure you want to remove this item from favorites?')) return;
+      }
+      const res = await authApi.post(endpoints['createOrUpdateFavorite'], {
         userId: userId,
         productId: productId
       });
@@ -109,7 +115,7 @@ const ProductAccessoryType = () => {
   
 
   const handleBack = () => {
-    navigate('/products');
+    navigate(`${location.pathname + location.search}`);
   };
 
   useEffect(() => {
@@ -141,7 +147,7 @@ const ProductAccessoryType = () => {
       />
       <Box mb={2} display="flex" alignItems="center" gap={2}>
         <Button startIcon={<ArrowBack />} onClick={handleBack} variant="outlined" color="primary">
-          Back to Products
+          Back To Previous
         </Button>
       </Box>
       <Grid container spacing={4}>
@@ -259,7 +265,10 @@ const ProductAccessoryType = () => {
                 <Button
                  
                   variant="outlined"
-                  onClick={() => navigate('/login', { state: location.pathname })}
+                  onClick={() => navigate('/login', { state: {
+                    from: location.pathname + location.search,
+                    type: type
+                  }})}
                 >
                   Go To Login
                 </Button>

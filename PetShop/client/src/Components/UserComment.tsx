@@ -31,6 +31,7 @@ const UserComment = (props: Props) => {
     rating: 0,
     urls: [] as File[]
   });
+  
 
   const [loading, setLoading] = useState(false);
 
@@ -96,7 +97,7 @@ const UserComment = (props: Props) => {
       //   urls: uploadedUrls
       // });
 
-        const res = await authApi(user?.tokenInfo.accessToken).post(`${endpoints['addComment']}`, {
+        const res = await authApi.post(`${endpoints['addComment']}`, {
         userId: props.userId,
         productId: props.productId,
         content: comment.content,

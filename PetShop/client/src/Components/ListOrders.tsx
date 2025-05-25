@@ -1,6 +1,6 @@
 // import axios from 'axios'
 import React, { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router'
+import { useLocation, useNavigate, useParams } from 'react-router'
 import '../Assets/CSS/ListOrders.css';
 import formatDate from '../Convert/formatDate ';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
@@ -8,24 +8,31 @@ import Order from '../Interface/Orders';
 import { authApi, endpoints } from '../Config/APIs';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
+import { Box, Button } from '@mui/material';
+import { ArrowBack } from '@mui/icons-material';
+import { useSearchParams } from 'react-router-dom';
 
 const ListOrders = () => {
   const user = useSelector((state: RootState)=> state.auth.user)
   const { user_id } = useParams()
   const { page } = useParams<{ page?: string }>(); // Get page number from URL
   const [orders, setOrders] = useState<Order[]>([])
-  const [current, setCurrent] = useState<number>(Number(page) || 1);
+  const [searchParams, setSearchParams] = useSearchParams()
+  const currentPage = parseInt(searchParams.get('page') || '1')
   const [pages, setPages] = useState<number>(0);
   const [total, setTotal] = useState<number>(0);
   const [loading, setLoading] = useState(false)
   let [count] = useState<number>(1)
   const navigate = useNavigate()
+  const location = useLocation()
 
   const getListOrders = async () => {
     setLoading(true)
     try {
       // const response = await axios.get(`/v1/orders/${user_id}/${current}`)
-      const response = await authApi(user?.tokenInfo.accessToken).get(`${endpoints['getOrdersOfCustomer'](user_id, current)}`)
+      const query = new URLSearchParams()
+      query.append('page', currentPage.toString())
+      const response = await authApi.get(`${endpoints['getOrdersOfCustomer'](user_id)}?${query.toString()}`)
       // console.log(response.data)
       if (response.status === 200) {
         // console.log(response.data.orders)
@@ -45,17 +52,22 @@ const ListOrders = () => {
 
   useEffect(() => {
     getListOrders()
-  }, [current])
+  }, [searchParams.toString()])
 
   const changePage = (newPage: number) => {
     if (newPage > 0 && newPage <= pages) {
-      setCurrent(newPage); // Update state to trigger `useEffect()`
-      navigate(`/userinfo/${user_id}/orders/${newPage}`);
+      const params: any = {page: newPage.toString()}
+      setSearchParams(params)
     }
   };
 
   return (
     <div className="container mx-auto p-4">
+      <Box mb={2} display="flex" alignItems="center" gap={2}>
+        <Button startIcon={<ArrowBack />} onClick={() => navigate(`/userinfo`)} variant="outlined" color="primary">
+          Back to Userinfo
+        </Button>
+      </Box>
       <h1 className="text-xl font-bold mb-4">List Orders</h1>
       
 
@@ -89,7 +101,9 @@ const ListOrders = () => {
                   {formatDate(order.createdAt)}
                   </td>
                   <td className="border px-4 py-2">
-                    <button className="btn btn-primary" onClick={() => navigate(`/userinfo/${user_id}/orders/${order.orderId}/orderDetails/1`)} ><RemoveRedEyeIcon/> View </button>
+                    <button className="btn btn-primary" onClick={() => navigate(`/userinfo/${user_id}/orders/${order.orderId}/orderDetails?page=1`, {state: {
+                      from : location.pathname + location.search
+                    }})} ><RemoveRedEyeIcon/> View </button>
                   </td>
                 </tr>
               ))
@@ -106,19 +120,19 @@ const ListOrders = () => {
       )}
       <h2 className="count">Total Orders: {total}</h2>
       <div className="pagination">
-        <button className="page-btn" onClick={() => changePage(1)} disabled={current === 1}>
+        <button className="page-btn" onClick={() => changePage(1)} disabled={currentPage === 1}>
           First
         </button>
-        <button className="page-btn" onClick={() => changePage(current - 1)} disabled={current === 1}>
+        <button className="page-btn" onClick={() => changePage(currentPage - 1)} disabled={currentPage === 1}>
           Previous
         </button>
         <span className="current-page">
-          Page {current} of {pages}
+          Page {currentPage} of {pages}
         </span>
-        <button className="page-btn" onClick={() => changePage(current + 1)} disabled={current === pages}>
+        <button className="page-btn" onClick={() => changePage(currentPage + 1)} disabled={currentPage === pages}>
           Next
         </button>
-        <button className="page-btn" onClick={() => changePage(pages)} disabled={current === pages}>
+        <button className="page-btn" onClick={() => changePage(pages)} disabled={currentPage === pages}>
           Last
         </button>
       </div>

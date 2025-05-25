@@ -10,7 +10,8 @@ import axios from 'axios'
 const UpdateCommentForm = () => {
     const user = useSelector((state: RootState) => state.auth.user)
     const location = useLocation();
-    const from = location.state || {}
+    const from = location.state.from || null
+    const type = location.state.type || null
     const { commentId } = useParams(); // from URL
 
     const [comment, setComment] = useState<{
@@ -35,7 +36,7 @@ const UpdateCommentForm = () => {
     const getCommentDetailsOfProduct = async () => {
   try {
     setLoading(true);
-    const res = await authApi(user?.tokenInfo.accessToken).get(endpoints['getComment'](commentId));
+    const res = await authApi.get(endpoints['getComment'](commentId));
     const data = res.data;
 
     setComment({
@@ -86,7 +87,7 @@ const UpdateCommentForm = () => {
         }        
       }
 
-    const res = await authApi(user?.tokenInfo.accessToken).put(
+    const res = await authApi.put(
       `${endpoints['updateComment'](commentId)}`,{
         content: comment.content,
         rating: comment.rating,
@@ -97,7 +98,10 @@ const UpdateCommentForm = () => {
 
     if (res.status === 201) {
       alert("Comment updated successfully");
-      navigate(`${from}`)
+      navigate(`${from}`, {state: {
+        from: from,
+        type: type
+      }})
       
     } else {
       console.error("Error updating comment:", res.data.message);
@@ -134,7 +138,7 @@ const UpdateCommentForm = () => {
         setLoading(true)
         if (!window.confirm('Are you sure you want to delete this image?')) return;
         if (commentDetails_id) {
-          const res = await authApi(user?.tokenInfo.accessToken).delete(endpoints['deleteCommentDetails'](commentDetails_id))
+          const res = await authApi.delete(endpoints['deleteCommentDetails'](commentDetails_id))
           if (res.status === 204) setError(false)
           else {
             setErrorMessage(res.data.message)

@@ -31,7 +31,7 @@ import {
 } from '@mui/icons-material';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import{ ProductFood } from '../Interface/Product';
-import { useCart } from '../Context/Cart';
+
 import formatDate from '../Convert/formatDate ';
 import NumberInput from './Customs/NumberInput';
 import APIs, { authApi, endpoints } from '../Config/APIs';
@@ -39,13 +39,15 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import UserComment from './UserComment';
 import CommentsByProduct from './CommentsByProduct';
+import { useCart } from '../Context/Cart';
 
 const ProductFoodType = () => {
   const user = useSelector((state: RootState) => state.auth.user)
   const {addToCart} = useCart()
   const {product_id } = useParams();
   const location = useLocation();
-  const type = location.state || "food";
+  const type = "food";
+  // const from = location.state.from || null;
   const navigate = useNavigate();
   const [productFoods, setProductFoods] = useState<ProductFood>();
   const [loading, setLoading] = useState<boolean>(false);
@@ -98,7 +100,7 @@ const ProductFoodType = () => {
   const handleCheckFavorite = async () => {
       try {
         setLoading(true)
-        const res = await authApi(user?.tokenInfo.accessToken).get(endpoints['getFavoriteProductOfUser'](product_id, user?._id))
+        const res = await authApi.get(endpoints['getFavoriteProductOfUser'](product_id, user?._id))
         setCheckFavorite(res.data.isFavorite)
       } catch (error) {
         console.error(error);
@@ -110,7 +112,10 @@ const ProductFoodType = () => {
     const handleAddToFavoriteList = async (userId: string, productId: string) => {
       try {
         setLoading(true)
-        const res = await authApi(user?.tokenInfo.accessToken).post(endpoints['createOrUpdateFavorite'], {
+        if(checkFavorite){
+          if (!window.confirm('Are you sure you want to remove this item from favorites?')) return;
+        }
+        const res = await authApi.post(endpoints['createOrUpdateFavorite'], {
           userId: userId,
           productId: productId
         });
@@ -131,7 +136,7 @@ const ProductFoodType = () => {
   
 
   const handleBack = () => {
-    navigate('/products');
+    navigate(`${location.pathname + location.search}`);
   };
 
   if (loading) {
@@ -156,7 +161,7 @@ const ProductFoodType = () => {
       />
       <Box mb={2} display="flex" alignItems="center" gap={2}>
         <Button startIcon={<ArrowBack />} onClick={handleBack} variant="outlined" color="primary">
-          Back to Products
+          Back To Previous
         </Button>
         
       </Box>
@@ -201,7 +206,7 @@ const ProductFoodType = () => {
           <Grid container spacing={2} mt={2}>
             <Grid item xs={12} sm={6}>
               <Typography variant="h6" gutterBottom>
-                <LocalOffer sx={{ mr: 1 }} /> Price: ${productFoods.price.toFixed(2)}
+                <LocalOffer sx={{ mr: 1 }} /> Price: ${productFoods.price}
               </Typography>
                <Typography variant="subtitle2" fontWeight="bold" color="primary">
                 <AddShoppingCartIcon fontSize="small" /> {productFoods.totalOrder} Orders
@@ -299,7 +304,10 @@ const ProductFoodType = () => {
         <Button
          
           variant="outlined"
-          onClick={() => navigate('/login', { state: location.pathname })}
+          onClick={() => navigate('/login', { state: {
+            from: location.pathname + location.search,
+            type: type
+          }})}
         >
           Go To Login
         </Button>

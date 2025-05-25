@@ -30,9 +30,9 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import DeleteIcon from '@mui/icons-material/Delete';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { pink, blue, green, deepPurple, red } from '@mui/material/colors';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
-import { SportsCricketOutlined } from '@mui/icons-material';
+import { ArrowBack, SportsCricketOutlined } from '@mui/icons-material';
 import { Category } from '../Interface/Category';
 
 const FavoriteList = () => {
@@ -48,6 +48,8 @@ const FavoriteList = () => {
   const [searchTerm, setSearchTerm] = useState<string>('')
   const [sortBy, setSortBy] = useState<string>('')
   const navigate = useNavigate();
+  const location = useLocation()
+  
 
   const getFavoriteProductsList = async () => {
     try {
@@ -57,7 +59,7 @@ const FavoriteList = () => {
       if(searchTerm) query.append('search', searchTerm);
       if(sortBy) query.append('sort', sortBy)
       query.append('page', currentPage.toString());
-      const res = await authApi(user?.tokenInfo.accessToken).get(
+      const res = await authApi.get(
         `${endpoints['getFavoriteProductsList'](user?._id)}?${query.toString()}`
       );
       setFavoriteList(res.data.results);
@@ -87,7 +89,7 @@ const FavoriteList = () => {
   const removeFavorite = async (favoriteId: string) => {
     if (!window.confirm('Are you sure you want to remove this item from favorites?')) return;
     try {
-      await authApi(user?.tokenInfo.accessToken).delete(endpoints['deleteFavorite'](favoriteId));
+      await authApi.delete(endpoints['deleteFavorite'](favoriteId));
       setFavoriteList((prev) => prev.filter((fav) => fav._id !== favoriteId));
     } catch (error) {
       console.log(error);
@@ -95,7 +97,11 @@ const FavoriteList = () => {
   };
 
   const viewProductDetails = (productId: string, type: string) => {
-    navigate(`/products/${type}/${productId}`, { state: type });
+    console.log(type)
+    navigate(`/products/${type}/${productId}`, { state: {
+      type: type,
+      from: location.pathname + location.search
+    } });
   };
 
   const changePage = (newPage: number) => {
@@ -134,7 +140,13 @@ const FavoriteList = () => {
     );
   }
   return (
+    
     <Box p={4}>
+      <Box mb={2} display="flex" alignItems="center" gap={2}>
+        <Button startIcon={<ArrowBack />} onClick={() => navigate(`/userinfo`)} variant="outlined" color="primary">
+          Back to Userinfo
+        </Button>
+      </Box>
       <Typography variant="h4" mb={4} fontWeight="bold" color="primary">
         Your Favorite Products
       </Typography>

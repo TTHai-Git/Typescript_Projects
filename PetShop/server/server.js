@@ -17,6 +17,10 @@ import userRoutes from "./routes/user.js";
 import favoriteRoutes from "./routes/favorite.js";
 import commentRoutes from "./routes/comment.js";
 import commentDetailsRoutes from "./routes/commentdetails.js";
+import paymentRoutes from "./routes/payment.js";
+import VNPayRouter from "./services/vnPayPayment.js";
+import payOSRouter from "./services/payOSPayment.js";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 
@@ -33,6 +37,7 @@ connect(process.env.MONGO_URI)
 app.use(urlencoded({ extended: false }));
 app.use(cors());
 app.use(json());
+app.use(cookieParser());
 
 // Routes
 app.use("/v1/auth", authRoutes);
@@ -48,6 +53,9 @@ app.use("/v1/breeds", breedRoutes);
 app.use("/v1/favorites", favoriteRoutes);
 app.use("/v1/comments", commentRoutes);
 app.use("/v1/commentDetails", commentDetailsRoutes);
+app.use("/v1/payments", paymentRoutes);
+app.use("/api/vnpay", VNPayRouter);
+app.use("/api/payOS", payOSRouter);
 
 app.get("/v1/", (req, res) => {
   res.send("Welcome to the Pet Shop API!");

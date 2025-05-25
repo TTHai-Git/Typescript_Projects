@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { logout } from '../features/login/authSlice';
 // import axios from 'axios';
 
@@ -29,6 +29,7 @@ const UserInfo = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation()
 
   const [isEditing, setIsEditing] = useState(false);
   const [editedUser, setEditedUser] = useState({
@@ -51,9 +52,10 @@ const UserInfo = () => {
     }
   }, [user, navigate]);
 
-  const handleLogOut = () => {
+  const handleLogOut = async () => {
     dispatch(logout());
-    navigate('/login');
+    const res = await authApi.post(endpoints['logout'])
+    if (res.status === 200) navigate('/login');
   };
 
   const handleEditToggle = () => {
@@ -69,23 +71,8 @@ const UserInfo = () => {
 
   const handleSave = async () => {
     try {
-      // const res = await axios.put(
-      //   `/v1/users/${user?._id}/update-infor`,
-      //   {
-      //     name: editedUser.name,
-      //     email: editedUser.email,
-      //     phone: editedUser.phone,
-      //     address: editedUser.address
-      //   },
-      //   {
-      //     headers: {
-      //       Authorization: `Bearer ${user?.tokenInfo.accessToken}`
-      //     }
-      //   }
-      // );
-
       let url = `${endpoints['updateInfor'](user?._id)}`
-      const res = await authApi(user?.tokenInfo.accessToken).put(url, {
+      const res = await authApi.put(url, {
         name: editedUser.name,
         email: editedUser.email,
         phone: editedUser.phone,
@@ -124,7 +111,7 @@ const UserInfo = () => {
                   alt="User Avatar"
                   sx={{ width: 100, height: 100, mb: 1 }}
                 />
-                <Typography variant="subtitle1">{editedUser.name}</Typography>
+                <Typography variant="subtitle1">{user.username}</Typography>
               </Stack>
 
               <Grid container spacing={2}>
@@ -204,7 +191,10 @@ const UserInfo = () => {
               color="secondary"
               startIcon={<ReceiptIcon />}
               fullWidth
-              onClick={() => navigate(`${user?._id}/orders/1`)}
+              onClick={() => navigate(`${user?._id}/orders?page=1`, {state: {
+                from: location.pathname + location.search
+              }})}
+              
             >
               Follow Orders
             </Button>
@@ -213,7 +203,9 @@ const UserInfo = () => {
               color="info"
               startIcon={<Favorite />}
               fullWidth
-              onClick={() => navigate(`${user?._id}/favoritelist?page=1`)}
+              onClick={() => navigate(`${user?._id}/favoritelist?page=1`, {state: {
+                from: location.pathname + location.search
+              }})}
             >
               Follow Favoritelist
             </Button>

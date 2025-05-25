@@ -33,7 +33,7 @@ import SortIcon from '@mui/icons-material/Sort';
 import StarIcon from '@mui/icons-material/Star';
 import StarHalfIcon from '@mui/icons-material/StarHalf';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import Product from '../Interface/Product';
 import { Category } from '../Interface/Category';
 import '../Assets/CSS/Pagination.css';
@@ -52,6 +52,7 @@ const Products = () => {
 
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('');
+  const location = useLocation()
 
 
   const navigate = useNavigate();
@@ -70,6 +71,7 @@ const Products = () => {
       setProducts(res.data.products || []);
       setTotal(res.data.total || 0);
       setPages(res.data.pages || 1);
+      
     } catch (err) {
       console.error(err);
       setProducts([]);
@@ -299,7 +301,7 @@ const Products = () => {
                         <ChatBubbleOutlineIcon fontSize="small" /> {item.description}
                       </Typography>
                       <Typography variant="subtitle1" fontWeight="bold" color="primary">
-                        <AttachMoneyIcon fontSize="small" /> {item.price.toFixed(2)}
+                        <AttachMoneyIcon fontSize="small" /> {item.price}
                       </Typography>
                       <Typography variant="subtitle2" fontWeight="bold" color="primary">
                         <AddShoppingCartIcon fontSize="small" /> {item.totalOrder} Orders
@@ -349,7 +351,10 @@ const Products = () => {
                           variant="outlined"
                           color="info"
                           startIcon={<InfoIcon />}
-                          onClick={() => navigate(`/products/${item.type}/${item._id}`, { state: item.type })}
+                          onClick={() => navigate(`/products/${item.type}/${item._id}`, { state: {
+                            type: item.type,
+                            from: location.pathname + location.search, 
+                          } })}
                         >
                           Details
                         </Button>

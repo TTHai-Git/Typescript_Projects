@@ -11,7 +11,8 @@ import APIs, { endpoints } from '../Config/APIs';
 
 const Login: React.FC = () => {
   const location = useLocation();
-  const from = location.state || null;
+  // const from = location.state.from || null;
+  // const type = location.state.type || null
   const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -25,11 +26,7 @@ const Login: React.FC = () => {
     setLoading(true);
 
     try {
-      // console.log(from)
-      // const response = await axios.post('/v1/auth/login', {
-      // username,
-      // password
-      // });
+  
       const response = await APIs.post(endpoints['login'], {
         username,
         password
@@ -40,11 +37,7 @@ const Login: React.FC = () => {
           ...user,
           isAuthenticated: true,
         }));
-        if (!from)
-          navigate('/products');
-        else {
-          navigate(`${from}`, )
-        }
+        navigate("/products")
       } else {
       alert('Invalid username or password');
       }

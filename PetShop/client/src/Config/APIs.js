@@ -7,9 +7,11 @@ export const endpoints = {
   createOrder: "/orders",
   createOrderDetails: "/orderDetails",
   generateOTP: "/users/generate-otp",
-  getOrderDetails: (orderId, page) => `/orders/${orderId}/orderDetails/${page}`,
-  getOrdersOfCustomer: (userId, page) => `/orders/${userId}/${page}`,
+  getOrderDetails: (orderId, page) => `/orders/${orderId}/orderDetails`,
+  getOrdersOfCustomer: (userId, page) => `/orders/user/${userId}`,
   login: "/auth/login",
+  logout: "/auth/logout",
+  authMe: "/auth/me",
   getProductById: (type, productId) => `/products/${type}/${productId}`,
   uploadAvatarToCloudinary: (baseURLCloud, cloudName, dirCloud) =>
     `${baseURLCloud}${cloudName}${dirCloud}`,
@@ -28,18 +30,15 @@ export const endpoints = {
   deleteCommentDetails: (commentDetailsId) =>
     `/commentDetails/${commentDetailsId}`,
   getComment: (commentId) => `/comments/${commentId}`,
+  createPaymentForOrder: `/payments/`,
+  updateStatusOfOrder: (orderId) => `/orders/${orderId}`,
+  getOrder: (orderId) => `/orders/${orderId}`,
 };
 
-export const authApi = (accessToken) => {
-  return axios.create({
-    baseURL: BASE_URL,
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-    timeout: 0,
-    withCredentials: false,
-  });
-};
+export const authApi = axios.create({
+  baseURL: BASE_URL,
+  withCredentials: true, // ✅ cookies included in all calls
+});
 
 export default axios.create({
   baseURL: BASE_URL,
@@ -47,5 +46,5 @@ export default axios.create({
     "content-type": "application/json",
   },
   timeout: 0,
-  withCredentials: false,
+  withCredentials: true, // ✅ for login/register/etc
 });

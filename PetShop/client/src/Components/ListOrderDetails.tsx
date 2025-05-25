@@ -1,6 +1,6 @@
 // import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router';
+import { useLocation, useNavigate, useParams } from 'react-router';
 import '../Assets/CSS/ListOrderDetails.css';
 import OrderDetails from '../Interface/OrderDetails';
 import { Button } from '@mui/material';
@@ -8,6 +8,7 @@ import { ArrowBack } from '@mui/icons-material';
 import { authApi, endpoints } from '../Config/APIs';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
+import { useSearchParams } from 'react-router-dom';
 
 export const ListOrderDetails = () => {
   const user = useSelector((state: RootState) => state.auth.user)
@@ -15,19 +16,24 @@ export const ListOrderDetails = () => {
   const { user_id } = useParams()
   const { page } = useParams<{ page?: string }>(); // Get page number from URL
   const [orderDetails, setOrderDetails] = useState<OrderDetails[]>([]);
-  const [current, setCurrent] = useState<number>(Number(page) || 1);
+  const [searchParams, setSearchParams] = useSearchParams()
+  const currentPage = parseInt(searchParams.get('page') || '1')
   const [pages, setPages] = useState<number>(0);
   const [total, setTotal] = useState<number>(0);
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const location = useLocation()
+  const from = location.state.from
+
   let [numericalOrder] = useState<number>(1)
 
   const getListOrderDetails = async () => {
     setLoading(true);
     try {
       // const response = await axios.get(`/v1/orders/${order_id}/orderDetails/${current}`);
-      
-      const response = await authApi(user?.tokenInfo.accessToken).get(`${endpoints["getOrderDetails"](order_id, current)}`);
+      const query = new URLSearchParams()
+      query.append('page', currentPage.toString())
+      const response = await authApi.get(`${endpoints["getOrderDetails"](order_id)}?${currentPage}`);
       
       if (response.status === 200) {
         setOrderDetails(response.data.results);
@@ -44,17 +50,19 @@ export const ListOrderDetails = () => {
   };
 
   const handleBack = () => {
-    navigate(`/userinfo/${user_id}/orders/1`);
+    navigate(`${from}`, {state: {
+      from : location.pathname + location.search
+    }});
   };
 
   useEffect(() => {
     getListOrderDetails();
-  }, [current]);
+  }, [searchParams.toString()]);
 
   const changePage = (newPage: number) => {
     if (newPage > 0 && newPage <= pages) {
-      setCurrent(newPage); // Update state to trigger `useEffect()`
-      navigate(`/userinfo/${user_id}/orders/${order_id}/orderDetails/${newPage}`);
+      const params: any = {page: newPage.toString()}
+      setSearchParams(params)
     }
   };
 
@@ -88,7 +96,7 @@ export const ListOrderDetails = () => {
             </thead>
             <tbody>
               {orderDetails.map((orderdetail) => (
-                <tr key={orderdetail.orderId}>
+                <tr key={orderdetail.product._id}>
                   <td>{numericalOrder++}</td>
                   <td>
                     <img src={orderdetail.product.imageUrl} alt={orderdetail.product.name} className="dog-image" />
@@ -115,22 +123,22 @@ export const ListOrderDetails = () => {
       ) : (
         <p className="no-data">❌ No order details found.</p>
       )}
-      <h2 className='count'>Total Number of Products on Page {current} Currently in Order is {orderDetails.length}</h2>
+      <h2 className='count'>Total Number of Products on Page {currentPage} Currently in Order is {orderDetails.length}</h2>
       <h2 className='count'>Total Number of Products in Order Is {total}</h2>
       <div className="pagination">
-        <button className="page-btn" onClick={() => changePage(1)} disabled={current === 1}>
+        <button className="page-btn" onClick={() => changePage(1)} disabled={currentPage === 1}>
           First
         </button>
-        <button className="page-btn" onClick={() => changePage(current - 1)} disabled={current === 1}>
+        <button className="page-btn" onClick={() => changePage(currentPage - 1)} disabled={currentPage === 1}>
           Previous
         </button>
         <span className="current-page">
-          Page {current} of {pages}
+          Page {currentPage} of {pages}
         </span>
-        <button className="page-btn" onClick={() => changePage(current + 1)} disabled={current === pages}>
+        <button className="page-btn" onClick={() => changePage(currentPage + 1)} disabled={currentPage === pages}>
           Next
         </button>
-        <button className="page-btn" onClick={() => changePage(pages)} disabled={current === pages}>
+        <button className="page-btn" onClick={() => changePage(pages)} disabled={currentPage === pages}>
           Last
         </button>
       </div>

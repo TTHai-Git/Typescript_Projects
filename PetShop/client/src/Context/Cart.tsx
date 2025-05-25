@@ -88,14 +88,13 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   
 
   const caculateTotalOfCart = () => {
-    const total:Number = cartItems.reduce((sum:number, item) => sum + (Number(item.price.toFixed(2)) * Number(item.quantity)), 0);
+    const total:Number = cartItems.reduce((sum:number, item) => sum + (Number(item.price) * Number(item.quantity)), 0);
     return total
   }
 
   const checkOutFromCart = () => {
     alert(`Thank you for shopping with us! Total: $${Number(caculateTotalOfCart())}`);
     setCartItems([]);
-    navigate('/');
   }
 
   return (

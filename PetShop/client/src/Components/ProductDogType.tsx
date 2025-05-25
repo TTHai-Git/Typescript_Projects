@@ -24,7 +24,7 @@ import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import HeightIcon from '@mui/icons-material/Height';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import CakeIcon from '@mui/icons-material/Cake';
-import { useCart } from '../Context/Cart';
+
 import NumberInput from './Customs/NumberInput';
 import { ProductDog } from '../Interface/Product';
 import { ArrowBack, ColorLens, Favorite, FitnessCenter } from '@mui/icons-material';
@@ -33,13 +33,15 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import UserComment from './UserComment';
 import CommentsByProduct from './CommentsByProduct';
+import { useCart } from '../Context/Cart';
 
 const ProductDogType: React.FC = () => {
   const user = useSelector((state: RootState) => state.auth.user)
   const { addToCart } = useCart();
   const { product_id } = useParams();
   const location = useLocation();
-  const type = location.state || 'dog';
+  const type = "dog";
+  // const from = location.state.from || null;
   const [dog, setDog] = React.useState<ProductDog | null>(null);
   const [loading, setLoading] = React.useState<boolean>(true);
   const [selectedQuantity, setSelectedQuantity] = React.useState<number>(1)
@@ -50,7 +52,8 @@ const ProductDogType: React.FC = () => {
   const [snackbarMessage, setSnackbarMessage] =React.useState('');
   const navigate = useNavigate()
   const handleBack = () => {
-    navigate('/products');
+    // if(from) navigate(`${from}`);
+    navigate(`/products`) 
   };
  
 
@@ -70,7 +73,7 @@ const ProductDogType: React.FC = () => {
   const handleCheckFavorite = async () => {
       try {
         setLoading(true)
-        const res = await authApi(user?.tokenInfo.accessToken).get(endpoints['getFavoriteProductOfUser'](product_id, user?._id))
+        const res = await authApi.get(endpoints['getFavoriteProductOfUser'](product_id, user?._id))
         setCheckFavorite(res.data.isFavorite)
       } catch (error) {
         console.error(error);
@@ -82,7 +85,10 @@ const ProductDogType: React.FC = () => {
     const handleAddToFavoriteList = async (userId: string, productId: string) => {
       try {
         setLoading(true)
-        const res = await authApi(user?.tokenInfo.accessToken).post(endpoints['createOrUpdateFavorite'], {
+        if(checkFavorite){
+          if (!window.confirm('Are you sure you want to remove this item from favorites?')) return;
+        }
+        const res = await authApi.post(endpoints['createOrUpdateFavorite'], {
           userId: userId,
           productId: productId
         });
@@ -102,6 +108,7 @@ const ProductDogType: React.FC = () => {
     };
 
     const loadInfoDetailsOfProduct = async () => {
+      
       try {
         setLoading(true)
         // const response = await axios.get(`/v1/products/${type}/${product_id}`);
@@ -151,7 +158,7 @@ const ProductDogType: React.FC = () => {
       />
       <Box mb={2} display="flex" alignItems="center" gap={2}>
         <Button startIcon={<ArrowBack />} onClick={handleBack} variant="outlined" color="primary">
-          Back to Products
+          Back To Previous
         </Button>
       </Box>
       <Grid container spacing={4}>
@@ -224,7 +231,7 @@ const ProductDogType: React.FC = () => {
 
               <Typography variant="h6" color="primary" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                 <AttachMoneyIcon sx={{ mr: 1 }} />
-                Price: {dog.price.toFixed(2)} $
+                Price: {dog.price} $
               </Typography>
               <Typography variant="subtitle2" fontWeight="bold" color="primary">
                 <AddShoppingCartIcon fontSize="small" /> {dog.totalOrder} Orders
@@ -294,7 +301,10 @@ const ProductDogType: React.FC = () => {
                 <Button
                  
                   variant="outlined"
-                  onClick={() => navigate('/login', { state: location.pathname })}
+                  onClick={() => navigate('/login', { state: {
+                    from: location.pathname + location.search,
+                    type: type
+                  }})}
                 >
                   Go To Login
                 </Button>
