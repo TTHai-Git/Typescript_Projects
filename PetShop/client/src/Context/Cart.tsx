@@ -9,7 +9,7 @@ interface CartContextType {
   increaseQuantity: (_id: string) => void;
   decreaseQuantity: (_id: string) => void;
   checkOutFromCart: () => void;
-  caculateTotalOfCart: () => Number;
+  caculateTotalOfCart: () => number;
 }
 
 interface CartProviderProps {
@@ -23,7 +23,7 @@ const CartContext = createContext<CartContextType>({
   increaseQuantity: () => {},
   decreaseQuantity: () => {},
   checkOutFromCart: () => {},
-  caculateTotalOfCart:  Number,
+  caculateTotalOfCart: () => 0,
 });
 
 export const useCart = () => useContext(CartContext);
@@ -88,7 +88,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   
 
   const caculateTotalOfCart = () => {
-    const total:Number = cartItems.reduce((sum:number, item) => sum + (Number(item.price) * Number(item.quantity)), 0);
+    const total:number = cartItems.reduce((sum:number, item) => sum + (Number(item.price) * Number(item.quantity)), 0);
     return total
   }
 

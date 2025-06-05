@@ -13,7 +13,7 @@ const orderRoutes = Router();
 orderRoutes.post("/", authMiddleware, createOrder);
 orderRoutes.get("/user/:user_id", authMiddleware, getOrdersOfCustomer);
 orderRoutes.get("/:orderId/orderDetails/", authMiddleware, getOrderDetails);
-orderRoutes.get("/:orderId", getOrder);
-orderRoutes.put("/:orderId", updateStatusOfOrder);
+orderRoutes.get("/:orderId", authMiddleware, getOrder);
+orderRoutes.put("/:orderId", authMiddleware, updateStatusOfOrder);
 
 export default orderRoutes;

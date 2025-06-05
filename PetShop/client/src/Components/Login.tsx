@@ -11,8 +11,6 @@ import APIs, { endpoints } from '../Config/APIs';
 
 const Login: React.FC = () => {
   const location = useLocation();
-  // const from = location.state.from || null;
-  // const type = location.state.type || null
   const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -27,7 +25,7 @@ const Login: React.FC = () => {
 
     try {
   
-      const response = await APIs.post(endpoints['login'], {
+      const response = await APIs.post(endpoints.login, {
         username,
         password
         });

@@ -50,21 +50,21 @@ const PaymentReturn = () => {
     if (vnp_ResponseCode === "00") {
       try {
         setLoading(true)
-        const checkStatus = await APIs.get(endpoints['getOrder'](vnp_TxnRef))
+        const checkStatus = await APIs.get(endpoints.getOrder(vnp_TxnRef))
         if (checkStatus.data.status !== "Pending") {
           setError(true)
           setErrorMessage("This pyament has been already been processed")
           return
         }
 
-        await authApi.post(endpoints['createPaymentForOrder'], {
+        await authApi.post(endpoints.createPaymentForOrder, {
           method: "VNPay",
           provider: "VNPay",
           order: vnp_TxnRef,
           status: "PAID",
           extraData: extraData
         })
-        await authApi.put(endpoints['updateStatusOfOrder'](vnp_TxnRef), {
+        await authApi.put(endpoints.updateStatusOfOrder(vnp_TxnRef), {
           status: "Confirmed"
         })
         setSuccess(true)
@@ -78,20 +78,20 @@ const PaymentReturn = () => {
     } else {
       try {
         setLoading(true)
-        const checkStatus = await APIs.get(endpoints['getOrder'](vnp_TxnRef))
+        const checkStatus = await APIs.get(endpoints.getOrder(vnp_TxnRef))
         if (checkStatus.data.status !== "Pending") {
           setError(true)
           setErrorMessage("This payment has already been processed.")
           return
         }
-        await authApi.post(endpoints['createPaymentForOrder'], {
+        await authApi.post(endpoints.createPaymentForOrder, {
           method: "VNPay",
           provider: "VNPay",
           order: vnp_TxnRef,
           status: "FAILED",
           extraData: extraData
         })
-        await authApi.put(endpoints['updateStatusOfOrder'](vnp_TxnRef), {
+        await authApi.put(endpoints.updateStatusOfOrder(vnp_TxnRef), {
           status: "FAILED"
         })
         setError(true)
@@ -107,7 +107,7 @@ const PaymentReturn = () => {
 
   const checkUser = async () => {
     try {
-      const res = await authApi.get(endpoints['authMe']);
+      const res = await authApi.get(endpoints.authMe);
       dispatch(login({
         ...res.data,
         isAuthenticated: true,
@@ -131,7 +131,7 @@ const PaymentReturn = () => {
         setCountdown((prev) => {
           if (prev <= 1) {
             clearInterval(timer)
-            navigate("/")
+            navigate('/')
             return 0
           }
           return prev - 1

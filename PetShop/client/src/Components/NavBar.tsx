@@ -56,7 +56,7 @@ export const NavBar = () => {
 
    const handleLogOut = async () => {
       dispatch(logout());
-      const res = await authApi.post(endpoints['logout'])
+      const res = await authApi.post(endpoints.logout)
       if (res.status === 200) navigate('/login');
     };
 
@@ -91,7 +91,7 @@ export const NavBar = () => {
 
         {/* Action Section */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <IconButton component={Link} to="/checkout" color="primary">
+          <IconButton component={Link} to="/cart" color="primary">
             <Badge badgeContent={cartItems.length} color="secondary">
               <ShoppingCartIcon />
             </Badge>

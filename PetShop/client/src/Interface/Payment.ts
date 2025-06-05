@@ -1,9 +1,12 @@
 export default interface Payment {
-    paymentId: string,
-    method: string
+    _id: string,
+    method: string,
     provider: string,
-    transactionId: string,
     status: string,
-    amount: Number,
-    extraDate: object
+    order: string,
+    createdAt: string,
+    updatedAt: string,
+}
+export interface PaymentDetails extends Payment {
+    extraData: object
 }

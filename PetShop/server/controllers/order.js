@@ -6,7 +6,7 @@ import Brand from "../models/brand.js";
 import Vendor from "../models/vendor.js";
 
 export const createOrder = async (req, res) => {
-  console.log(req.body);
+  // console.log(req.body);
   try {
     const newOrder = await Order.create(req.body);
     res.status(201).json(newOrder);
@@ -18,10 +18,29 @@ export const createOrder = async (req, res) => {
 export const getOrdersOfCustomer = async (req, res) => {
   const perPage = parseInt(req.query.limt) || 5;
   const page = parseInt(req.query.page) || 1;
+  const { sort } = req.query;
   try {
     const { user_id } = req.params;
+    let sortOption = {};
+    switch (sort) {
+      case "price_asc":
+        sortOption.totalPrice = 1;
+        break;
+      case "price_desc":
+        sortOption.totalPrice = 2;
+        break;
+      case "lastest":
+        sortOption.createdAt = -1;
+        break;
+      case "oldest":
+        sortOption.createdAt = 1;
+        break;
+      default:
+        break;
+    }
 
     const orders = await Order.find({ user: user_id })
+      .sort(sortOption)
       .skip(perPage * (page - 1))
       .limit(perPage);
     // console.log(orders);

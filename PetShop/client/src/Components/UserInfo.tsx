@@ -54,7 +54,7 @@ const UserInfo = () => {
 
   const handleLogOut = async () => {
     dispatch(logout());
-    const res = await authApi.post(endpoints['logout'])
+    const res = await authApi.post(endpoints.logout)
     if (res.status === 200) navigate('/login');
   };
 
@@ -71,8 +71,7 @@ const UserInfo = () => {
 
   const handleSave = async () => {
     try {
-      let url = `${endpoints['updateInfor'](user?._id)}`
-      const res = await authApi.put(url, {
+      const res = await authApi.put(endpoints.updateInfor(user?._id), {
         name: editedUser.name,
         email: editedUser.email,
         phone: editedUser.phone,

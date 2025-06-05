@@ -77,7 +77,7 @@ const FavoriteList = () => {
       try {
         setLoading(true)
         // const res = await axios.get('/v1/categories');
-        const res = await APIs.get(endpoints['getCategories'])
+        const res = await APIs.get(endpoints.getCategories)
         setCategories(res.data || []);
       } catch (err) {
         console.error(err);
@@ -89,7 +89,7 @@ const FavoriteList = () => {
   const removeFavorite = async (favoriteId: string) => {
     if (!window.confirm('Are you sure you want to remove this item from favorites?')) return;
     try {
-      await authApi.delete(endpoints['deleteFavorite'](favoriteId));
+      await authApi.delete(endpoints.deleteFavorite(favoriteId));
       setFavoriteList((prev) => prev.filter((fav) => fav._id !== favoriteId));
     } catch (error) {
       console.log(error);
@@ -142,11 +142,6 @@ const FavoriteList = () => {
   return (
     
     <Box p={4}>
-      <Box mb={2} display="flex" alignItems="center" gap={2}>
-        <Button startIcon={<ArrowBack />} onClick={() => navigate(`/userinfo`)} variant="outlined" color="primary">
-          Back to Userinfo
-        </Button>
-      </Box>
       <Typography variant="h4" mb={4} fontWeight="bold" color="primary">
         Your Favorite Products
       </Typography>

@@ -36,7 +36,7 @@ const UpdateCommentForm = () => {
     const getCommentDetailsOfProduct = async () => {
   try {
     setLoading(true);
-    const res = await authApi.get(endpoints['getComment'](commentId));
+    const res = await authApi.get(endpoints.getComment(commentId));
     const data = res.data;
 
     setComment({
@@ -88,7 +88,7 @@ const UpdateCommentForm = () => {
       }
 
     const res = await authApi.put(
-      `${endpoints['updateComment'](commentId)}`,{
+      endpoints.updateComment(commentId),{
         content: comment.content,
         rating: comment.rating,
         urls: uploadedUrls,
@@ -138,7 +138,7 @@ const UpdateCommentForm = () => {
         setLoading(true)
         if (!window.confirm('Are you sure you want to delete this image?')) return;
         if (commentDetails_id) {
-          const res = await authApi.delete(endpoints['deleteCommentDetails'](commentDetails_id))
+          const res = await authApi.delete(endpoints.deleteCommentDetails(commentDetails_id))
           if (res.status === 204) setError(false)
           else {
             setErrorMessage(res.data.message)

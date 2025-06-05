@@ -8,9 +8,10 @@ import Order from '../Interface/Orders';
 import { authApi, endpoints } from '../Config/APIs';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
-import { Box, Button } from '@mui/material';
+import { Autocomplete, Box, Button, InputAdornment, TextField } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
 import { useSearchParams } from 'react-router-dom';
+import SortIcon from '@mui/icons-material/Sort';
 
 const ListOrders = () => {
   const user = useSelector((state: RootState)=> state.auth.user)
@@ -21,16 +22,25 @@ const ListOrders = () => {
   const currentPage = parseInt(searchParams.get('page') || '1')
   const [pages, setPages] = useState<number>(0);
   const [total, setTotal] = useState<number>(0);
+  const [sortBy, setSortBy] = useState<string>('Oldest')
   const [loading, setLoading] = useState(false)
   let [count] = useState<number>(1)
   const navigate = useNavigate()
   const location = useLocation()
+
+  const options = [
+    { label: 'Increasing By Price', id: 'price_asc' },
+    { label: 'Decrease By Price', id: 'price_desc' },
+    { label: 'Latest', id: 'latest' },
+    { label: 'Oldest', id: 'oldest' },
+  ];
 
   const getListOrders = async () => {
     setLoading(true)
     try {
       // const response = await axios.get(`/v1/orders/${user_id}/${current}`)
       const query = new URLSearchParams()
+      if (sortBy) query.append('sort', sortBy)
       query.append('page', currentPage.toString())
       const response = await authApi.get(`${endpoints['getOrdersOfCustomer'](user_id)}?${query.toString()}`)
       // console.log(response.data)
@@ -51,24 +61,58 @@ const ListOrders = () => {
   }
 
   useEffect(() => {
+    const newSortBy = searchParams.get('sort') || '';
+    setSortBy(newSortBy)
     getListOrders()
   }, [searchParams.toString()])
 
   const changePage = (newPage: number) => {
     if (newPage > 0 && newPage <= pages) {
       const params: any = {page: newPage.toString()}
+      if(sortBy) params.sort = sortBy.toString()
       setSearchParams(params)
     }
   };
 
   return (
     <div className="container mx-auto p-4">
-      <Box mb={2} display="flex" alignItems="center" gap={2}>
-        <Button startIcon={<ArrowBack />} onClick={() => navigate(`/userinfo`)} variant="outlined" color="primary">
-          Back to Userinfo
-        </Button>
-      </Box>
       <h1 className="text-xl font-bold mb-4">List Orders</h1>
+      <Box sx={{ mb: 4, display: 'flex', flexDirection: 'column', gap: 3 }}>
+         <Autocomplete
+            disablePortal
+            options={options}
+            value={options.find((opt) => opt.id.toString() === sortBy) || null}
+            onChange={(event, newValue) => {
+              const selectedSort = newValue?.id.toString() || '';
+              setSortBy(selectedSort);
+              setSearchParams({
+                page: '1',
+                
+                sort: selectedSort,
+              });
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Sort By"
+                InputProps={{
+                  ...params.InputProps,
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SortIcon color="secondary" />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            )}
+            sx={{
+              width: 300,
+              bgcolor: 'white',
+              borderRadius: 2,
+              boxShadow: 2,
+            }}
+          /> 
+      </Box>
       
 
       {loading ? (
@@ -83,7 +127,9 @@ const ListOrders = () => {
               <th className="border px-4 py-2">Status</th>
               <th className="border px-4 py-2">Created Date</th>
               <th className="border px-4 py-2">Updated Date</th>
-              <th className="border px-4 py-2">Action</th>
+              <th className="border px-4 py-2">Check Order Details</th>
+              <th className="border px-4 py-2">Check Payment</th>
+              <th className="border px-4 py-2">Check Shipment</th>
             </tr>
           </thead>
           <tbody>
@@ -102,6 +148,16 @@ const ListOrders = () => {
                   </td>
                   <td className="border px-4 py-2">
                     <button className="btn btn-primary" onClick={() => navigate(`/userinfo/${user_id}/orders/${order.orderId}/orderDetails?page=1`, {state: {
+                      from : location.pathname + location.search
+                    }})} ><RemoveRedEyeIcon/> View </button>
+                  </td>
+                  <td className="border px-4 py-2">
+                    <button className="btn btn-primary" onClick={() => navigate(`/userinfo/${user_id}/orders/${order.orderId}/paymentInfo`, {state: {
+                      from : location.pathname + location.search
+                    }})} ><RemoveRedEyeIcon/> View </button>
+                  </td>
+                  <td className="border px-4 py-2">
+                    <button className="btn btn-primary" onClick={() => navigate(`/userinfo/${user_id}/orders/${order.orderId}/shipmentInfo`, {state: {
                       from : location.pathname + location.search
                     }})} ><RemoveRedEyeIcon/> View </button>
                   </td>

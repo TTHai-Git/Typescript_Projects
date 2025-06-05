@@ -126,7 +126,7 @@ const ratingOptions = [
     try {
       setLoading(true)
       if (!window.confirm('Are you sure you want to remove this comment?')) return;
-      const res = await authApi.delete(endpoints['deleteComment'](commentId))
+      const res = await authApi.delete(endpoints.deleteComment(commentId))
       if (res.status === 204) {
         // console.log(res)
         alert("Comment deleted successfully")
@@ -342,7 +342,7 @@ const ratingOptions = [
                   <Button variant="outlined" color="error" onClick={() => handleDeleteComment(comment._id)}>
                     Delete
                   </Button>
-                  <Button variant="outlined" color="info" onClick={() => navigate(`/comments/${comment._id}/update`,{ state: {
+                  <Button variant="outlined" color="info" onClick={() => navigate(`/comments/${comment._id}/updateCommentForm`,{ state: {
                     from: locaion.pathname + locaion.search,
                   } })}>
                     Update

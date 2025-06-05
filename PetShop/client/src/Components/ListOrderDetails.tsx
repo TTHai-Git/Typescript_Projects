@@ -3,18 +3,12 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router';
 import '../Assets/CSS/ListOrderDetails.css';
 import OrderDetails from '../Interface/OrderDetails';
-import { Button } from '@mui/material';
-import { ArrowBack } from '@mui/icons-material';
 import { authApi, endpoints } from '../Config/APIs';
-import { useSelector } from 'react-redux';
-import { RootState } from '../store';
 import { useSearchParams } from 'react-router-dom';
 
 export const ListOrderDetails = () => {
-  const user = useSelector((state: RootState) => state.auth.user)
+
   const { order_id } = useParams();
-  const { user_id } = useParams()
-  const { page } = useParams<{ page?: string }>(); // Get page number from URL
   const [orderDetails, setOrderDetails] = useState<OrderDetails[]>([]);
   const [searchParams, setSearchParams] = useSearchParams()
   const currentPage = parseInt(searchParams.get('page') || '1')
@@ -23,7 +17,7 @@ export const ListOrderDetails = () => {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
-  const from = location.state.from
+
 
   let [numericalOrder] = useState<number>(1)
 
@@ -33,8 +27,7 @@ export const ListOrderDetails = () => {
       // const response = await axios.get(`/v1/orders/${order_id}/orderDetails/${current}`);
       const query = new URLSearchParams()
       query.append('page', currentPage.toString())
-      const response = await authApi.get(`${endpoints["getOrderDetails"](order_id)}?${currentPage}`);
-      
+      const response = await authApi.get(endpoints.getOrderDetails(order_id,currentPage))
       if (response.status === 200) {
         setOrderDetails(response.data.results);
         setPages(response.data.pages)
@@ -47,12 +40,6 @@ export const ListOrderDetails = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleBack = () => {
-    navigate(`${from}`, {state: {
-      from : location.pathname + location.search
-    }});
   };
 
   useEffect(() => {
@@ -68,9 +55,6 @@ export const ListOrderDetails = () => {
 
   return (
     <div className="container">
-      <Button startIcon={<ArrowBack />} onClick={handleBack} variant="outlined" color="primary">
-        Back to Orders
-      </Button>
       <h1 className="title">🐶 Detailed List Of Orders</h1>      
 
       {loading ? (
@@ -108,7 +92,7 @@ export const ListOrderDetails = () => {
                  
                   <td>{orderdetail.product.description}</td>
                   <td>{orderdetail.quantity}</td>
-                  <td>${orderdetail.product.price}</td>
+                  <td>${orderdetail.product.price.toLocaleString()} VND</td>
                   <td>
                     {orderdetail.note?.split(' - ').map((line, index) => (
                       <div key={index}>{line}</div>

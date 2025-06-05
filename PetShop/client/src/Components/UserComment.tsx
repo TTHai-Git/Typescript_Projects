@@ -97,7 +97,7 @@ const UserComment = (props: Props) => {
       //   urls: uploadedUrls
       // });
 
-        const res = await authApi.post(`${endpoints['addComment']}`, {
+        const res = await authApi.post(endpoints.addComment, {
         userId: props.userId,
         productId: props.productId,
         content: comment.content,

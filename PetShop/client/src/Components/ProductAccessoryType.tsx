@@ -45,7 +45,6 @@ const ProductAccessoryType = () => {
   const { product_id } = useParams();
   const location = useLocation();
   const type = "accessory";
-  // const from = location.state.from || null;
   const [loading, setLoading] = useState<boolean>(false);
   const [productAccessory, setProductAccessory] = useState<ProductAccessories>();
   const [selectedQuantity, setSelectedQuantity] = useState<number>(1)
@@ -58,9 +57,7 @@ const ProductAccessoryType = () => {
   const loadInfoDetailsOfProduct = async () => {
     try {
       setLoading(true);
-      
-      // const response = await axios.get(`/v1/products/${type}/${product_id}`);
-      const response = await APIs.get(`${endpoints['getProductById'](type,product_id)}`);
+      const response = await APIs.get(endpoints.getProductById(type,product_id));
       setProductAccessory(response.data.product);
       // console.log('Product Accessory: ', response.data.product);
     } catch (error) {
@@ -79,7 +76,7 @@ const ProductAccessoryType = () => {
   const handleCheckFavorite = async () => {
     try {
       setLoading(true)
-      const res = await authApi.get(endpoints['getFavoriteProductOfUser'](product_id, user?._id))
+      const res = await authApi.get(endpoints.getFavoriteProductOfUser(product_id, user?._id))
       setCheckFavorite(res.data.isFavorite)
     } catch (error) {
       console.error(error);
@@ -94,7 +91,7 @@ const ProductAccessoryType = () => {
       if(checkFavorite){
         if (!window.confirm('Are you sure you want to remove this item from favorites?')) return;
       }
-      const res = await authApi.post(endpoints['createOrUpdateFavorite'], {
+      const res = await authApi.post(endpoints.createOrUpdateFavorite, {
         userId: userId,
         productId: productId
       });
@@ -145,11 +142,7 @@ const ProductAccessoryType = () => {
         onClose={() => setSnackbarOpen(false)}
         message={snackbarMessage}
       />
-      <Box mb={2} display="flex" alignItems="center" gap={2}>
-        <Button startIcon={<ArrowBack />} onClick={handleBack} variant="outlined" color="primary">
-          Back To Previous
-        </Button>
-      </Box>
+     
       <Grid container spacing={4}>
         {/* Image */}
         <Grid item xs={12} md={6}>
@@ -175,7 +168,7 @@ const ProductAccessoryType = () => {
                 {productAccessory.description}
               </Typography>
               <Typography variant="h5" color="secondary" gutterBottom>
-                ${productAccessory.price.toFixed(2)}
+                ${productAccessory.price.toLocaleString()} VND
               </Typography>
               <Typography variant="subtitle2" fontWeight="bold" color="primary">
                 <AddShoppingCartIcon fontSize="small" /> {productAccessory.totalOrder} Orders

@@ -50,8 +50,7 @@ const ProductClothesType = () => {
   const loadInfoDetailsOfProduct = async () => {
     try {
       setLoading(true);
-      // const response = await axios.get(`/v1/products/${type}/${product_id}`);
-      const response = await APIs.get(`${endpoints['getProductById'](type,product_id)}`);
+      const response = await APIs.get(endpoints.getProductById(type, product_id));
       setProductClothes(response.data.product);
       // console.log('Product Clothes: ', response.data.product);
     } catch (error) {
@@ -90,7 +89,7 @@ const ProductClothesType = () => {
    const handleCheckFavorite = async () => {
       try {
         setLoading(true)
-        const res = await authApi.get(endpoints['getFavoriteProductOfUser'](product_id, user?._id))
+        const res = await authApi.get(endpoints.getFavoriteProductOfUser(product_id, user?._id))
         setCheckFavorite(res.data.isFavorite)
       } catch (error) {
         console.error(error);
@@ -105,7 +104,7 @@ const ProductClothesType = () => {
         if(checkFavorite){
           if (!window.confirm('Are you sure you want to remove this item from favorites?')) return;
         }
-        const res = await authApi.post(endpoints['createOrUpdateFavorite'], {
+        const res = await authApi.post(endpoints.createOrUpdateFavorite, {
           userId: userId,
           productId: productId
         });
@@ -137,11 +136,7 @@ const ProductClothesType = () => {
         onClose={() => setSnackbarOpen(false)}
         message={snackbarMessage}
       />
-      <Box mb={2} display="flex" alignItems="center" gap={2}>
-        <Button startIcon={<ArrowBack />} onClick={handleBack} variant="outlined" color="primary">
-          Back To Previous
-        </Button>
-      </Box>
+     
       <Grid container spacing={4}>
         {/* Product Image */}
         <Grid item xs={12} sm={6}>
@@ -173,7 +168,7 @@ const ProductClothesType = () => {
 
               {/* Price */}
               <Typography variant="h5" color="secondary" gutterBottom>
-                ${productClothes.price}
+                ${productClothes.price.toLocaleString()} VND
               </Typography>
               <Typography variant="subtitle2" fontWeight="bold" color="primary">
                 <AddShoppingCartIcon fontSize="small" /> {productClothes.totalOrder} Orders

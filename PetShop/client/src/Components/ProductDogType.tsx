@@ -41,7 +41,6 @@ const ProductDogType: React.FC = () => {
   const { product_id } = useParams();
   const location = useLocation();
   const type = "dog";
-  // const from = location.state.from || null;
   const [dog, setDog] = React.useState<ProductDog | null>(null);
   const [loading, setLoading] = React.useState<boolean>(true);
   const [selectedQuantity, setSelectedQuantity] = React.useState<number>(1)
@@ -51,10 +50,7 @@ const ProductDogType: React.FC = () => {
   const [snackbarOpen, setSnackbarOpen] = React.useState(false);
   const [snackbarMessage, setSnackbarMessage] =React.useState('');
   const navigate = useNavigate()
-  const handleBack = () => {
-    // if(from) navigate(`${from}`);
-    navigate(`/products`) 
-  };
+ 
  
 
   const handleAddToCart = (dog: ProductDog, quantity: number) => {
@@ -73,7 +69,7 @@ const ProductDogType: React.FC = () => {
   const handleCheckFavorite = async () => {
       try {
         setLoading(true)
-        const res = await authApi.get(endpoints['getFavoriteProductOfUser'](product_id, user?._id))
+        const res = await authApi.get(endpoints.getFavoriteProductOfUser(product_id, user?._id))
         setCheckFavorite(res.data.isFavorite)
       } catch (error) {
         console.error(error);
@@ -88,7 +84,7 @@ const ProductDogType: React.FC = () => {
         if(checkFavorite){
           if (!window.confirm('Are you sure you want to remove this item from favorites?')) return;
         }
-        const res = await authApi.post(endpoints['createOrUpdateFavorite'], {
+        const res = await authApi.post(endpoints.createOrUpdateFavorite, {
           userId: userId,
           productId: productId
         });
@@ -111,8 +107,7 @@ const ProductDogType: React.FC = () => {
       
       try {
         setLoading(true)
-        // const response = await axios.get(`/v1/products/${type}/${product_id}`);
-        const response = await APIs.get(`${endpoints['getProductById'](type, product_id)}`);
+        const response = await APIs.get(endpoints.getProductById(type, product_id));
         setDog(response.data.product);
       } catch (error) {
         console.error('Error fetching dog:', error);
@@ -156,11 +151,7 @@ const ProductDogType: React.FC = () => {
         onClose={() => setSnackbarOpen(false)}
         message={snackbarMessage}
       />
-      <Box mb={2} display="flex" alignItems="center" gap={2}>
-        <Button startIcon={<ArrowBack />} onClick={handleBack} variant="outlined" color="primary">
-          Back To Previous
-        </Button>
-      </Box>
+     
       <Grid container spacing={4}>
         <Grid item xs={12} md={5}>
           <Card sx={{ borderRadius: 4, boxShadow: 3 }}>
@@ -231,7 +222,7 @@ const ProductDogType: React.FC = () => {
 
               <Typography variant="h6" color="primary" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                 <AttachMoneyIcon sx={{ mr: 1 }} />
-                Price: {dog.price} $
+                Price: {dog.price.toLocaleString()} VND
               </Typography>
               <Typography variant="subtitle2" fontWeight="bold" color="primary">
                 <AddShoppingCartIcon fontSize="small" /> {dog.totalOrder} Orders

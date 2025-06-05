@@ -73,7 +73,7 @@ const ResetPassword = () => {
       //   otp: OTP,
       //   newPassword,
       // });
-      const res = await APIs.put(endpoints['resetPassword'], {
+      const res = await APIs.put(endpoints.resetPassword, {
         email,
         otp: OTP,
         newPassword,

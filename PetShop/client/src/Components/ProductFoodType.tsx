@@ -47,7 +47,6 @@ const ProductFoodType = () => {
   const {product_id } = useParams();
   const location = useLocation();
   const type = "food";
-  // const from = location.state.from || null;
   const navigate = useNavigate();
   const [productFoods, setProductFoods] = useState<ProductFood>();
   const [loading, setLoading] = useState<boolean>(false);
@@ -60,8 +59,7 @@ const ProductFoodType = () => {
   const loadInfoDetailsOfProduct = async () => {
     try {
       setLoading(true);
-      // const response = await axios.get(`/v1/products/${type}/${product_id}`);
-      const response = await APIs.get(`${endpoints['getProductById'](type, product_id)}`);
+      const response = await APIs.get(endpoints.getProductById(type, product_id));
       setProductFoods(response.data.product);
     } catch (error) {
       console.error(error);
@@ -100,7 +98,7 @@ const ProductFoodType = () => {
   const handleCheckFavorite = async () => {
       try {
         setLoading(true)
-        const res = await authApi.get(endpoints['getFavoriteProductOfUser'](product_id, user?._id))
+        const res = await authApi.get(endpoints.getFavoriteProductOfUser(product_id, user?._id))
         setCheckFavorite(res.data.isFavorite)
       } catch (error) {
         console.error(error);
@@ -115,7 +113,7 @@ const ProductFoodType = () => {
         if(checkFavorite){
           if (!window.confirm('Are you sure you want to remove this item from favorites?')) return;
         }
-        const res = await authApi.post(endpoints['createOrUpdateFavorite'], {
+        const res = await authApi.post(endpoints.createOrUpdateFavorite, {
           userId: userId,
           productId: productId
         });
@@ -159,12 +157,7 @@ const ProductFoodType = () => {
         onClose={() => setSnackbarOpen(false)}
         message={snackbarMessage}
       />
-      <Box mb={2} display="flex" alignItems="center" gap={2}>
-        <Button startIcon={<ArrowBack />} onClick={handleBack} variant="outlined" color="primary">
-          Back To Previous
-        </Button>
-        
-      </Box>
+      
 
       <Card sx={{ maxWidth: 1000, margin: '0 auto', boxShadow: 6, borderRadius: 4 }}>
         <CardMedia
@@ -206,7 +199,7 @@ const ProductFoodType = () => {
           <Grid container spacing={2} mt={2}>
             <Grid item xs={12} sm={6}>
               <Typography variant="h6" gutterBottom>
-                <LocalOffer sx={{ mr: 1 }} /> Price: ${productFoods.price}
+                <LocalOffer sx={{ mr: 1 }} /> Price: ${productFoods.price.toLocaleString()} VND
               </Typography>
                <Typography variant="subtitle2" fontWeight="bold" color="primary">
                 <AddShoppingCartIcon fontSize="small" /> {productFoods.totalOrder} Orders

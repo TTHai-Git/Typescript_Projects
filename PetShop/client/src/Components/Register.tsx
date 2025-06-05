@@ -59,7 +59,7 @@ const Register = () => {
       userRegister.avatar = res_1.data.secure_url;
 
       // const res_2 = await axios.post('/v1/auth/register', userRegister);
-      const res_2 = await APIs.post(endpoints['register'], userRegister);
+      const res_2 = await APIs.post(endpoints.register, userRegister);
       if (res_2.status === 201) {
         navigate('/login');
       }

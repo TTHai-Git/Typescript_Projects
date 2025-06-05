@@ -83,7 +83,7 @@ const Products = () => {
   const loadCategories = async () => {
     try {
       // const res = await axios.get('/v1/categories');
-      const res = await APIs.get(endpoints['getCategories'])
+      const res = await APIs.get(endpoints.getCategories)
       setCategories(res.data || []);
     } catch (err) {
       console.error(err);
@@ -301,7 +301,7 @@ const Products = () => {
                         <ChatBubbleOutlineIcon fontSize="small" /> {item.description}
                       </Typography>
                       <Typography variant="subtitle1" fontWeight="bold" color="primary">
-                        <AttachMoneyIcon fontSize="small" /> {item.price}
+                        <AttachMoneyIcon fontSize="small" /> {item.price.toLocaleString()} VND
                       </Typography>
                       <Typography variant="subtitle2" fontWeight="bold" color="primary">
                         <AddShoppingCartIcon fontSize="small" /> {item.totalOrder} Orders

@@ -38,7 +38,7 @@ const PAYOSPaymentReturn = () => {
     try {
       setLoading(true)
 
-      const checkStatus = await APIs.get(endpoints['getOrder'](orderId))
+      const checkStatus = await APIs.get(endpoints.getOrder(orderId))
       if (checkStatus.data.status !== "Pending") {
         setError(true)
         setErrorMessage("This payment has already been processed.")
@@ -49,7 +49,7 @@ const PAYOSPaymentReturn = () => {
       const extraData = res.data.transactions[0]
 
       if (res.status === 200) {
-        await authApi.post(endpoints['createPaymentForOrder'], {
+        await authApi.post(endpoints.createPaymentForOrder, {
           method: "PAYOS",
           provider: "PAYOS",
           order: orderId,
@@ -57,7 +57,7 @@ const PAYOSPaymentReturn = () => {
           extraData: extraData,
         })
 
-        await authApi.put(endpoints['updateStatusOfOrder'](orderId), {
+        await authApi.put(endpoints.updateStatusOfOrder(orderId), {
           status: "Failed",
         })
 
@@ -73,7 +73,7 @@ const PAYOSPaymentReturn = () => {
   } else {
     try {
       setLoading(true)
-      const checkStatus = await APIs.get(endpoints['getOrder'](orderId))
+      const checkStatus = await APIs.get(endpoints.getOrder(orderId))
       if (checkStatus.data.status !== "Pending") {
         setError(true)
         setErrorMessage("This payment has already been processed.")
@@ -84,7 +84,7 @@ const PAYOSPaymentReturn = () => {
       const extraData = res.data.transactions[0]
 
       if (res.status === 200) {
-        await authApi.post(endpoints['createPaymentForOrder'], {
+        await authApi.post(endpoints.createPaymentForOrder, {
           method: "PAYOS",
           provider: "PAYOS",
           order: orderId,
@@ -92,7 +92,7 @@ const PAYOSPaymentReturn = () => {
           extraData: extraData,
         })
 
-        await authApi.put(endpoints['updateStatusOfOrder'](orderId), {
+        await authApi.put(endpoints.updateStatusOfOrder(orderId), {
           status: "Confirmed",
         })
 
@@ -108,7 +108,7 @@ const PAYOSPaymentReturn = () => {
 }
   const checkUser = async () => {
       try {
-        const res = await authApi.get(endpoints['authMe']);
+        const res = await authApi.get(endpoints.authMe);
         dispatch(login({
           ...res.data,
           isAuthenticated: true,
@@ -132,7 +132,7 @@ const PAYOSPaymentReturn = () => {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(timer)
-          navigate("/")
+          navigate('/')
           return 0
         }
         return prev - 1

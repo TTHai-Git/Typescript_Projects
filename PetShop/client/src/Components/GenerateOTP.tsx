@@ -17,7 +17,7 @@ const GenerateOTP = () => {
             // const res = await axios.post('/v1/users/generate-otp', {
             //    email
             // })
-            const res = await APIs.post(endpoints['generateOTP'], {
+            const res = await APIs.post(endpoints.generateOTP, {
               email
            })
             // console.log(res)
