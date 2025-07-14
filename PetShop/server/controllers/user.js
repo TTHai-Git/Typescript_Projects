@@ -22,6 +22,7 @@ export const updateInfor = async (req, res) => {
       "password",
       "createdAt",
       "updatedAt",
+      "isVerified"
     ];
     forbiddenFields.forEach((field) => delete updates[field]);
 
@@ -61,7 +62,7 @@ export const updateInfor = async (req, res) => {
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: process.env.EMAIL_USER,
+    user: process.env.EMAIL_SECRET,
     pass: process.env.EMAIL_PASS,
   },
 });
@@ -128,7 +129,7 @@ export const generateOTP = async (req, res) => {
     otpStore[email] = { code: otpCode, expiresAt };
 
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: process.env.EMAIL_SECRET,
       to: email,
       subject: "Reset Password OTP",
       text: `Your OTP code is ${otpCode}. It will expire in 5 minutes.`,

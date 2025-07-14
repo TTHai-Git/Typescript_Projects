@@ -3,8 +3,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { useLocation, useNavigate } from 'react-router';
 import { logout } from '../features/login/authSlice';
-// import axios from 'axios';
-
+import { Chip, Tooltip } from '@mui/material';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
 import {
   Avatar,
   Box,
@@ -40,6 +41,7 @@ const UserInfo = () => {
   });
 
   useEffect(() => {
+    console.log("user", user)
     if (!user) {
       navigate('/login');
     } else {
@@ -111,6 +113,24 @@ const UserInfo = () => {
                   sx={{ width: 100, height: 100, mb: 1 }}
                 />
                 <Typography variant="subtitle1">{user.username}</Typography>
+                <Tooltip title={user.isVerified ? 'Your email is verified' : 'Please verify your email'}>
+  <Chip
+    label={user.isVerified ? 'Verified' : 'Not Verified'}
+    color={user.isVerified ? 'success' : 'default'}
+    icon={
+      user.isVerified ? (
+        <CheckCircleIcon style={{ color: 'white' }} />
+      ) : (
+        <CancelIcon style={{ color: 'gray' }} />
+      )
+    }
+    sx={{
+      color: 'white',
+      fontWeight: 'bold',
+    }}
+  />
+</Tooltip>
+
               </Stack>
 
               <Grid container spacing={2}>

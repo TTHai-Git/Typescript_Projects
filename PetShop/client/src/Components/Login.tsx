@@ -4,13 +4,12 @@ import { login } from '../features/login/authSlice';
 import { AppDispatch } from '../store';
 // import axios from 'axios';
 import '../Assets/CSS/Login.css';
-import { useLocation, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import { UserState } from '../Interface/Users';
 import { Alert } from '@mui/material';
 import APIs, { endpoints } from '../Config/APIs';
 
 const Login: React.FC = () => {
-  const location = useLocation();
   const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -60,7 +59,7 @@ const Login: React.FC = () => {
         
         <form onSubmit={handleLogin} className="login-form">
           <div className="form-group">
-            <label htmlFor="username">Username</label>
+            <label htmlFor="username">Username/Email/Phone</label>
             <input
               id="username"
               type="text"
@@ -90,7 +89,7 @@ const Login: React.FC = () => {
               )}  
           </div>
           <div className="form-group">
-          <a className="forgotpassword-subtitle" onClick={() => navigate("/generate-otp")}>Do you forgot password?</a>
+          <a className="forgotpassword-subtitle" href='/generate-otp' onClick={() => navigate("/generate-otp")}>Do you forgot password?</a>
           </div>
           <div className="form-group">
           <button type="submit" className="login-button">

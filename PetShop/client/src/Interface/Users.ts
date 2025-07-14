@@ -14,4 +14,5 @@ export interface UserState extends User {
     email: string;
     phone: string;
     address: string;
+    isVerified: boolean;
 }

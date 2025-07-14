@@ -13,6 +13,7 @@ export const endpoints = {
   logout: "/auth/logout",
   authMe: "/auth/me",
   refreshAccessToken: "/auth/refresh",
+  verifyEmail: "/auth/verify-email",
   getProductById: (type, productId) => `/products/${type}/${productId}`,
   uploadAvatarToCloudinary: (baseURLCloud, cloudName, dirCloud) =>
     `${baseURLCloud}${cloudName}${dirCloud}`,
