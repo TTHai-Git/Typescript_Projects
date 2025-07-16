@@ -10,5 +10,13 @@ declare namespace NodeJS {
         REACT_APP_VIETQG_accountNo: string,
         REACT_APP_VIETQG_accountName: string,
         REACT_APP_VIETQG_acqId:string,
+        REACT_APP_MapToken: string,
+        REACT_APP_DestinationAddress: string,
+        REACT_APP_apiKey:string,
+        REACT_APP_authDomain:string,
+        REACT_APP_projectId:string,
+        REACT_APP_storageBucket:string,
+        REACT_APP_messagingSenderId:string,
+        REACT_APP_appId:string,
     }
 }

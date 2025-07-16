@@ -4,17 +4,18 @@ import User from "../models/user.js";
 import dotenv from "dotenv";
 import Role from "../models/role.js";
 import nodemailer from "nodemailer";
-import validator from "validator"
+import validator from "validator";
 dotenv.config();
 
 const SECRET_KEY = process.env.JWT_SECRET;
 
 export const register = async (req, res) => {
   const { username, password, name, email, phone, address, avatar } = req.body;
-  
+
   const isValidEmail = validator.isEmail(email); // returns true or false
-  if(!isValidEmail) {
-    return res.status(400).json( { message: "Invalid email format"})
+  // console.log(isValidEmail);
+  if (!isValidEmail) {
+    return res.status(400).json({ message: "Invalid email format" });
   }
 
   try {
@@ -42,26 +43,29 @@ export const register = async (req, res) => {
     });
     // console.log(newUser);
 
-    const emailToken = jwt.sign({ id: newUser._id},
-      process.env.EMAIL_SECRET, { expiresIn: '1d'}
-    )
+    const emailToken = jwt.sign({ id: newUser._id }, process.env.EMAIL_SECRET, {
+      expiresIn: "1d",
+    });
 
-    const url = `${process.env.CLIENT_URL}/verify-email?token=${emailToken}`
+    const url = `${process.env.CLIENT_URL}/verify-email?token=${emailToken}`;
 
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      service: "gmail",
       auth: {
         user: process.env.EMAIL_SECRET,
-        pass: process.env.EMAIL_PASS
-      }
+        pass: process.env.EMAIL_PASS,
+      },
     });
     await transporter.sendMail({
-    to: email,
-    subject: 'Verify Your Email Of Account On E-Commerce Website DOGSHOP',
-    html: `Click <a href="${url}">here</a> to verify your email. Expires in 24 hourse.`
-  });
+      to: email,
+      subject: "Verify Your Email Of Account On E-Commerce Website DOGSHOP",
+      html: `Click <a href="${url}">here</a> to verify your email. Expires in 24 hourse.`,
+    });
 
-    return res.status(201).json({ message: "User registered successfully. Verification email has sent to your email. Please check your email to verify acount as soon as !" });
+    return res.status(201).json({
+      message:
+        "User registered successfully. Verification email has sent to your email. Please check your email to verify acount as soon as !",
+    });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }
@@ -72,7 +76,7 @@ export const login = async (req, res) => {
   const { username, password } = req.body;
 
   try {
-     const user =
+    const user =
       (await User.findOne({ username }).populate("role")) ||
       (await User.findOne({ email: username }).populate("role")) ||
       (await User.findOne({ phone: username }).populate("role"));
@@ -81,8 +85,10 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: "Invalid Username/EmaiL/Phone" });
     }
 
-    if(!user.isVerified) {
-      return res.status(403).json( { message: "Please verify your email before logging in"})
+    if (!user.isVerified) {
+      return res
+        .status(403)
+        .json({ message: "Please verify your email before logging in" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);

@@ -4,11 +4,13 @@ import "../Assets/CSS/Register.css";
 import { useNavigate } from "react-router";
 import APIs, { endpoints } from "../Config/APIs";
 import axios from "axios";
+import { Alert, Snackbar } from "@mui/material";
 
 const Register = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [previewAvatar, setPreviewAvatar] = useState<string | null>(null);
+  const [message, setMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
 
   const [userRegister, setUserRegister] = useState({
     username: "",
@@ -19,6 +21,7 @@ const Register = () => {
     phone: "",
     address: "",
   });
+
 
   const handleSetState = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, files } = e.target;
@@ -61,10 +64,15 @@ const Register = () => {
       // const res_2 = await axios.post('/v1/auth/register', userRegister);
       const res_2 = await APIs.post(endpoints.register, userRegister);
       if (res_2.status === 201) {
-        navigate('/login');
+        showMessage("Register account successfully! Please check your email and phone number to verify account with OTP has sent to both", "success");
+        navigate('/verify-phone');
       }
-    } catch (error) {
+      else {
+        showMessage("Register account failed! Please try again later", "error")
+      }
+    } catch (error:any) {
       console.error("Error uploading image:", error);
+      // showMessage(error.response?.data?.message, "error")
     } finally {
       setLoading(false);
     }
@@ -79,6 +87,11 @@ const Register = () => {
       }
     };
   }, [previewAvatar]);
+
+  const showMessage = (text: string, type: "success" | "error") => {
+    setMessage({ text, type });
+    setTimeout(() => setMessage(null), 3000);
+  };
 
   return (
     <div className="register-container">
@@ -168,6 +181,10 @@ const Register = () => {
         </div>
         
       </form>
+      {/* Snackbar Message */}
+      <Snackbar open={!!message} anchorOrigin={{ vertical: "bottom", horizontal: "center" }}>
+        <Alert severity={message?.type}>{message?.text}</Alert>
+      </Snackbar>
     </div>
   );
 };
