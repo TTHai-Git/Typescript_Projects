@@ -30,6 +30,7 @@ import Cart from './Components/Cart';
 import Shipment from './Components/Shipment';
 import ShipmentInfomation from './Components/ShipmentInfomation';
 import VerifyEmail from './Components/VerifyEmail';
+import PhoneVerify from './Components/PhoneVerify';
 
 function App() {
   return (
@@ -46,7 +47,8 @@ function App() {
               <Route path="/generate-otp" element={<GenerateOTP/>} />
               <Route path="/reset-password" element={<ResetPassword/>} />
               <Route path="/register" element={<Register/>} />
-              <Route path = '/verify-email' element={<VerifyEmail/>} />
+              <Route path ="/verify-email" element={<VerifyEmail/>} />
+              <Route path ="/verify-phone" element={<PhoneVerify/>} />
               <Route path="/userinfo" element={<UserInfo/>} />
               <Route path="/userinfo/:user_id/orders" element={<ListOrders/>}/>
               <Route path="/userinfo/:user_id/orders/:order_id/orderDetails" element={<ListOrderDetails/>}/>
