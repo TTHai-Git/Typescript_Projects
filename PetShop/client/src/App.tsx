@@ -31,6 +31,10 @@ import Shipment from './Components/Shipment';
 import ShipmentInfomation from './Components/ShipmentInfomation';
 import VerifyEmail from './Components/VerifyEmail';
 import PhoneVerify from './Components/PhoneVerify';
+import Dashboard from './Components/Pages/Admin/Dashboard';
+import RequireAdmin from './Components/Pages/Admin/RequireAdmin';
+import AdminProducts from './Components/Pages/Admin/AdminProducts';
+import AdminUsers from './Components/Pages/Admin/AdminUsers';
 
 function App() {
   return (
@@ -66,6 +70,9 @@ function App() {
               <Route path='/PAYOS/payment-return' element={<PAYOSPaymentReturn/>}/>
               <Route path='/cart/shipment' element={< Shipment/>}/>
               <Route path= "/cart/shipment/checkout" element={< CheckOut/>}/>
+              <Route path="/admin-dashboard" element={<RequireAdmin><Dashboard /></RequireAdmin>} />
+              <Route path="/admin-dashboard/products" element={<RequireAdmin><AdminProducts /></RequireAdmin>} />
+              <Route path="/admin-dashboard/users" element={<RequireAdmin><AdminUsers /></RequireAdmin>} />
             </Routes>
           </div>
           <Footer/>

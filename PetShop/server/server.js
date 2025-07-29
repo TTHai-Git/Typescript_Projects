@@ -23,6 +23,9 @@ import payOSRouter from "./services/payOSPayment.js";
 import cookieParser from "cookie-parser";
 import shipmentRoutes from "./routes/shipment.js";
 import voucherRouter from "./routes/voucher.js";
+import generateCrudRoutes from "./routes/CRUD.js";
+import User from "./models/user.js";
+import Product from "./models/product.js";
 
 dotenv.config();
 
@@ -60,6 +63,9 @@ app.use("/api/vnpay", VNPayRouter);
 app.use("/api/payOS", payOSRouter);
 app.use("/v1/shipments", shipmentRoutes);
 app.use ("/v1/vouchers", voucherRouter)
+// Admin CRUD routes
+app.use("/api/admin/users", generateCrudRoutes(User))
+app.use("/api/admin/products", generateCrudRoutes(Product))
 
 app.get("/v1/", (req, res) => {
   res.send("Welcome to the Pet Shop API!");
