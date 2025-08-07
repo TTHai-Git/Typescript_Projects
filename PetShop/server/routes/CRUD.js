@@ -15,7 +15,7 @@ const generateCrudRoutes = (Model, modelName, options = {}) => {
   const router = Router();
 
   router.post("/", authMiddleware, isAdmin, createOne(Model, modelName));
-  router.get("/", readAll(Model, modelName, options));
+  router.get("/", authMiddleware, isAdmin, readAll(Model, modelName, options));
   router.get(
     "/all",
     authMiddleware,
