@@ -11,6 +11,7 @@ export default interface Product extends ProductCart {
     imageUrl: string;
     description: string;
     status: boolean;
+    stock: number;
     category: Category;
     type: string;
     brand: Brand;

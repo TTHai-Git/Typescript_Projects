@@ -29,6 +29,7 @@ import LoginIcon from '@mui/icons-material/Login';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { logout } from '../features/login/authSlice';
 import { authApi, endpoints } from '../Config/APIs';
+import { AdminPanelSettings } from '@mui/icons-material';
 
 export const NavBar = () => {
   const { cartItems } = useCart();
@@ -148,6 +149,13 @@ export const NavBar = () => {
                   <FavoriteIcon fontSize="small" color="error" />
                 </ListItemIcon>
                 <ListItemText primary="Favorites List" />
+              </MenuItem>
+
+              <MenuItem onClick={() => navigate(`/admin-dashboard`)}>
+                <ListItemIcon>
+                  <AdminPanelSettings fontSize="small" color="error" />
+                </ListItemIcon>
+                <ListItemText primary="Dashboard Management" />
               </MenuItem>
 
               <Divider />

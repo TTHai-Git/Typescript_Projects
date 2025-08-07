@@ -24,7 +24,7 @@ import ReceiptIcon from '@mui/icons-material/Receipt';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import { authApi, endpoints } from '../Config/APIs';
-import { Favorite } from '@mui/icons-material';
+import { AdminPanelSettings, Favorite } from '@mui/icons-material';
 
 const UserInfo = () => {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -228,6 +228,19 @@ const UserInfo = () => {
             >
               Follow Favoritelist
             </Button>
+            { user?.role.name === 'Admin' && (
+              <Button
+              variant="outlined"
+              color="warning"
+              startIcon={<AdminPanelSettings />}
+              fullWidth
+              onClick={() => navigate(`/admin-dashboard`, {state: {
+                from: location.pathname + location.search
+              }})}
+            >
+              Dashboard Management
+            </Button>
+            )}
           </Stack>
         </CardContent>
       </Card>

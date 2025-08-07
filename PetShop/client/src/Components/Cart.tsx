@@ -97,6 +97,7 @@ const Cart = () => {
                     {item.note?.split(' - ').map((line, i) => <div key={i}>{line}</div>)}
                   </Typography>
                   <Typography variant="subtitle1">Price: {item.price.toLocaleString()} VND</Typography>
+                  <Typography variant="subtitle2">Stock: {item.stock} items</Typography>
                   <Box display="flex" alignItems="center" mt={1}>
                     <Tooltip title="Decrease">
                       <IconButton onClick={() => decreaseQuantity(item._id)} color="warning">
@@ -105,7 +106,7 @@ const Cart = () => {
                     </Tooltip>
                     <Typography mx={1}>{item.quantity}</Typography>
                     <Tooltip title="Increase">
-                      <IconButton onClick={() => increaseQuantity(item._id)} color="primary">
+                      <IconButton onClick={() => increaseQuantity(item._id, item.stock)} color="primary">
                         <Add />
                       </IconButton>
                     </Tooltip>

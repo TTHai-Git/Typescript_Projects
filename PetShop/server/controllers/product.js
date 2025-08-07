@@ -10,7 +10,7 @@ import Vendor from "../models/vendor.js";
 import Comment from "../models/comment.js";
 import OrderDetails from "../models/orderdetails.js";
 
-const productTypes = {
+export const productTypes = {
   dog: DogProduct,
   food: FoodProduct,
   clothes: ClothesProduct,
@@ -170,6 +170,7 @@ export const getAllProducts = async (req, res) => {
         price: product.price,
         imageUrl: product.imageUrl,
         status: product.status,
+        stock: product.stock,
         createdAt: product.createdAt,
         updatedAt: product.updatedAt,
         category: categoryDocs[catId],
@@ -243,12 +244,13 @@ export const createProduct = async (req, res) => {
       description,
       price,
       status,
-      category_id,
-      brand_id,
-      vendor_id,
+      category,
+      brand,
+      vendor,
       ...rest
     } = req.body;
 
+    console.log("req.body", req.body);
     const Model = productTypes[type];
 
     if (!Model) {
@@ -260,9 +262,9 @@ export const createProduct = async (req, res) => {
       description,
       price,
       status,
-      category: category_id,
-      brand: brand_id,
-      vendor: vendor_id,
+      category: category,
+      brand: brand,
+      vendor: vendor,
       ...rest, // contains type-specific fields like ingredients, size, etc.
     });
 
@@ -302,4 +304,21 @@ export const deleteProduct = async (req, res) => {
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
+};
+
+export const updateStock = async (product_id, quantity) => {
+  console.log("product_id", product_id);
+  console.log("quantity", quantity);
+
+  const product = await Product.findByIdAndUpdate(
+    product_id,
+    { $inc: { stock: -quantity } },
+    { new: true }
+  );
+
+  if (product.stock < 0) {
+    product.stock = 0;
+    product.status = false;
+  }
+  await product.save();
 };

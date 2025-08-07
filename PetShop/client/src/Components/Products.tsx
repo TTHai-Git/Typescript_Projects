@@ -26,6 +26,7 @@ import {
   LocalShipping as LocalShippingIcon,
   CheckCircleOutline as CheckCircleOutlineIcon,
   CancelOutlined as CancelOutlinedIcon,
+  Inventory,
 } from '@mui/icons-material';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import SearchIcon from '@mui/icons-material/Search';
@@ -302,6 +303,9 @@ const Products = () => {
                       </Typography>
                       <Typography variant="subtitle1" fontWeight="bold" color="primary">
                         <AttachMoneyIcon fontSize="small" /> {item.price.toLocaleString()} VND
+                      </Typography>
+                      <Typography variant="h6" gutterBottom>
+                        <Inventory sx={{ mr: 1 }} /> Inventory: {item.stock} items
                       </Typography>
                       <Typography variant="subtitle2" fontWeight="bold" color="primary">
                         <AddShoppingCartIcon fontSize="small" /> {item.totalOrder} Orders

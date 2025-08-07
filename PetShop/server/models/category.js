@@ -18,5 +18,5 @@ const CategorySchema = new Schema(
     timestamps: true,
   }
 );
-const Category = model("category", CategorySchema);
+const Category = model("Category", CategorySchema);
 export default Category;

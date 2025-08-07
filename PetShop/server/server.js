@@ -26,6 +26,19 @@ import voucherRouter from "./routes/voucher.js";
 import generateCrudRoutes from "./routes/CRUD.js";
 import User from "./models/user.js";
 import Product from "./models/product.js";
+import Brand from "./models/brand.js";
+import Category from "./models/category.js";
+import Comment from "./models/comment.js";
+import CommentDetails from "./models/commentdetails.js";
+import Favorite from "./models/favorite.js";
+import Order from "./models/order.js";
+import OrderDetails from "./models/orderdetails.js";
+import Payment from "./models/payment.js";
+import Shipment from "./models/shipment.js";
+import Breed from "./models/breed.js";
+import Vendor from "./models/vendor.js";
+import Voucher from "./models/voucher.js";
+import Role from "./models/role.js";
 
 dotenv.config();
 
@@ -62,10 +75,173 @@ app.use("/v1/payments", paymentRoutes);
 app.use("/api/vnpay", VNPayRouter);
 app.use("/api/payOS", payOSRouter);
 app.use("/v1/shipments", shipmentRoutes);
-app.use ("/v1/vouchers", voucherRouter)
+app.use("/v1/vouchers", voucherRouter);
 // Admin CRUD routes
-app.use("/api/admin/users", generateCrudRoutes(User))
-app.use("/api/admin/products", generateCrudRoutes(Product))
+app.use(
+  "/api/admin/brands",
+  generateCrudRoutes(Brand, "", {
+    searchableFields: ["_id", "name", "description"],
+    sortableFields: ["name", "descrption", "createdAt", "updatedAt"],
+  })
+);
+
+app.use(
+  "/api/admin/breeds",
+  generateCrudRoutes(Breed, "", {
+    searchableFields: ["_id", "name", "description"],
+    sortableFields: ["name", "createdAt", "updatedAt"],
+  })
+);
+
+app.use(
+  "/api/admin/categories",
+  generateCrudRoutes(Category, "", {
+    searchableFields: ["_id", "name", "description"],
+    sortableFields: ["name", "createdAt", "updatedAt"],
+  })
+);
+
+app.use(
+  "/api/admin/comments",
+  generateCrudRoutes(Comment, "comments", {
+    searchableFields: ["_id", "user", "product", "content"],
+    sortableFields: ["rating", "createdAt", "updatedAt"],
+  })
+);
+
+app.use(
+  "/api/admin/commentDetails",
+  generateCrudRoutes(CommentDetails, "commentDetails", {
+    searchableFields: ["_id", "url", "public_id", "comment"],
+    sortableFields: ["createdAt", "updatedAt"],
+  })
+);
+
+app.use(
+  "/api/admin/favorites",
+  generateCrudRoutes(Favorite, "favorites", {
+    searchableFields: ["_id", "user", "product"],
+    sortableFields: ["createdAt", "updatedAt"],
+  })
+);
+
+app.use(
+  "/api/admin/orders",
+  generateCrudRoutes(Order, "orders", {
+    searchableFields: ["_id", "user", "status"],
+    sortableFields: ["totalPrice", "createdAt", "updatedAt"],
+  })
+);
+
+app.use(
+  "/api/admin/orderDetails",
+  generateCrudRoutes(OrderDetails, "orderDetails", {
+    searchableFields: ["_id", "order", "product", "note"],
+    sortableFields: ["price", "quantity", "createdAt", "updatedAt"],
+  })
+);
+
+app.use(
+  "/api/admin/payments",
+  generateCrudRoutes(Payment, "payments", {
+    searchableFields: ["_id", "method", "provider", "order"],
+    sortableFields: ["createdAt", "updatedAt"],
+  })
+);
+
+app.use(
+  "/api/admin/products",
+  generateCrudRoutes(Product, "products", {
+    searchableFields: ["_id", "name", "description", "status"],
+    sortableFields: ["name", "description", "price", "createdAt", "updatedAt"],
+  })
+);
+
+app.use(
+  "/api/admin/roles",
+  generateCrudRoutes(Role, "roles", {
+    searchableFields: ["_id", "name"],
+    sortableFields: ["name", "createdAt", "updatedAt"],
+  })
+);
+
+app.use(
+  "/api/admin/shipments",
+  generateCrudRoutes(Shipment, "shipments", {
+    searchableFields: [
+      "_id",
+      "method",
+      "buyerName",
+      "buyerPhone",
+      "buyerAddress",
+      "order",
+    ],
+    sortableFields: ["fee", "createdAt", "updatedAt"],
+  })
+);
+
+app.use(
+  "/api/admin/users",
+  generateCrudRoutes(User, "users", {
+    searchableFields: [
+      "_id",
+      "username",
+      "name",
+      "email",
+      "phone",
+      "address",
+      "role",
+      "isVerified",
+    ],
+    sortableFields: [
+      "username",
+      "name",
+      "email",
+      "phone",
+      "address",
+      "createdAt",
+      "updatedAt",
+    ],
+  })
+);
+
+app.use(
+  "/api/admin/vendors",
+  generateCrudRoutes(Vendor, "vendors", {
+    searchableFields: [
+      "_id",
+      "name",
+      "contactInfo",
+      "address",
+      "email",
+      "phone",
+    ],
+    sortableFields: [
+      "name",
+      "contactInfo",
+      "address",
+      "email",
+      "phone",
+      "createdAt",
+      "updatedAt",
+    ],
+  })
+);
+app.use(
+  "/api/admin/vouchers",
+  generateCrudRoutes(Voucher, "vouchers", {
+    searchableFields: ["_id", "code", "isActive"],
+    sortableFields: [
+      "code",
+      "discount",
+      "expiryDate",
+      "usageCount",
+      "maxUsage",
+      "createdAt",
+      "updatedAt",
+    ],
+  })
+);
 
 app.get("/v1/", (req, res) => {
   res.send("Welcome to the Pet Shop API!");

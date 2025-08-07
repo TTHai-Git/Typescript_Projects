@@ -7,36 +7,104 @@ import {
   CardActionArea,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import Inventory2Icon from "@mui/icons-material/Inventory2";
-import PeopleIcon from "@mui/icons-material/People";
-import CategoryIcon from "@mui/icons-material/Category";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import {
+  LocalOffer as LocalOfferIcon,
+  Pets as PetsIcon,
+  Category as CategoryIcon,
+  ChatBubbleOutline as ChatBubbleOutlineIcon,
+  Comment as CommentIcon,
+  FavoriteBorder as FavoriteBorderIcon,
+  ShoppingCart as ShoppingCartIcon,
+  ReceiptLong as ReceiptLongIcon,
+  Payment as PaymentIcon,
+  Inventory2 as Inventory2Icon,
+  AdminPanelSettings as AdminPanelSettingsIcon,
+  LocalShipping as LocalShippingIcon,
+  People as PeopleIcon,
+  Storefront as StorefrontIcon,
+  CardGiftcard as CardGiftcardIcon,
+} from "@mui/icons-material";
 
 const Dashboard = () => {
   const navigate = useNavigate();
 
   const dashboardItems = [
-    {
-      label: "Manage Products",
-      icon: <Inventory2Icon fontSize="large" color="primary" />,
-      path: "products",
-    },
-    {
-      label: "Manage Users",
-      icon: <PeopleIcon fontSize="large" color="primary" />,
-      path: "users",
-    },
-    {
-      label: "Manage Categories",
-      icon: <CategoryIcon fontSize="large" color="primary" />,
-      path: "categories",
-    },
-    {
-      label: "Manage Orders",
-      icon: <ShoppingCartIcon fontSize="large" color="primary" />,
-      path: "admin-dashboard/orders",
-    },
-  ];
+  {
+    label: "Manage Brands",
+    icon: <LocalOfferIcon fontSize="large" color="primary" />,
+    path: "brands",
+  },
+  {
+    label: "Manage Breeds",
+    icon: <PetsIcon fontSize="large" color="primary" />,
+    path: "breeds",
+  },
+  {
+    label: "Manage Categories",
+    icon: <CategoryIcon fontSize="large" color="primary" />,
+    path: "categories",
+  },
+  {
+    label: "Manage Comments",
+    icon: <ChatBubbleOutlineIcon fontSize="large" color="primary" />,
+    path: "comments",
+  },
+  {
+    label: "Manage Comments Details",
+    icon: <CommentIcon fontSize="large" color="primary" />,
+    path: "commentDetails",
+  },
+  {
+    label: "Manage Favorites",
+    icon: <FavoriteBorderIcon fontSize="large" color="primary" />,
+    path: "favorites",
+  },
+  {
+    label: "Manage Orders",
+    icon: <ShoppingCartIcon fontSize="large" color="primary" />,
+    path: "orders",
+  },
+  {
+    label: "Manage Order Details",
+    icon: <ReceiptLongIcon fontSize="large" color="primary" />,
+    path: "orderDetails",
+  },
+  {
+    label: "Manage Payments",
+    icon: <PaymentIcon fontSize="large" color="primary" />,
+    path: "payments",
+  },
+  {
+    label: "Manage Products",
+    icon: <Inventory2Icon fontSize="large" color="primary" />,
+    path: "products",
+  },
+  {
+    label: "Manage Roles",
+    icon: <AdminPanelSettingsIcon fontSize="large" color="primary" />,
+    path: "roles",
+  },
+  {
+    label: "Manage Shipments",
+    icon: <LocalShippingIcon fontSize="large" color="primary" />,
+    path: "shipments", // typo? maybe "shipments"
+  },
+  {
+    label: "Manage Users",
+    icon: <PeopleIcon fontSize="large" color="primary" />,
+    path: "users",
+  },
+  {
+    label: "Manage Vendors",
+    icon: <StorefrontIcon fontSize="large" color="primary" />,
+    path: "vendors",
+  },
+  {
+    label: "Manage Vouchers",
+    icon: <CardGiftcardIcon fontSize="large" color="primary" />,
+    path: "vouchers",
+  },
+];
 
   return (
     <Box sx={{ p: 4 }}>

@@ -25,6 +25,7 @@ const routeNameMap: { [key: string]: string } = {
   updateCommentForm: "Update Comment Form",
   VNPAY: "VNPAY Payment Return",
   PAYOS: "PAYOS Payment Return",
+  "admin-dashboard": "Admin Dashboard"
 };
 
 function Breadcrumbs() {

@@ -35,6 +35,19 @@ import Dashboard from './Components/Pages/Admin/Dashboard';
 import RequireAdmin from './Components/Pages/Admin/RequireAdmin';
 import AdminProducts from './Components/Pages/Admin/AdminProducts';
 import AdminUsers from './Components/Pages/Admin/AdminUsers';
+import AdminBrands from './Components/Pages/Admin/AdminBrands';
+import AdminBreeds from './Components/Pages/Admin/AdminBreeds';
+import AdminCategories from './Components/Pages/Admin/AdminCategories';
+import AdminComments from './Components/Pages/Admin/AdminComments';
+import AdminCommentDetails from './Components/Pages/Admin/AdminCommentDetails';
+import AdminFavorites from './Components/Pages/Admin/AdminFavorites';
+import AdminOrders from './Components/Pages/Admin/AdminOrders';
+import AdminOrderDetails from './Components/Pages/Admin/AdminOrderDetails';
+import AdminPayments from './Components/Pages/Admin/AdminPayments';
+import AdminRoles from './Components/Pages/Admin/AdminRoles';
+import AdminShipments from './Components/Pages/Admin/AdminShipments';
+import AdminVendors from './Components/Pages/Admin/AdminVendors';
+import AdminVouchers from './Components/Pages/Admin/AdminVouchers';
 
 function App() {
   return (
@@ -70,9 +83,24 @@ function App() {
               <Route path='/PAYOS/payment-return' element={<PAYOSPaymentReturn/>}/>
               <Route path='/cart/shipment' element={< Shipment/>}/>
               <Route path= "/cart/shipment/checkout" element={< CheckOut/>}/>
+              // CRUD Admin Routes
               <Route path="/admin-dashboard" element={<RequireAdmin><Dashboard /></RequireAdmin>} />
+              <Route path="/admin-dashboard/brands" element={<RequireAdmin><AdminBrands /></RequireAdmin>} />
+              <Route path="/admin-dashboard/breeds" element={<RequireAdmin><AdminBreeds /></RequireAdmin>} />
+              <Route path="/admin-dashboard/categories" element={<RequireAdmin><AdminCategories /></RequireAdmin>} />
+              <Route path="/admin-dashboard/breeds" element={<RequireAdmin><AdminBreeds /></RequireAdmin>} />
+              <Route path="/admin-dashboard/comments" element={<RequireAdmin><AdminComments /></RequireAdmin>} />
+              <Route path="/admin-dashboard/commentDetails" element={<RequireAdmin><AdminCommentDetails /></RequireAdmin>} />
+              <Route path="/admin-dashboard/favorites" element={<RequireAdmin><AdminFavorites /></RequireAdmin>} />
+              <Route path="/admin-dashboard/orders" element={<RequireAdmin><AdminOrders /></RequireAdmin>} />
+              <Route path="/admin-dashboard/orderDetails" element={<RequireAdmin><AdminOrderDetails /></RequireAdmin>} />
+              <Route path="/admin-dashboard/payments" element={<RequireAdmin><AdminPayments /></RequireAdmin>} />
               <Route path="/admin-dashboard/products" element={<RequireAdmin><AdminProducts /></RequireAdmin>} />
+              <Route path="/admin-dashboard/roles" element={<RequireAdmin><AdminRoles /></RequireAdmin>} />
+              <Route path="/admin-dashboard/shipments" element={<RequireAdmin><AdminShipments /></RequireAdmin>} />
               <Route path="/admin-dashboard/users" element={<RequireAdmin><AdminUsers /></RequireAdmin>} />
+              <Route path="/admin-dashboard/vendors" element={<RequireAdmin><AdminVendors /></RequireAdmin>} />
+              <Route path="/admin-dashboard/vouchers" element={<RequireAdmin><AdminVouchers /></RequireAdmin>} />
             </Routes>
           </div>
           <Footer/>

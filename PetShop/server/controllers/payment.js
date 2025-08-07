@@ -1,7 +1,15 @@
+import OrderDetails from "../models/orderdetails.js";
 import Payment from "../models/payment.js";
+import { updateStock } from "./product.js";
 
 export const createPaymentForOrder = async (req, res) => {
   const newPayment = await Payment.create(req.body);
+
+  // handle update Stock Of Products
+  const orderDetails = await OrderDetails.find({ order: req.body.order });
+  for (const orderDetail of orderDetails) {
+    updateStock(orderDetail.product, orderDetail.quantity);
+  }
   return res.status(201).json(newPayment);
 };
 

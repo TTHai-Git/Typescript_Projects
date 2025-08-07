@@ -144,6 +144,7 @@ const Shipment = () => {
     }
 
     const fullAddress = `${buyerAddress.trim()}, ${order.ward}, ${order.district}, ${order.city}, Việt Nam`;
+    console.log("Full Address:", fullAddress)
     const destinationAddress = process.env.REACT_APP_DestinationAddress || '';
 
     if (!destinationAddress) {
@@ -297,7 +298,7 @@ const Shipment = () => {
           <Grid item xs={12}>
             <TextField
               fullWidth
-              label="Địa chỉ người nhận"
+              label="Địa chỉ người nhận (Chỉ nhập số nhà (khoảng cách) tên đường)"
               value={buyerAddress}
               onChange={(e) => setBuyerAddress(e.target.value)}
             />

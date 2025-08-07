@@ -34,13 +34,8 @@ const Login: React.FC = () => {
           ...user,
           isAuthenticated: true,
         }));
-        if(user.role.name === 'Admin') {
-          navigate("/admin-dashboard")
-        }
-        else {
-          console.log("user", user)
-          navigate("/products")
-        }
+        navigate("/products")
+        
       } else {
       alert('Invalid username or password');
       }

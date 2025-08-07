@@ -26,7 +26,8 @@ import {
   ShoppingCart,
   Category,
   LocalShipping,
-  ArrowBack
+  ArrowBack,
+  Inventory
 } from '@mui/icons-material';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import Product, { ProductAccessories } from '../Interface/Product';
@@ -169,6 +170,9 @@ const ProductAccessoryType = () => {
               </Typography>
               <Typography variant="h5" color="secondary" gutterBottom>
                 ${productAccessory.price.toLocaleString()} VND
+              </Typography>
+              <Typography variant="h6" gutterBottom>
+                <Inventory sx={{ mr: 1 }} /> Inventory: ${productAccessory.stock} items
               </Typography>
               <Typography variant="subtitle2" fontWeight="bold" color="primary">
                 <AddShoppingCartIcon fontSize="small" /> {productAccessory.totalOrder} Orders

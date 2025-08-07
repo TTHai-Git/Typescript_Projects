@@ -27,7 +27,7 @@ import CakeIcon from '@mui/icons-material/Cake';
 
 import NumberInput from './Customs/NumberInput';
 import { ProductDog } from '../Interface/Product';
-import { ArrowBack, ColorLens, Favorite, FitnessCenter } from '@mui/icons-material';
+import { ArrowBack, ColorLens, Favorite, FitnessCenter, Inventory } from '@mui/icons-material';
 import APIs, { authApi, endpoints } from '../Config/APIs';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
@@ -223,6 +223,9 @@ const ProductDogType: React.FC = () => {
               <Typography variant="h6" color="primary" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                 <AttachMoneyIcon sx={{ mr: 1 }} />
                 Price: {dog.price.toLocaleString()} VND
+              </Typography>
+              <Typography variant="h6" gutterBottom>
+                <Inventory sx={{ mr: 1 }} /> Inventory: ${dog.stock} items
               </Typography>
               <Typography variant="subtitle2" fontWeight="bold" color="primary">
                 <AddShoppingCartIcon fontSize="small" /> {dog.totalOrder} Orders

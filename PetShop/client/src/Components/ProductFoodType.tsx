@@ -28,6 +28,7 @@ import {
   FavoriteBorder,
   ArrowBack,
   ShoppingCart,
+  Inventory,
 } from '@mui/icons-material';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import{ ProductFood } from '../Interface/Product';
@@ -200,6 +201,9 @@ const ProductFoodType = () => {
             <Grid item xs={12} sm={6}>
               <Typography variant="h6" gutterBottom>
                 <LocalOffer sx={{ mr: 1 }} /> Price: ${productFoods.price.toLocaleString()} VND
+              </Typography>
+              <Typography variant="h6" gutterBottom>
+                <Inventory sx={{ mr: 1 }} /> Inventory: ${productFoods.stock} items
               </Typography>
                <Typography variant="subtitle2" fontWeight="bold" color="primary">
                 <AddShoppingCartIcon fontSize="small" /> {productFoods.totalOrder} Orders

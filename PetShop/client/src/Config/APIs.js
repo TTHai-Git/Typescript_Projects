@@ -3,6 +3,7 @@ const BASE_URL = "/v1";
 
 export const endpoints = {
   getAllProducts: "/products",
+  checkStock: (productId) => `/products/check-stock/${productId}`,
   getCategories: "/categories",
   createOrder: "/orders",
   createOrderDetails: "/orderDetails",

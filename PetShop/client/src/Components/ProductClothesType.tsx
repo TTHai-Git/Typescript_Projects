@@ -20,7 +20,7 @@ import {
   Snackbar
 } from '@mui/material';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
-import { Favorite, ShoppingCart, ColorLens, FitnessCenter, LocalOffer, ArrowBack } from '@mui/icons-material';
+import { Favorite, ShoppingCart, ColorLens, FitnessCenter, LocalOffer, ArrowBack, Inventory } from '@mui/icons-material';
 
 import NumberInput from './Customs/NumberInput';
 import APIs, { authApi, endpoints } from '../Config/APIs';
@@ -169,6 +169,9 @@ const ProductClothesType = () => {
               {/* Price */}
               <Typography variant="h5" color="secondary" gutterBottom>
                 ${productClothes.price.toLocaleString()} VND
+              </Typography>
+              <Typography variant="h6" gutterBottom>
+                <Inventory sx={{ mr: 1 }} /> Inventory: ${productClothes.stock} items
               </Typography>
               <Typography variant="subtitle2" fontWeight="bold" color="primary">
                 <AddShoppingCartIcon fontSize="small" /> {productClothes.totalOrder} Orders
