@@ -24,12 +24,7 @@ jobs:
 
       - name: Run tests (Client)
         working-directory: PetShop/client
-        run: |
-          if ls src/**/*.{spec,test}.{js,jsx,ts,tsx} 1> /dev/null 2>&1; then
-            npm test -- --watchAll=false
-          else
-            echo "No test files found, skipping tests."
-          fi
+        run: npm test -- --watchAll=false --passWithNoTests
 
       # ======== SERVER TEST ========
       - name: Install dependencies (Server)
@@ -38,12 +33,7 @@ jobs:
 
       - name: Run tests (Server)
         working-directory: PetShop/server
-        run: |
-          if ls src/**/*.{spec,test}.{js,jsx,ts,tsx} 1> /dev/null 2>&1; then
-            npm test -- --watchAll=false
-          else
-            echo "No test files found, skipping tests."
-          fi
+        run: npm test -- --watchAll=false --passWithNoTests
 
       # ======== BUILD DOCKER IMAGES ========
       - name: Build Client Image
