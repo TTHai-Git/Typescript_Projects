@@ -36,7 +36,7 @@ const Home = () => {
       {/* Hero Section */}
       <Box sx={{ py: 10, textAlign: 'center', bgcolor: '#fdf6f0' }}>
         <Typography variant="h2" fontWeight="bold" gutterBottom>
-          Welcome to the Dog Shop
+          Welcome to the Dog Shop Test CI/CD Lấn 1
         </Typography>
         <Typography variant="h5" color="text.secondary">
           Find your perfect furry companion
