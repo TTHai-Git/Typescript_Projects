@@ -39,14 +39,14 @@ jobs:
       - name: Build Client Image
         run: |
           docker build \
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/project1-client:latest \
-            ./project1/client
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/PetShop-client:latest \
+            ./PetShop/client
 
       - name: Build Server Image
         run: |
           docker build \
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/project1-server:latest \
-            ./project1/server
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/PetShop-server:latest \
+            ./PetShop/server
 
       # ======== PUSH DOCKER IMAGES ========
       - name: Login to DockerHub
