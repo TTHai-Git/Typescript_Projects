@@ -246,8 +246,8 @@ app.use(
 app.get("/v1/", (req, res) => {
   res.send("Welcome to the Pet Shop API!");
 });
-app.listen(process.env.PORT || 5000, () => {
-  console.log("Server is running on port", process.env.PORT || 5000);
+app.listen(process.env.PORT || 8080, () => {
+  console.log("Server is running on port", process.env.PORT || 8080);
 });
 
 // Export for Vercel
