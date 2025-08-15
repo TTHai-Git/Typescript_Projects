@@ -79,11 +79,12 @@ export const updateVendor = async (req, res) => {
 export const deleteVendor = async (req, res) => {
   try {
     const { vendor_id } = req.params;
-    const vendor = await Vendor.findByIdAndDelete(vendor_id);
+    const vendor = await Vendor.findById(vendor_id);
     if (!vendor) {
       return res.status(404).json({ message: "vendor not found to delete" });
     }
-    res.status(204).json({ message: "vendor deleted successfully" });
+    await vendor.deleteOne();
+    res.status(200).json({ message: "vendor deleted successfully" });
   } catch (error) {
     console.error("Error delete vendor:", error);
     res.status(500).json({ message: "server error", error });

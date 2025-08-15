@@ -149,37 +149,37 @@ export const addComment = async (req, res) => {
 export const deleteComment = async (req, res) => {
   try {
     const { commentId } = req.params;
-    // console.log(commentId);
-    // console.log(req.user._id);
 
     const comment = await Comment.findById(commentId);
+
+    if (!comment) {
+      return res.status(404).json({ message: "Comment not found to delete" });
+    }
+
     if (!comment.user.equals(req.user._id)) {
       return res
-        .status(404)
+        .status(403)
         .json({ message: "You are not authorized to delete this comment" });
-    } else {
-      const deletedComment = await Comment.findByIdAndDelete(commentId);
-
-      const commentDetails = await CommentDetails.find({ comment: commentId });
-
-      if (commentDetails.length > 0) {
-        for (const item of commentDetails) {
-          const res = await deleteImageOnCloudinary(item.public_id);
-        }
-        const deletedUrls = await CommentDetails.deleteMany({
-          comment: commentId,
-        });
-      }
-
-      if (!deletedComment) {
-        return res.status(400).json({ message: "Comment not found to delete" });
-      } else {
-        return res
-          .status(204)
-          .json({ message: "Comment deleted successfully" });
-      }
     }
+
+    // Xóa comment
+    await Comment.findByIdAndDelete(commentId);
+
+    // Lấy chi tiết ảnh
+    const commentDetails = await CommentDetails.find({ comment: commentId });
+
+    if (commentDetails.length > 0) {
+      // Xóa ảnh trên Cloudinary song song
+      await Promise.all(
+        commentDetails.map((item) => deleteImageOnCloudinary(item.public_id))
+      );
+      // Xóa record trong DB
+      await CommentDetails.deleteMany({ comment: commentId });
+    }
+
+    return res.status(200).json({ message: "Comment deleted successfully" });
   } catch (error) {
+    console.error("Error deleting comment:", error);
     return res.status(500).json({ message: error.message });
   }
 };

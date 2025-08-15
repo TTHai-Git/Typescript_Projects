@@ -74,11 +74,12 @@ export const updateBrand = async (req, res) => {
 export const deleteBrand = async (req, res) => {
   try {
     const { brand_id } = req.params;
-    const brand = await Brand.findByIdAndDelete(brand_id);
+    const brand = await Brand.findById(brand_id);
     if (!brand) {
       return res.status(404).json({ message: "Brand not found to delete" });
     }
-    res.status(204).json({ message: "Brand deleted successfully" });
+    await brand.deleteOne();
+    res.status(200).json({ message: "Brand deleted successfully" });
   } catch (error) {
     console.error("Error delete brand:", error);
     res.status(500).json({ message: "server error", error });
