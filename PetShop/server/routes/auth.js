@@ -5,7 +5,7 @@ import {
   login,
   logout,
   protectedRoute,
-  refreshAccessToken,
+  // refreshAccessToken,
   register,
 } from "../controllers/auth.js";
 import { verifyEmail } from "../controllers/verifyController.js";
