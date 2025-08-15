@@ -49,42 +49,42 @@ export const authApi = axios.create({
 });
 
 // Add interceptor
-// authApi.interceptors.response.use(
-//   (response) => response, // pass through if successful
-//   async (error) => {
-//     const originalRequest = error.config;
+authApi.interceptors.response.use(
+  (response) => response, // pass through if successful
+  async (error) => {
+    const originalRequest = error.config;
 
-//     // If token expired and not already retried
-//     if (
-//       error.response &&
-//       error.response.status === 401 &&
-//       !originalRequest._retry
-//     ) {
-//       originalRequest._retry = true;
-//       try {
-//         // Call refresh endpoint
-//         const refreshResponse = await axios.post(
-//           endpoints.refreshAccessToken,
-//           {},
-//           {
-//             baseURL: BASE_URL,
-//             withCredentials: true,
-//           }
-//         );
+    // If token expired and not already retried
+    if (
+      error.response &&
+      error.response.status === 401 &&
+      !originalRequest._retry
+    ) {
+      originalRequest._retry = true;
+      try {
+        // Call refresh endpoint
+        const refreshResponse = await axios.post(
+          endpoints.refreshAccessToken,
+          {},
+          {
+            baseURL: BASE_URL,
+            withCredentials: true,
+          }
+        );
 
-//         if (refreshResponse.status === 200) {
-//           // Retry original request
-//           return authApi(originalRequest);
-//         }
-//       } catch (refreshError) {
-//         console.error("Token refresh failed", refreshError);
-//         // Optional: redirect to login or show error
-//       }
-//     }
+        if (refreshResponse.status === 200) {
+          // Retry original request
+          return authApi(originalRequest);
+        }
+      } catch (refreshError) {
+        console.error("Token refresh failed", refreshError);
+        // Optional: redirect to login or show error
+      }
+    }
 
-//     return Promise.reject(error);
-//   }
-// );
+    return Promise.reject(error);
+  }
+);
 
 export default axios.create({
   baseURL: BASE_URL,
