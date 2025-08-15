@@ -53,7 +53,16 @@ connect(process.env.MONGO_URI)
 
 // Middleware
 app.use(urlencoded({ extended: false }));
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      process.env.REACT_APP_PUBLIC_URL_VERCEL_CLIENT,
+      "http://localhost:3000",
+    ],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    credentials: true,
+  })
+);
 app.use(json());
 app.use(cookieParser());
 

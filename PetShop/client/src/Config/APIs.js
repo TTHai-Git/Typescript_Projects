@@ -1,5 +1,5 @@
 import axios from "axios";
-const BASE_URL = "/v1";
+const BASE_URL = process.env.REACT_APP_PROXY_URL_RENDER_SERVER + "/v1" || "/v1";
 
 export const endpoints = {
   getAllProducts: "/products",
