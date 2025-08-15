@@ -169,7 +169,7 @@ export const deleteFavorite = async (req, res) => {
     if (!favorite) {
       return res.status(404).json({ message: "Favorite not found to delete" });
     }
-    if (!req.user._id.equals(favorite.user)) {
+    if (!req.user._id == favorite.user) {
       return res
         .status(403)
         .json({ message: "You are not authorized to delete this favorite" });

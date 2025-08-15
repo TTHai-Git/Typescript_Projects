@@ -106,21 +106,39 @@ export const login = async (req, res) => {
     });
 
     // ✅ Set HttpOnly Cookie
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // use HTTPS in prod
-      sameSite: "None",
-      maxAge: 60 * 60 * 1000, // 1 hour
-    });
+    if (process.env.NODE_ENV === "production"){
+        res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production", // use HTTPS in prod
+        sameSite: "None",
+        maxAge: 60 * 60 * 1000, // 1 hour
+      });
 
-    // ✅ Optionally: Set refresh token in cookie too
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "None",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
+      // ✅ Optionally: Set refresh token in cookie too
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "None",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
+    }
+    else {
+        res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "development", // use HTTPS in prod
+        sameSite: "Strict",
+        maxAge: 60 * 60 * 1000, // 1 hour
+      });
 
+      // ✅ Optionally: Set refresh token in cookie too
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "development",
+        sameSite: "Strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
+
+    }
     // ✅ Only return user data (no token)
     res.status(200).json({
       user: {
@@ -141,11 +159,21 @@ export const login = async (req, res) => {
 };
 
 export const logout = (req, res) => {
-  res.clearCookie("accessToken", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "None",
-  });
+  if (process.env.NODE_ENV === "production") {
+      res.clearCookie("accessToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "None",
+    });
+  }
+  else {
+      res.clearCookie("accessToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "development",
+      sameSite: "Strict",
+    });
+  }
+  
   res.status(200).json({ message: "Logged out" });
 };
 

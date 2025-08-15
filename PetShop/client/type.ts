@@ -18,7 +18,6 @@ declare namespace NodeJS {
         REACT_APP_storageBucket:string,
         REACT_APP_messagingSenderId:string,
         REACT_APP_appId:string,
-        REACT_APP_PROXY_URL_RENDER_SERVER: string,
-        REACT_APP_PUBLIC_URL_VERCEL_CLIENT: string,
+        REACT_APP_BASE_URL: string,
     }
 }

@@ -127,7 +127,7 @@ const ratingOptions = [
       setLoading(true)
       if (!window.confirm('Are you sure you want to remove this comment?')) return;
       const res = await authApi.delete(endpoints.deleteComment(commentId))
-      if (res.status === 204) {
+      if (res.status === 200) {
         // console.log(res)
         alert("Comment deleted successfully")
         loadInfoDetailsOfProduct()
@@ -135,6 +135,7 @@ const ratingOptions = [
       }
       else {
         console.error("Error deleting comment:", res.data.message)
+        alert("Failed to delete comment. Please try again.")
       }
     } catch (error) {
       console.error("Error deleting comment:", error)

@@ -89,8 +89,15 @@ const FavoriteList = () => {
   const removeFavorite = async (favoriteId: string) => {
     if (!window.confirm('Are you sure you want to remove this item from favorites?')) return;
     try {
-      await authApi.delete(endpoints.deleteFavorite(favoriteId));
-      setFavoriteList((prev) => prev.filter((fav) => fav._id !== favoriteId));
+      const res = await authApi.delete(endpoints.deleteFavorite(favoriteId));
+      if (res.status === 200) {
+        alert("Favorite removed successfully!")
+        setFavoriteList((prev) => prev.filter((fav) => fav._id !== favoriteId));
+      }
+     else {
+        console.error("Error deleting favorite:", res.data.message)
+        alert("Failed to delete favorite. Please try again.")
+      }
     } catch (error) {
       console.log(error);
     }
