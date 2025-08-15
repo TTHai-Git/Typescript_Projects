@@ -170,31 +170,31 @@ export const protectedRoute = (req, res) => {
   res.json({ message: "This is a protected route", user: req.user });
 };
 
-export const refreshAccessToken = (req, res) => {
-  const refreshToken = req.cookies.refreshToken;
-  if (!refreshToken) {
-    return res.status(401).json({ message: "Refresh token missing" });
-  }
+// export const refreshAccessToken = (req, res) => {
+//   const refreshToken = req.cookies.refreshToken;
+//   if (!refreshToken) {
+//     return res.status(401).json({ message: "Refresh token missing" });
+//   }
 
-  try {
-    const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET);
-    const newAccessToken = jwt.sign(
-      { id: decoded.id },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "1h",
-      }
-    );
+//   try {
+//     const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET);
+//     const newAccessToken = jwt.sign(
+//       { id: decoded.id },
+//       process.env.JWT_SECRET,
+//       {
+//         expiresIn: "1h",
+//       }
+//     );
 
-    res.cookie("accessToken", newAccessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
-      maxAge: 60 * 60 * 1000, // 1 hour
-    });
+//     res.cookie("accessToken", newAccessToken, {
+//       httpOnly: true,
+//       secure: process.env.NODE_ENV === "production",
+//       sameSite: "Strict",
+//       maxAge: 60 * 60 * 1000, // 1 hour
+//     });
 
-    res.status(200).json({ message: "Access token refreshed" });
-  } catch (err) {
-    return res.status(403).json({ message: "Invalid refresh token" });
-  }
-};
+//     res.status(200).json({ message: "Access token refreshed" });
+//   } catch (err) {
+//     return res.status(403).json({ message: "Invalid refresh token" });
+//   }
+// };
