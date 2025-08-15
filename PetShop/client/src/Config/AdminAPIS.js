@@ -1,7 +1,7 @@
 import axios from "axios";
 import { endpoints } from "./APIs";
 const BASE_URL =
-  process.env.REACT_APP_PROXY_URL_RENDER_SERVER + "/api/admin" || "/api/admin";
+  process.env.BASE_URL + "/api/admin";
 
 export const adminEndpoints = {
   readAll: (model) => `/${model}`,
