@@ -39,6 +39,7 @@ import Breed from "./models/breed.js";
 import Vendor from "./models/vendor.js";
 import Voucher from "./models/voucher.js";
 import Role from "./models/role.js";
+import chatBotRoutes from "./routes/chatBot.js";
 
 dotenv.config();
 
@@ -85,6 +86,7 @@ app.use("/api/vnpay", VNPayRouter);
 app.use("/api/payOS", payOSRouter);
 app.use("/v1/shipments", shipmentRoutes);
 app.use("/v1/vouchers", voucherRouter);
+app.use("/v1/chat-bot-faq", chatBotRoutes);
 // Admin CRUD routes
 app.use(
   "/api/admin/brands",

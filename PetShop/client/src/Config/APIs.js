@@ -1,5 +1,5 @@
 import axios from "axios";
-const BASE_URL =  process.env.REACT_APP_BASE_URL;
+const BASE_URL = process.env.REACT_APP_BASE_URL;
 
 export const endpoints = {
   getAllProducts: "/products",
@@ -41,6 +41,7 @@ export const endpoints = {
   createShipment: "/shipments",
   calculateShipmentFee: "/shipments/calculate-fee",
   getShipmentOfOrder: (orderId) => `/shipments/order/${orderId}`,
+  chatBot: `/chat-bot-faq/chat`,
 };
 
 export const authApi = axios.create({

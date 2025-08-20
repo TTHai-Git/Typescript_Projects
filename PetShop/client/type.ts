@@ -19,5 +19,7 @@ declare namespace NodeJS {
         REACT_APP_messagingSenderId:string,
         REACT_APP_appId:string,
         REACT_APP_BASE_URL: string,
+        REACT_APP_FACEBOOK_URL: string,
+        REACT_APP_ZALO_PHONE: string,
     }
 }

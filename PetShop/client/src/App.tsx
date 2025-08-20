@@ -48,6 +48,8 @@ import AdminRoles from './Components/Pages/Admin/AdminRoles';
 import AdminShipments from './Components/Pages/Admin/AdminShipments';
 import AdminVendors from './Components/Pages/Admin/AdminVendors';
 import AdminVouchers from './Components/Pages/Admin/AdminVouchers';
+import Chatbot from './Components/ChatBot';
+
 
 function App() {
   return (
@@ -103,6 +105,8 @@ function App() {
               <Route path="/admin-dashboard/vouchers" element={<RequireAdmin><AdminVouchers /></RequireAdmin>} />
             </Routes>
           </div>
+          <Chatbot/>
+          
           <Footer/>
         </CartProvider>
       </Router>
