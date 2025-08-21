@@ -63,6 +63,10 @@ export const fetchCsrfToken = async () => {
 
 export const authApi = axios.create({
   baseURL: BASE_URL,
+  headers: {
+    "content-type": "application/json",
+    "X-CSRF-Token": csrfToken,
+  },
   withCredentials: true, // ✅ cookies included in all calls
 });
 
@@ -126,7 +130,6 @@ export default axios.create({
   baseURL: BASE_URL,
   headers: {
     "content-type": "application/json",
-    "X-CSRF-Token": csrfToken ,
   },
   timeout: 0,
   withCredentials: true, // ✅ for login/register/etc
