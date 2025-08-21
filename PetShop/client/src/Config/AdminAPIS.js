@@ -1,7 +1,7 @@
 import axios from "axios";
-import { endpoints } from "./APIs";
+import { endpoints, fetchCsrfToken } from "./APIs";
 const BASE_URL =
-  process.env.BASE_URL + "/api/admin";
+  process.env.REACT_APP_BASE_URL + "/admin";
 
 export const adminEndpoints = {
   readAll: (model) => `/${model}`,
@@ -16,6 +16,26 @@ export const authAdminApi = axios.create({
   baseURL: BASE_URL,
   withCredentials: true, // ✅ cookies included in all calls
 });
+
+let csrfToken = null; // lưu tạm trong memory
+
+// Request interceptor → chèn CSRF header
+authAdminApi.interceptors.request.use(
+  async (config) => {
+    const dangerousMethods = ["post", "put", "patch", "delete"];
+
+    if (dangerousMethods.includes(config.method)) {
+      if (!csrfToken) {
+        // nếu chưa có thì gọi luôn
+        csrfToken = await fetchCsrfToken();
+      }
+      config.headers["X-CSRF-Token"] = csrfToken;
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 // Add interceptor
 authAdminApi.interceptors.response.use(

@@ -6,14 +6,14 @@ import {
   getBrands,
   updateBrand,
 } from "../controllers/brand.js";
-import { authMiddleware } from "../middleware/authMiddleware.js";
 import { isAdmin } from "../middleware/isAdmin.js";
+import { secureMiddleware } from "../middleware/secureMiddleware.js";
 const brandRouter = Router();
 
 brandRouter.get("/", getBrands);
 brandRouter.get("/:brand_id", getbrandById);
-brandRouter.post("/", authMiddleware, isAdmin, createBrand);
-brandRouter.put("/:brand_id", authMiddleware, isAdmin, updateBrand);
-brandRouter.delete("/:brand_id", authMiddleware, isAdmin, deleteBrand);
+brandRouter.post("/", secureMiddleware, isAdmin, createBrand);
+brandRouter.put("/:brand_id", secureMiddleware, isAdmin, updateBrand);
+brandRouter.delete("/:brand_id", secureMiddleware, isAdmin, deleteBrand);
 
 export default brandRouter;

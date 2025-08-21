@@ -7,13 +7,13 @@ import {
   getOrder,
 } from "../controllers/order.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
-import { isAdmin } from "../middleware/isAdmin.js";
+import { secureMiddleware } from "../middleware/secureMiddleware.js";
 
 const orderRoutes = Router();
-orderRoutes.post("/", authMiddleware, createOrder);
+orderRoutes.post("/", secureMiddleware, createOrder);
 orderRoutes.get("/user/:user_id", authMiddleware, getOrdersOfCustomer);
 orderRoutes.get("/:orderId/orderDetails/", authMiddleware, getOrderDetails);
 orderRoutes.get("/:orderId", authMiddleware, getOrder);
-orderRoutes.put("/:orderId", authMiddleware, updateStatusOfOrder);
+orderRoutes.put("/:orderId", secureMiddleware, updateStatusOfOrder);
 
 export default orderRoutes;

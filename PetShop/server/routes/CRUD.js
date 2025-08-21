@@ -10,12 +10,13 @@ import {
 } from "../controllers/CRUD.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 import { isAdmin } from "../middleware/isAdmin.js";
+import { secureMiddleware } from "../middleware/secureMiddleware.js";
 
 const generateCrudRoutes = (Model, modelName, options = {}) => {
   const router = Router();
 
-  router.post("/", authMiddleware, isAdmin, createOne(Model, modelName));
-  router.get("/", authMiddleware, isAdmin, readAll(Model, modelName, options));
+  router.post("/", secureMiddleware, isAdmin, createOne(Model, modelName));
+  router.get("/", secureMiddleware, isAdmin, readAll(Model, modelName, options));
   router.get(
     "/all",
     authMiddleware,
@@ -23,8 +24,8 @@ const generateCrudRoutes = (Model, modelName, options = {}) => {
     loadDataForComboboxInForm(Model, modelName)
   );
   router.get("/:id", authMiddleware, isAdmin, readOne(Model, modelName));
-  router.put("/:id", authMiddleware, isAdmin, updateOne(Model, modelName));
-  router.delete("/:id", authMiddleware, isAdmin, deleteOne(Model));
+  router.put("/:id", secureMiddleware, isAdmin, updateOne(Model, modelName));
+  router.delete("/:id", secureMiddleware, isAdmin, deleteOne(Model));
 
   return router;
 };

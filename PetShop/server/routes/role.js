@@ -6,15 +6,15 @@ import {
   getRoles,
   updateRole,
 } from "../controllers/role.js";
-import { authMiddleware } from "../middleware/authMiddleware.js";
 import { isAdmin } from "../middleware/isAdmin.js";
+import { secureMiddleware } from "../middleware/secureMiddleware.js";
 
 const roleRoutes = Router();
 
 roleRoutes.get("/", getRoles);
 roleRoutes.get("/:role_id", getRoleById);
-roleRoutes.post("/", authMiddleware, isAdmin, createRole);
-roleRoutes.put("/:role_id", authMiddleware, isAdmin, updateRole);
-roleRoutes.delete("/:role_id", authMiddleware, isAdmin, deleteRole);
+roleRoutes.post("/", secureMiddleware, isAdmin, createRole);
+roleRoutes.put("/:role_id", secureMiddleware, isAdmin, updateRole);
+roleRoutes.delete("/:role_id", secureMiddleware, isAdmin, deleteRole);
 
 export default roleRoutes;

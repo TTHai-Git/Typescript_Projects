@@ -193,11 +193,6 @@ export const authMe = async (req, res) => {
   }
 };
 
-// Protected Route Example
-export const protectedRoute = (req, res) => {
-  res.json({ message: "This is a protected route", user: req.user });
-};
-
 export const refreshAccessToken = (req, res) => {
   const refreshToken = req.cookies.refreshToken;
   if (!refreshToken) {

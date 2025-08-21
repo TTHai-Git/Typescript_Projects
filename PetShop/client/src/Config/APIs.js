@@ -42,12 +42,47 @@ export const endpoints = {
   calculateShipmentFee: "/shipments/calculate-fee",
   getShipmentOfOrder: (orderId) => `/shipments/order/${orderId}`,
   chatBot: `/chat-bot-faq/chat`,
+  "csrf-token": "/csrf-protection/csrf-token",
+};
+
+let csrfToken = null; // lưu tạm trong memory
+
+// Hàm gọi API để lấy CSRF token
+export const fetchCsrfToken = async () => {
+  try {
+    const res = await axios.get(`${BASE_URL}${endpoints["csrf-token"]}`, {
+      withCredentials: true,
+    });
+    csrfToken = res.data.csrfToken; // server trả { csrfToken: "xxx" }
+    return csrfToken;
+  } catch (err) {
+    console.error("Failed to fetch CSRF token", err);
+    return null;
+  }
 };
 
 export const authApi = axios.create({
   baseURL: BASE_URL,
   withCredentials: true, // ✅ cookies included in all calls
 });
+
+// Request interceptor → chèn CSRF header
+authApi.interceptors.request.use(
+  async (config) => {
+    const dangerousMethods = ["post", "put", "patch", "delete"];
+
+    if (dangerousMethods.includes(config.method)) {
+      if (!csrfToken) {
+        // nếu chưa có thì gọi luôn
+        csrfToken = await fetchCsrfToken();
+      }
+      config.headers["X-CSRF-Token"] = csrfToken;
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 // Add interceptor
 authApi.interceptors.response.use(

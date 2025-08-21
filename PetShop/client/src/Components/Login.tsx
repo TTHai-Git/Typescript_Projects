@@ -7,7 +7,7 @@ import '../Assets/CSS/Login.css';
 import { useNavigate } from 'react-router';
 import { UserState } from '../Interface/Users';
 import { Alert } from '@mui/material';
-import APIs, { endpoints } from '../Config/APIs';
+import APIs, { endpoints, fetchCsrfToken } from '../Config/APIs';
 
 const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -34,6 +34,7 @@ const Login: React.FC = () => {
           ...user,
           isAuthenticated: true,
         }));
+        fetchCsrfToken()
         navigate("/products")
         
       } else {

@@ -23,7 +23,7 @@ const CheckOut = () => {
         try {
             setLoading(true);
             if (choice === "VNPAY") {
-            const response = await axios.post("/api/vnpay/create-payment-url/", {
+            const response = await axios.post("/v1/vnpay/create-payment-url/", {
                 amount: totalPrice ,
                 orderId: orderId,
             });
@@ -42,7 +42,7 @@ const CheckOut = () => {
                     "quantity": item.quantity
                 })
                 }
-                const res_2 = await axios.post('/api/payOS/create-payment-link/', {
+                const res_2 = await axios.post('/v1/payOS/create-payment-link/', {
                     orderId: orderId,
                     amount: totalPrice ,
                     items: items,

@@ -3,6 +3,9 @@ import { urlencoded, json } from "express";
 import { connect } from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
+import rateLimit from "express-rate-limit";
+import helmet from "helmet";
+
 
 import authRoutes from "./routes/auth.js";
 import orderRoutes from "./routes/order.js";
@@ -40,6 +43,7 @@ import Vendor from "./models/vendor.js";
 import Voucher from "./models/voucher.js";
 import Role from "./models/role.js";
 import chatBotRoutes from "./routes/chatBot.js";
+import csrfRoutes from "./routes/csrf.js";
 
 dotenv.config();
 
@@ -67,117 +71,130 @@ app.use(
 app.use(json());
 app.use(cookieParser());
 
+// ===== Helmet ============
+app.use(helmet())
+
+// ===== Rate Limiting =====
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 phút
+  max: 100, // tối đa 100 request / 15 phút / IP
+  message: "Too many requests from this IP, please try again later",
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Routes
-app.use("/v1/auth", authRoutes);
-app.use("/v1/roles", roleRoutes);
-app.use("/v1/users", userRoutes);
-app.use("/v1/orders", orderRoutes);
-app.use("/v1/orderDetails", orderDetailsRoutes);
-app.use("/v1/categories", categoryRoutes);
-app.use("/v1/vendors", vendorRouter);
-app.use("/v1/brands", brandRouter);
-app.use("/v1/products", productRoutes);
-app.use("/v1/breeds", breedRoutes);
-app.use("/v1/favorites", favoriteRoutes);
-app.use("/v1/comments", commentRoutes);
-app.use("/v1/commentDetails", commentDetailsRoutes);
-app.use("/v1/payments", paymentRoutes);
-app.use("/api/vnpay", VNPayRouter);
-app.use("/api/payOS", payOSRouter);
-app.use("/v1/shipments", shipmentRoutes);
-app.use("/v1/vouchers", voucherRouter);
-app.use("/v1/chat-bot-faq", chatBotRoutes);
+app.use("/v1/auth", authRoutes, limiter);
+app.use("/v1/roles", roleRoutes, limiter);
+app.use("/v1/users", userRoutes, limiter);
+app.use("/v1/orders", orderRoutes, limiter);
+app.use("/v1/orderDetails", orderDetailsRoutes, limiter);
+app.use("/v1/categories", categoryRoutes, limiter);
+app.use("/v1/vendors", vendorRouter, limiter);
+app.use("/v1/brands", brandRouter, limiter);
+app.use("/v1/products", productRoutes, limiter);
+app.use("/v1/breeds", breedRoutes, limiter);
+app.use("/v1/favorites", favoriteRoutes, limiter);
+app.use("/v1/comments", commentRoutes, limiter);
+app.use("/v1/commentDetails", commentDetailsRoutes, limiter);
+app.use("/v1/payments", paymentRoutes, limiter);
+app.use("/v1/vnpay", VNPayRouter, limiter);
+app.use("/v1/payOS", payOSRouter, limiter);
+app.use("/v1/shipments", shipmentRoutes, limiter);
+app.use("/v1/vouchers", voucherRouter, limiter);
+app.use("/v1/chat-bot-faq", chatBotRoutes, limiter);
+app.use("/v1/csrf-protection", csrfRoutes, limiter)
 // Admin CRUD routes
 app.use(
-  "/api/admin/brands",
+  "/v1/admin/brands",
   generateCrudRoutes(Brand, "", {
     searchableFields: ["_id", "name", "description"],
     sortableFields: ["name", "descrption", "createdAt", "updatedAt"],
-  })
+  }) , limiter
 );
 
 app.use(
-  "/api/admin/breeds",
+  "/v1/admin/breeds",
   generateCrudRoutes(Breed, "", {
     searchableFields: ["_id", "name", "description"],
     sortableFields: ["name", "createdAt", "updatedAt"],
-  })
+  }), limiter
 );
 
 app.use(
-  "/api/admin/categories",
+  "/v1/admin/categories",
   generateCrudRoutes(Category, "", {
     searchableFields: ["_id", "name", "description"],
     sortableFields: ["name", "createdAt", "updatedAt"],
-  })
+  }), limiter
 );
 
 app.use(
-  "/api/admin/comments",
+  "/v1/admin/comments",
   generateCrudRoutes(Comment, "comments", {
     searchableFields: ["_id", "user", "product", "content"],
     sortableFields: ["rating", "createdAt", "updatedAt"],
-  })
+  }), limiter
 );
 
 app.use(
-  "/api/admin/commentDetails",
+  "/v1/admin/commentDetails",
   generateCrudRoutes(CommentDetails, "commentDetails", {
     searchableFields: ["_id", "url", "public_id", "comment"],
     sortableFields: ["createdAt", "updatedAt"],
-  })
+  }), limiter
 );
 
 app.use(
-  "/api/admin/favorites",
+  "/v1/admin/favorites",
   generateCrudRoutes(Favorite, "favorites", {
     searchableFields: ["_id", "user", "product"],
     sortableFields: ["createdAt", "updatedAt"],
-  })
+  }), limiter
 );
 
 app.use(
-  "/api/admin/orders",
+  "/v1/admin/orders",
   generateCrudRoutes(Order, "orders", {
     searchableFields: ["_id", "user", "status"],
     sortableFields: ["totalPrice", "createdAt", "updatedAt"],
-  })
+  }), limiter
 );
 
 app.use(
-  "/api/admin/orderDetails",
+  "/v1/admin/orderDetails",
   generateCrudRoutes(OrderDetails, "orderDetails", {
     searchableFields: ["_id", "order", "product", "note"],
     sortableFields: ["price", "quantity", "createdAt", "updatedAt"],
-  })
+  }), limiter
 );
 
 app.use(
-  "/api/admin/payments",
+  "/v1/admin/payments",
   generateCrudRoutes(Payment, "payments", {
     searchableFields: ["_id", "method", "provider", "order"],
     sortableFields: ["createdAt", "updatedAt"],
-  })
+  }), limiter
 );
 
 app.use(
-  "/api/admin/products",
+  "/v1/admin/products",
   generateCrudRoutes(Product, "products", {
     searchableFields: ["_id", "name", "description", "status"],
     sortableFields: ["name", "description", "price", "createdAt", "updatedAt"],
-  })
+  }), limiter
 );
 
 app.use(
-  "/api/admin/roles",
+  "/v1/admin/roles",
   generateCrudRoutes(Role, "roles", {
     searchableFields: ["_id", "name"],
     sortableFields: ["name", "createdAt", "updatedAt"],
-  })
+  }), limiter
 );
 
 app.use(
-  "/api/admin/shipments",
+  "/v1/admin/shipments",
   generateCrudRoutes(Shipment, "shipments", {
     searchableFields: [
       "_id",
@@ -188,11 +205,11 @@ app.use(
       "order",
     ],
     sortableFields: ["fee", "createdAt", "updatedAt"],
-  })
+  }), limiter
 );
 
 app.use(
-  "/api/admin/users",
+  "/v1/admin/users",
   generateCrudRoutes(User, "users", {
     searchableFields: [
       "_id",
@@ -213,11 +230,11 @@ app.use(
       "createdAt",
       "updatedAt",
     ],
-  })
+  }), limiter
 );
 
 app.use(
-  "/api/admin/vendors",
+  "/v1/admin/vendors",
   generateCrudRoutes(Vendor, "vendors", {
     searchableFields: [
       "_id",
@@ -236,10 +253,10 @@ app.use(
       "createdAt",
       "updatedAt",
     ],
-  })
+  }), limiter
 );
 app.use(
-  "/api/admin/vouchers",
+  "/v1/admin/vouchers",
   generateCrudRoutes(Voucher, "vouchers", {
     searchableFields: ["_id", "code", "isActive"],
     sortableFields: [
@@ -251,7 +268,7 @@ app.use(
       "createdAt",
       "updatedAt",
     ],
-  })
+  }), limiter
 );
 
 app.get("/v1/", (req, res) => {

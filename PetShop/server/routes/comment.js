@@ -6,13 +6,13 @@ import {
   getCommentsByProduct,
   updateComment,
 } from "../controllers/comment.js";
-import { authMiddleware } from "../middleware/authMiddleware.js";
+import { secureMiddleware } from "../middleware/secureMiddleware.js";
 const commentRoutes = Router();
 
-commentRoutes.post("/", authMiddleware, addComment);
+commentRoutes.post("/", secureMiddleware, addComment);
 commentRoutes.get("/product/:productId", getCommentsByProduct);
 commentRoutes.get("/:commentId", getComment);
-commentRoutes.delete("/:commentId", authMiddleware, deleteComment);
-commentRoutes.put("/:commentId", authMiddleware, updateComment);
+commentRoutes.delete("/:commentId", secureMiddleware, deleteComment);
+commentRoutes.put("/:commentId", secureMiddleware, updateComment);
 
 export default commentRoutes;
