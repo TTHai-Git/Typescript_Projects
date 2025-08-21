@@ -74,10 +74,15 @@ export const updateRole = async (req, res) => {
 };
 
 export const deleteRole = async (req, res) => {
-  const { role_id } = req.params;
-  const role = await Role.findByIdAndDelete(role_id);
-  if (!role) {
-    return res.status(404).json({ message: "Role not found to delete" });
+  try {
+    const { role_id } = req.params;
+    const role = await Role.findById(role_id);
+    if (!role) {
+      return res.status(404).json({ message: "Role not found to delete" });
+    }
+    await role.deleteOne();
+    return res.status(204).json({ message: "Role deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting role:", error);
   }
-  return res.status(204).json({ message: "Role deleted successfully" });
 };

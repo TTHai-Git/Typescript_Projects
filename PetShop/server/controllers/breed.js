@@ -68,11 +68,12 @@ export const updateBreed = async (req, res) => {
 export const deleteBreedById = async (req, res) => {
   const { breedId } = req.params;
   try {
-    const breed = await Breed.findByIdAndDelete(breedId);
+    const breed = await Breed.findById(breedId);
     if (!breed) {
       return res.status(400).json({ message: "Breed not found" });
     }
-    return res.status(204).json({ message: "Breed deleted successfully" });
+    await breed.deleteOne();
+    return res.status(200).json({ message: "Breed deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
   }

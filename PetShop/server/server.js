@@ -39,6 +39,7 @@ import Breed from "./models/breed.js";
 import Vendor from "./models/vendor.js";
 import Voucher from "./models/voucher.js";
 import Role from "./models/role.js";
+import chatBotRoutes from "./routes/chatBot.js";
 
 dotenv.config();
 
@@ -53,7 +54,16 @@ connect(process.env.MONGO_URI)
 
 // Middleware
 app.use(urlencoded({ extended: false }));
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      process.env.REACT_APP_PUBLIC_URL_VERCEL_CLIENT,
+      "http://localhost:3000",
+    ],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    credentials: true,
+  })
+);
 app.use(json());
 app.use(cookieParser());
 
@@ -76,6 +86,7 @@ app.use("/api/vnpay", VNPayRouter);
 app.use("/api/payOS", payOSRouter);
 app.use("/v1/shipments", shipmentRoutes);
 app.use("/v1/vouchers", voucherRouter);
+app.use("/v1/chat-bot-faq", chatBotRoutes);
 // Admin CRUD routes
 app.use(
   "/api/admin/brands",
@@ -246,8 +257,8 @@ app.use(
 app.get("/v1/", (req, res) => {
   res.send("Welcome to the Pet Shop API!");
 });
-app.listen(process.env.PORT || 5000, () => {
-  console.log("Server is running on port", process.env.PORT || 5000);
+app.listen(process.env.PORT || 8080, () => {
+  console.log("Server is running on port", process.env.PORT || 8080);
 });
 
 // Export for Vercel

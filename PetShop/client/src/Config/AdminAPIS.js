@@ -1,5 +1,7 @@
 import axios from "axios";
-const BASE_URL = "/api/admin";
+import { endpoints } from "./APIs";
+const BASE_URL =
+  process.env.BASE_URL + "/api/admin";
 
 export const adminEndpoints = {
   readAll: (model) => `/${model}`,
@@ -31,7 +33,7 @@ authAdminApi.interceptors.response.use(
       try {
         // Call refresh endpoint
         const refreshResponse = await axios.post(
-          adminEndpoints.refreshAccessToken,
+          endpoints.refreshAccessToken,
           {},
           {
             baseURL: BASE_URL,
