@@ -43,6 +43,7 @@ import Vendor from "./models/vendor.js";
 import Voucher from "./models/voucher.js";
 import Role from "./models/role.js";
 import chatBotRoutes from "./routes/chatBot.js";
+import crypto from "crypto";
 
 dotenv.config();
 
@@ -75,14 +76,14 @@ app.use(cookieParser());
 app.use(helmet());
 
 // CSRF protection (cookie mode)
-const csrfProtection = csrf({ cookie: true });
-app.get("/v1/csrf-token", csrfProtection, (req, res) => {
-  // Set token vào cookie XSRF-TOKEN (frontend đọc được)
-  res.cookie("XSRF-TOKEN", req.csrfToken(), {
+app.get("/v1/csrf-token", (req, res) => {
+  const token = crypto.randomBytes(32).toString("hex");
+  res.cookie("XSRF-TOKEN", token, {
     httpOnly: false,
-    sameSite: process.env.NODE_ENV === "production" ? "None" : "strict",
+    sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+    secure: process.env.NODE_ENV === "production",
   });
-  res.json({ csrfToken: req.csrfToken() });
+  res.json({ csrfToken: token });
 });
 
 // ===== Rate Limiting =====
