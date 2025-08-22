@@ -5,7 +5,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
-
+import csrf from "csurf";
 
 import authRoutes from "./routes/auth.js";
 import orderRoutes from "./routes/order.js";
@@ -43,7 +43,6 @@ import Vendor from "./models/vendor.js";
 import Voucher from "./models/voucher.js";
 import Role from "./models/role.js";
 import chatBotRoutes from "./routes/chatBot.js";
-import csrfRoutes from "./routes/csrf.js";
 
 dotenv.config();
 
@@ -73,7 +72,18 @@ app.use(json());
 app.use(cookieParser());
 
 // ===== Helmet ============
-app.use(helmet())
+app.use(helmet());
+
+// CSRF protection (cookie mode)
+const csrfProtection = csrf({ cookie: true });
+app.get("/v1/csrf-token", csrfProtection, (req, res) => {
+  // Set token vào cookie XSRF-TOKEN (frontend đọc được)
+  res.cookie("XSRF-TOKEN", req.csrfToken(), {
+    httpOnly: false,
+    sameSite: process.env.NODE_ENV === "production" ? "None" : "strict",
+  });
+  res.json({ csrfToken: req.csrfToken() });
+});
 
 // ===== Rate Limiting =====
 const limiter = rateLimit({
@@ -104,14 +114,14 @@ app.use("/v1/payOS", payOSRouter, limiter);
 app.use("/v1/shipments", shipmentRoutes, limiter);
 app.use("/v1/vouchers", voucherRouter, limiter);
 app.use("/v1/chat-bot-faq", chatBotRoutes, limiter);
-app.use("/v1/csrf-protection", csrfRoutes, limiter)
 // Admin CRUD routes
 app.use(
   "/v1/admin/brands",
   generateCrudRoutes(Brand, "", {
     searchableFields: ["_id", "name", "description"],
     sortableFields: ["name", "descrption", "createdAt", "updatedAt"],
-  }) , limiter
+  }),
+  limiter
 );
 
 app.use(
@@ -119,7 +129,8 @@ app.use(
   generateCrudRoutes(Breed, "", {
     searchableFields: ["_id", "name", "description"],
     sortableFields: ["name", "createdAt", "updatedAt"],
-  }), limiter
+  }),
+  limiter
 );
 
 app.use(
@@ -127,7 +138,8 @@ app.use(
   generateCrudRoutes(Category, "", {
     searchableFields: ["_id", "name", "description"],
     sortableFields: ["name", "createdAt", "updatedAt"],
-  }), limiter
+  }),
+  limiter
 );
 
 app.use(
@@ -135,7 +147,8 @@ app.use(
   generateCrudRoutes(Comment, "comments", {
     searchableFields: ["_id", "user", "product", "content"],
     sortableFields: ["rating", "createdAt", "updatedAt"],
-  }), limiter
+  }),
+  limiter
 );
 
 app.use(
@@ -143,7 +156,8 @@ app.use(
   generateCrudRoutes(CommentDetails, "commentDetails", {
     searchableFields: ["_id", "url", "public_id", "comment"],
     sortableFields: ["createdAt", "updatedAt"],
-  }), limiter
+  }),
+  limiter
 );
 
 app.use(
@@ -151,7 +165,8 @@ app.use(
   generateCrudRoutes(Favorite, "favorites", {
     searchableFields: ["_id", "user", "product"],
     sortableFields: ["createdAt", "updatedAt"],
-  }), limiter
+  }),
+  limiter
 );
 
 app.use(
@@ -159,7 +174,8 @@ app.use(
   generateCrudRoutes(Order, "orders", {
     searchableFields: ["_id", "user", "status"],
     sortableFields: ["totalPrice", "createdAt", "updatedAt"],
-  }), limiter
+  }),
+  limiter
 );
 
 app.use(
@@ -167,7 +183,8 @@ app.use(
   generateCrudRoutes(OrderDetails, "orderDetails", {
     searchableFields: ["_id", "order", "product", "note"],
     sortableFields: ["price", "quantity", "createdAt", "updatedAt"],
-  }), limiter
+  }),
+  limiter
 );
 
 app.use(
@@ -175,7 +192,8 @@ app.use(
   generateCrudRoutes(Payment, "payments", {
     searchableFields: ["_id", "method", "provider", "order"],
     sortableFields: ["createdAt", "updatedAt"],
-  }), limiter
+  }),
+  limiter
 );
 
 app.use(
@@ -183,7 +201,8 @@ app.use(
   generateCrudRoutes(Product, "products", {
     searchableFields: ["_id", "name", "description", "status"],
     sortableFields: ["name", "description", "price", "createdAt", "updatedAt"],
-  }), limiter
+  }),
+  limiter
 );
 
 app.use(
@@ -191,7 +210,8 @@ app.use(
   generateCrudRoutes(Role, "roles", {
     searchableFields: ["_id", "name"],
     sortableFields: ["name", "createdAt", "updatedAt"],
-  }), limiter
+  }),
+  limiter
 );
 
 app.use(
@@ -206,7 +226,8 @@ app.use(
       "order",
     ],
     sortableFields: ["fee", "createdAt", "updatedAt"],
-  }), limiter
+  }),
+  limiter
 );
 
 app.use(
@@ -231,7 +252,8 @@ app.use(
       "createdAt",
       "updatedAt",
     ],
-  }), limiter
+  }),
+  limiter
 );
 
 app.use(
@@ -254,7 +276,8 @@ app.use(
       "createdAt",
       "updatedAt",
     ],
-  }), limiter
+  }),
+  limiter
 );
 app.use(
   "/v1/admin/vouchers",
@@ -269,7 +292,8 @@ app.use(
       "createdAt",
       "updatedAt",
     ],
-  }), limiter
+  }),
+  limiter
 );
 
 app.get("/v1/", (req, res) => {

@@ -6,17 +6,27 @@ import {
   getFavoriteProductsList,
 } from "../controllers/favorite.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
-import { secureMiddleware } from "../middleware/secureMiddleware.js";
+import { csrfMiddleware } from "../middleware/csrf.js";
 
 const favoriteRoutes = Route();
 
-favoriteRoutes.post("/", secureMiddleware, createOrUpdateFavorite);
+favoriteRoutes.post(
+  "/",
+  authMiddleware,
+  csrfMiddleware,
+  createOrUpdateFavorite
+);
 favoriteRoutes.get(
   "/product/:productId/user/:userId",
   authMiddleware,
   getFavoriteProductOfUser
 );
 favoriteRoutes.get("/user/:userId", getFavoriteProductsList);
-favoriteRoutes.delete("/:favoriteId", secureMiddleware, deleteFavorite);
+favoriteRoutes.delete(
+  "/:favoriteId",
+  authMiddleware,
+  csrfMiddleware,
+  deleteFavorite
+);
 
 export default favoriteRoutes;

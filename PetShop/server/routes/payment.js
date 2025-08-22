@@ -4,9 +4,11 @@ import {
   getPaymentDetailsForOrder,
   getPaymentForOrder,
 } from "../controllers/payment.js";
-import { secureMiddleware } from "../middleware/secureMiddleware.js";
+import { csrfMiddleware } from "../middleware/csrf.js";
+import { authMiddleware } from "../middleware/authMiddleware.js";
+
 const paymentRoutes = Router();
-paymentRoutes.post("/", secureMiddleware, createPaymentForOrder);
+paymentRoutes.post("/", authMiddleware, csrfMiddleware, createPaymentForOrder);
 paymentRoutes.get("/:paymentId", getPaymentDetailsForOrder);
 paymentRoutes.get("/order/:orderId", getPaymentForOrder);
 export default paymentRoutes;

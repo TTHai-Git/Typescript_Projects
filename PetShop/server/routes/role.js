@@ -7,14 +7,27 @@ import {
   updateRole,
 } from "../controllers/role.js";
 import { isAdmin } from "../middleware/isAdmin.js";
-import { secureMiddleware } from "../middleware/secureMiddleware.js";
+import { csrfMiddleware } from "../middleware/csrf.js";
+import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const roleRoutes = Router();
 
 roleRoutes.get("/", getRoles);
 roleRoutes.get("/:role_id", getRoleById);
-roleRoutes.post("/", secureMiddleware, isAdmin, createRole);
-roleRoutes.put("/:role_id", secureMiddleware, isAdmin, updateRole);
-roleRoutes.delete("/:role_id", secureMiddleware, isAdmin, deleteRole);
+roleRoutes.post("/", authMiddleware, csrfMiddleware, isAdmin, createRole);
+roleRoutes.put(
+  "/:role_id",
+  authMiddleware,
+  csrfMiddleware,
+  isAdmin,
+  updateRole
+);
+roleRoutes.delete(
+  "/:role_id",
+  authMiddleware,
+  csrfMiddleware,
+  isAdmin,
+  deleteRole
+);
 
 export default roleRoutes;

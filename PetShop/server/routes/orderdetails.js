@@ -1,8 +1,14 @@
 import { Router } from "express";
 import { createOrderDetails } from "../controllers/orderdetails.js";
-import { secureMiddleware } from "../middleware/secureMiddleware.js";
+import { csrfMiddleware } from "../middleware/csrf.js";
+import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const orderDetailsRoutes = Router();
-orderDetailsRoutes.post("/", secureMiddleware, createOrderDetails);
+orderDetailsRoutes.post(
+  "/",
+  authMiddleware,
+  csrfMiddleware,
+  createOrderDetails
+);
 
 export default orderDetailsRoutes;

@@ -7,15 +7,21 @@ import {
 } from "../controllers/product.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 import { isAdmin } from "../middleware/isAdmin.js";
-import { secureMiddleware } from "../middleware/secureMiddleware.js";
+import { csrfMiddleware } from "../middleware/csrf.js";
 
 const productRoutes = Router();
 
 productRoutes.get("/", getAllProducts);
 productRoutes.get("/:type/:product_id", getProductById);
-productRoutes.post("/", secureMiddleware, isAdmin, createProduct);
+productRoutes.post("/", authMiddleware, csrfMiddleware, isAdmin, createProduct);
 // productRoutes.put("/:product_id", authMiddleware, isAdmin, updateProduct);
-productRoutes.delete("/:product_id", secureMiddleware, isAdmin, deleteProduct);
+productRoutes.delete(
+  "/:product_id",
+  authMiddleware,
+  csrfMiddleware,
+  isAdmin,
+  deleteProduct
+);
 // productRoutes.put("/update-stock/:product_id", updateStock);
 
 export default productRoutes;

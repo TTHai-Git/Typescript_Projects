@@ -6,12 +6,25 @@ import {
   updateVoucher,
 } from "../controllers/voucher.js";
 import { isAdmin } from "../middleware/isAdmin.js";
-import { secureMiddleware } from "../middleware/secureMiddleware.js";
+import { csrfMiddleware } from "../middleware/csrf.js";
+import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const voucherRouter = Router();
 voucherRouter.get("/:voucherId", getVoucher);
-voucherRouter.post("/", secureMiddleware, isAdmin, createVoucher);
-voucherRouter.put("/:voucherId", secureMiddleware, isAdmin, updateVoucher);
-voucherRouter.delete("/:voucherId", secureMiddleware, isAdmin, deleteVoucher);
+voucherRouter.post("/", authMiddleware, csrfMiddleware, isAdmin, createVoucher);
+voucherRouter.put(
+  "/:voucherId",
+  authMiddleware,
+  csrfMiddleware,
+  isAdmin,
+  updateVoucher
+);
+voucherRouter.delete(
+  "/:voucherId",
+  authMiddleware,
+  csrfMiddleware,
+  isAdmin,
+  deleteVoucher
+);
 
 export default voucherRouter;

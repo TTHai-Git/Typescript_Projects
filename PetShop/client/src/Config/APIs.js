@@ -42,7 +42,7 @@ export const endpoints = {
   calculateShipmentFee: "/shipments/calculate-fee",
   getShipmentOfOrder: (orderId) => `/shipments/order/${orderId}`,
   chatBot: `/chat-bot-faq/chat`,
-  "csrf-token": "/csrf-protection/csrf-token",
+  "csrf-token": "/csrf-token",
 };
 
 let csrfToken = null; // lưu tạm trong memory

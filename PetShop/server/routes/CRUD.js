@@ -10,22 +10,53 @@ import {
 } from "../controllers/CRUD.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 import { isAdmin } from "../middleware/isAdmin.js";
-import { secureMiddleware } from "../middleware/secureMiddleware.js";
+import { csrfMiddleware } from "../middleware/csrf.js";
 
 const generateCrudRoutes = (Model, modelName, options = {}) => {
   const router = Router();
 
-  router.post("/", secureMiddleware, isAdmin, createOne(Model, modelName));
-  router.get("/", secureMiddleware, isAdmin, readAll(Model, modelName, options));
+  router.post(
+    "/",
+    authMiddleware,
+    csrfMiddleware,
+    isAdmin,
+    createOne(Model, modelName)
+  );
+  router.get(
+    "/",
+    authMiddleware,
+    csrfMiddleware,
+    isAdmin,
+    readAll(Model, modelName, options)
+  );
   router.get(
     "/all",
     authMiddleware,
+    csrfMiddleware,
     isAdmin,
     loadDataForComboboxInForm(Model, modelName)
   );
-  router.get("/:id", authMiddleware, isAdmin, readOne(Model, modelName));
-  router.put("/:id", secureMiddleware, isAdmin, updateOne(Model, modelName));
-  router.delete("/:id", secureMiddleware, isAdmin, deleteOne(Model));
+  router.get(
+    "/:id",
+    authMiddleware,
+    csrfMiddleware,
+    isAdmin,
+    readOne(Model, modelName)
+  );
+  router.put(
+    "/:id",
+    authMiddleware,
+    csrfMiddleware,
+    isAdmin,
+    updateOne(Model, modelName)
+  );
+  router.delete(
+    "/:id",
+    authMiddleware,
+    csrfMiddleware,
+    isAdmin,
+    deleteOne(Model)
+  );
 
   return router;
 };

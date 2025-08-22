@@ -5,9 +5,15 @@ import {
   getShipmentOfOrder,
 } from "../controllers/shipment.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
-import { secureMiddleware } from "../middleware/secureMiddleware.js";
+import { csrfMiddleware } from "../middleware/csrf.js";
+
 const shipmentRoutes = Router();
 shipmentRoutes.get("/order/:orderId", authMiddleware, getShipmentOfOrder);
-shipmentRoutes.post("/", secureMiddleware, createShipment);
-shipmentRoutes.post("/calculate-fee", secureMiddleware, caculateShipmentFee);
+shipmentRoutes.post("/", authMiddleware, csrfMiddleware, createShipment);
+shipmentRoutes.post(
+  "/calculate-fee",
+  authMiddleware,
+  csrfMiddleware,
+  caculateShipmentFee
+);
 export default shipmentRoutes;
