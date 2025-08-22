@@ -65,7 +65,6 @@ export const authApi = axios.create({
   baseURL: BASE_URL,
   headers: {
     "content-type": "application/json",
-    "X-CSRF-Token": csrfToken,
   },
   withCredentials: true, // ✅ cookies included in all calls
 });
@@ -82,7 +81,8 @@ authApi.interceptors.request.use(
       }
       config.headers["X-CSRF-Token"] = csrfToken;
     }
-
+    console.log("🚀 Sending request:", config.url);
+    console.log("Headers:", config.headers);
     return config;
   },
   (error) => Promise.reject(error)

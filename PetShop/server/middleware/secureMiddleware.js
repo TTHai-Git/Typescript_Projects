@@ -1,7 +1,13 @@
 import csrf from "csurf";
 import { authMiddleware } from "./authMiddleware.js";
 
-const csrfProtection = csrf({ cookie: true });
+const csrfProtection = csrf({
+  cookie: true,
+  value: (req) => {
+    // Ưu tiên lấy từ header X-CSRF-Token
+    return req.headers["x-csrf-token"] || req.body._csrf || req.query._csrf;
+  },
+});
 
 // Middleware wrapper
 export const secureMiddleware = (req, res, next) => {
