@@ -105,40 +105,25 @@ export const login = async (req, res) => {
       expiresIn: "7d",
     });
 
-    // ✅ Set HttpOnly Cookie
-    if (process.env.NODE_ENV === "production"){
-        res.cookie("accessToken", accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production", // use HTTPS in prod
-        sameSite: "None",
-        maxAge: 60 * 60 * 1000, // 1 hour
-      });
+    // ✅ Set HttpOnly Cookies
+    const isProd = process.env.NODE_ENV === "production";
 
-      // ✅ Optionally: Set refresh token in cookie too
-      res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "None",
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      });
-    }
-    else {
-        res.cookie("accessToken", accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "development", // use HTTPS in prod
-        sameSite: "Strict",
-        maxAge: 60 * 60 * 1000, // 1 hour
-      });
+    const cookieOptions = {
+      httpOnly: true,
+      secure: isProd, // chỉ bật HTTPS khi production
+      sameSite: isProd ? "None" : "Lax",
+    };
 
-      // ✅ Optionally: Set refresh token in cookie too
-      res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "development",
-        sameSite: "Strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      });
+    res.cookie("accessToken", accessToken, {
+      ...cookieOptions,
+      maxAge: 60 * 60 * 1000, // 1h
+    });
 
-    }
+    res.cookie("refreshToken", refreshToken, {
+      ...cookieOptions,
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7d
+    });
+
     // ✅ Only return user data (no token)
     res.status(200).json({
       user: {
@@ -159,22 +144,29 @@ export const login = async (req, res) => {
 };
 
 export const logout = (req, res) => {
-  if (process.env.NODE_ENV === "production") {
-      res.clearCookie("accessToken", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "None",
-    });
-  }
-  else {
-      res.clearCookie("accessToken", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "development",
-      sameSite: "Strict",
-    });
-  }
-  
-  res.status(200).json({ message: "Logged out" });
+  const isProd = process.env.NODE_ENV === "production";
+
+  const cookieOptions = {
+    httpOnly: true,
+    secure: isProd, // chỉ bật HTTPS khi production
+    sameSite: isProd ? "None" : "Lax",
+    path: "/", // thêm cái này để chắc chắn clear đúng cookie
+  };
+
+  // clear access token
+  res.clearCookie("accessToken", cookieOptions);
+
+  // clear refresh token
+  res.clearCookie("refreshToken", cookieOptions);
+
+  // clear CSRF token (nếu bạn đang lưu trong cookie)
+  res.clearCookie("XSRF-TOKEN", {
+    httpOnly: false,
+    sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+    secure: process.env.NODE_ENV === "production",
+  });
+
+  return res.status(200).json({ message: "Logged out" });
 };
 
 export const authMe = async (req, res) => {
@@ -209,14 +201,24 @@ export const refreshAccessToken = (req, res) => {
       }
     );
 
-    res.cookie("accessToken", newAccessToken, {
+    const isProd = process.env.NODE_ENV === "production";
+
+    const cookieOptions = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "None",
+      secure: isProd, // chỉ bật HTTPS khi production
+      sameSite: isProd ? "None" : "Lax",
+      path: "/", // thêm cái này để chắc chắn clear đúng cookie
+    };
+
+    res.cookie("accessToken", newAccessToken, {
+      ...cookieOptions,
       maxAge: 60 * 60 * 1000, // 1 hour
     });
 
-    res.status(200).json({ message: "Access token refreshed" });
+    res.status(200).json({
+      message: "Access token refreshed",
+      accessToken: newAccessToken,
+    });
   } catch (err) {
     return res.status(403).json({ message: "Invalid refresh token" });
   }
