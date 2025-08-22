@@ -1,7 +1,6 @@
-import { Router } from "express";
-import { secureMiddleware } from "../middleware/secureMiddleware.js";
-import { getCSRFToken } from "../controllers/csrf.js";
 import csrf from "csurf";
+import { Router } from "express";
+import { getCSRFToken } from "../controllers/csrf.js";
 const csrfProtection = csrf({
   cookie: true,
   value: (req) => {
