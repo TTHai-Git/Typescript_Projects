@@ -22,27 +22,15 @@ const generateCrudRoutes = (Model, modelName, options = {}) => {
     isAdmin,
     createOne(Model, modelName)
   );
-  router.get(
-    "/",
-    authMiddleware,
-    csrfMiddleware,
-    isAdmin,
-    readAll(Model, modelName, options)
-  );
+  router.get("/", authMiddleware, isAdmin, readAll(Model, modelName, options));
   router.get(
     "/all",
     authMiddleware,
-    csrfMiddleware,
+
     isAdmin,
     loadDataForComboboxInForm(Model, modelName)
   );
-  router.get(
-    "/:id",
-    authMiddleware,
-    csrfMiddleware,
-    isAdmin,
-    readOne(Model, modelName)
-  );
+  router.get("/:id", authMiddleware, isAdmin, readOne(Model, modelName));
   router.put(
     "/:id",
     authMiddleware,

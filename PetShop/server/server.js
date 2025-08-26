@@ -44,6 +44,7 @@ import Voucher from "./models/voucher.js";
 import Role from "./models/role.js";
 import chatBotRoutes from "./routes/chatBot.js";
 import crypto from "crypto";
+import statsRoutes from "./routes/stats.js";
 
 dotenv.config();
 
@@ -116,6 +117,7 @@ app.use("/v1/shipments", shipmentRoutes, limiter);
 app.use("/v1/vouchers", voucherRouter, limiter);
 app.use("/v1/chat-bot-faq", chatBotRoutes, limiter);
 // Admin CRUD routes
+app.use("/v1/admin/stats", statsRoutes, limiter);
 app.use(
   "/v1/admin/brands",
   generateCrudRoutes(Brand, "", {

@@ -1,0 +1,158 @@
+import OrderDetails from "../models/orderdetails.js";
+import Payment from "../models/payment.js";
+
+export const revenueStatistics = async (req, res) => {
+  try {
+    const year = parseInt(req.query.year) || new Date().getFullYear();
+
+    const stats = await Payment.aggregate([
+      {
+        $match: {
+          status: "PAID", // chỉ lấy payment đã thanh toán
+        },
+      },
+      {
+        $lookup: {
+          from: "orders", // collection Order
+          localField: "order", // Payment.order (foreign key)
+          foreignField: "_id", // Order._id
+          as: "orderData",
+        },
+      },
+      { $unwind: "$orderData" }, // vì 1-1
+      {
+        $match: {
+          "orderData.createdAt": {
+            $gte: new Date(`${year}-01-01`),
+            $lt: new Date(`${year + 1}-01-01`),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { month: { $month: "$orderData.createdAt" } },
+          totalRevenue: { $sum: "$orderData.totalPrice" },
+          totalOrders: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          month: "$_id.month",
+          totalRevenue: 1,
+          totalOrders: 1, // thêm dòng này
+        },
+      },
+      { $sort: { month: 1 } },
+    ]);
+
+    // Chuyển số tháng -> tên tháng
+    const monthNames = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+
+    const data = monthNames.map((name, index) => {
+      const stat = stats.find((s) => s.month === index + 1);
+      return {
+        index: index + 1,
+        month: name,
+        revenue: stat ? stat.totalRevenue : 0,
+        orders: stat ? stat.totalOrders : 0,
+      };
+    });
+
+    return res.status(200).json({ year, data });
+  } catch (error) {
+    console.error("Error calculating revenue stats:", error);
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+export const getBestSellingProducts = async (req, res) => {
+  try {
+    const bestSellers = await OrderDetails.aggregate([
+      // Join with orders
+      {
+        $lookup: {
+          from: "orders",
+          localField: "order",
+          foreignField: "_id",
+          as: "order",
+        },
+      },
+      { $unwind: "$order" },
+
+      // Join with payments
+      {
+        $lookup: {
+          from: "payments",
+          localField: "order._id",
+          foreignField: "order",
+          as: "payment",
+        },
+      },
+      { $unwind: "$payment" },
+
+      // Keep only successful payments
+      {
+        $match: {
+          "payment.status": "PAID", // 👈 adjust field if you use another value
+        },
+      },
+
+      // Group by product
+      {
+        $group: {
+          _id: "$product",
+          totalSold: { $sum: "$quantity" },
+          totalRevenue: { $sum: { $multiply: ["$quantity", "$price"] } },
+        },
+      },
+
+      // Lookup product details
+      {
+        $lookup: {
+          from: "products",
+          localField: "_id",
+          foreignField: "_id",
+          as: "product",
+        },
+      },
+      { $unwind: "$product" },
+
+      // Sort by best-selling
+      { $sort: { totalSold: -1 } },
+
+      // Limit to top 10
+      { $limit: 10 },
+
+      // Clean response
+      {
+        $project: {
+          _id: 0,
+          productId: "$product._id",
+          name: "$product.name",
+          imageUrl: "$product.imageUrl",
+          totalSold: 1,
+          totalRevenue: 1,
+        },
+      },
+    ]);
+
+    res.status(200).json(bestSellers);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server Error" });
+  }
+};

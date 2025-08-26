@@ -4,6 +4,7 @@ import Product from "../models/product.js";
 import Category from "../models/category.js";
 import Brand from "../models/brand.js";
 import Vendor from "../models/vendor.js";
+import Payment from "../models/payment.js";
 
 export const createOrder = async (req, res) => {
   // console.log(req.body);

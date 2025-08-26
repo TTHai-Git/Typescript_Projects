@@ -43,6 +43,18 @@ export const endpoints = {
   getShipmentOfOrder: (orderId) => `/shipments/order/${orderId}`,
   chatBot: `/chat-bot-faq/chat`,
   "csrf-token": "/csrf-token",
+  "stats-revenue": "stats/revenue",
+};
+
+export const adminEndpoints = {
+  readAll: (model) => `/admin/${model}`,
+  loadDataForComboboxInForm: (model) => `/admin/${model}/all`,
+  readOne: (model, id) => `/admin/${model}/${id}`,
+  createOne: (model) => `/admin/${model}`,
+  updateOne: (model, id) => `/admin/${model}/${id}`,
+  deleteOne: (model, id) => `/admin/${model}/${id}`,
+  "stats-revenue": "/admin/stats/revenue",
+  "stats-best-selling-products": "/admin/stats/selling-best-products",
 };
 
 let csrfToken = null; // lưu tạm trong memory

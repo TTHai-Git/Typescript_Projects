@@ -10,8 +10,8 @@ import {
 import { Edit, Delete, ArrowUpward, ArrowDownward } from "@mui/icons-material";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import AdminAPIs, { adminEndpoints } from '../Config/AdminAPIS';
-import { endpoints } from "../Config/APIs";
+
+import { adminEndpoints, authApi, endpoints } from "../Config/APIs";
 import { useSearchParams } from "react-router-dom";
 import { set } from "date-fns";
 import formatDate from "../Convert/formatDate ";
@@ -130,7 +130,7 @@ const CrudTable = ({ model, fields, createFields, updateFields, searchableFields
       query.append("filters", JSON.stringify(filters));
     }
 
-    const res = await AdminAPIs.get(`${adminEndpoints.readAll(model)}?${query.toString()}`);
+    const res = await authApi.get(`${adminEndpoints.readAll(model)}?${query.toString()}`);
 
     setRows(res.data.docs || []);
     setTotal(res.data.total || 0);
@@ -154,7 +154,7 @@ const CrudTable = ({ model, fields, createFields, updateFields, searchableFields
         const plural =
           field.endsWith("y") ? field.slice(0, -1) + "ies" : field + "s";
 
-        const res = await AdminAPIs.get(adminEndpoints.loadDataForComboboxInForm(plural));
+        const res = await authApi.get(adminEndpoints.loadDataForComboboxInForm(plural));
         options[field] = res.data;
       } catch (error) {
         console.error(`Failed to fetch ${field} options:`, error);
@@ -184,7 +184,7 @@ const CrudTable = ({ model, fields, createFields, updateFields, searchableFields
     try {
       if (editing && editing._id) {
         // console.log("formData", formData)
-        await AdminAPIs.put(adminEndpoints.updateOne(model,editing._id), formData);
+        await authApi.put(adminEndpoints.updateOne(model,editing._id), formData);
       } else {
         console.log("formData", formData)
         if (model === "products" || model === "users" || model === "brands") {
@@ -212,7 +212,7 @@ const CrudTable = ({ model, fields, createFields, updateFields, searchableFields
             formData.logURL = res_1.data.secure_url;
           }
         }
-        await AdminAPIs.post(adminEndpoints.createOne(model), formData);
+        await authApi.post(adminEndpoints.createOne(model), formData);
       }
       setOpen(false);
       setFormData({});
@@ -228,7 +228,7 @@ const CrudTable = ({ model, fields, createFields, updateFields, searchableFields
     if (!window.confirm("Are you sure you want to delete this item?")) return;
     try {
       // await axios.delete(`/api/admin/${model}/${id}`);
-      await AdminAPIs.delete(adminEndpoints.deleteOne(model,id))
+      await authApi.delete(adminEndpoints.deleteOne(model,id))
       fetchData();
     } catch (error) {
       console.error("Failed to delete data:", error);
