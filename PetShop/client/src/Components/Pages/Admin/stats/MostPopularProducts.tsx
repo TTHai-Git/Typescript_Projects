@@ -29,12 +29,10 @@ import {
   Area,
 } from "recharts";
 
-export interface BestSellingProduct {
-  totalSold: number;
-  totalRevenue: number;
-  productId: string;
-  name: string;
-  imageUrl: string;
+export interface MostPopularProduct {
+  totalComments: number;
+  productName: string;
+  averageRating: number;
 }
 
 const COLORS = [
@@ -48,12 +46,16 @@ const COLORS = [
   "#009688",
 ];
 
-const BestSellingStats = ({ data = [] }: { data?: BestSellingProduct[] }) => {
-  const [chartType, setChartType] = useState("bar");
-  const [valueKey, setValueKey] = useState<"totalRevenue" | "totalSold">("totalRevenue");
+const MostPopularProducts = ({ data = [] }: { data?: MostPopularProduct[] }) => {
+  const [chartType, setChartType] = useState<"bar" | "line" | "area" | "pie">("bar");
+  const [valueKey, setValueKey] = useState<"totalComments" | "averageRating">("averageRating");
+
+  const formatTooltip = (v: number) =>
+    valueKey === "totalComments" ? `${v} items` : `${v} ⭐`;
 
   const renderChart = () => {
-    if (!data || data.length === 0) return <Typography color="text.secondary">No product data available</Typography>;
+    if (!data || data.length === 0)
+      return <Typography color="text.secondary">No product data available</Typography>;
 
     switch (chartType) {
       case "line":
@@ -61,15 +63,15 @@ const BestSellingStats = ({ data = [] }: { data?: BestSellingProduct[] }) => {
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={data}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
+              <XAxis dataKey="productName" />
               <YAxis />
-              <Tooltip formatter={(v) => (valueKey === "totalRevenue" ? `$${v}` : v)} />
+              <Tooltip formatter={formatTooltip} />
               <Legend />
               <Line
                 type="monotone"
                 dataKey={valueKey}
                 stroke="#1976d2"
-                name={valueKey === "totalRevenue" ? "Revenue" : "Sold"}
+                name={valueKey === "totalComments" ? "Comments" : "Ratings"}
               />
             </LineChart>
           </ResponsiveContainer>
@@ -79,16 +81,16 @@ const BestSellingStats = ({ data = [] }: { data?: BestSellingProduct[] }) => {
           <ResponsiveContainer width="100%" height={300}>
             <AreaChart data={data}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
+              <XAxis dataKey="productName" />
               <YAxis />
-              <Tooltip formatter={(v) => (valueKey === "totalRevenue" ? `$${v}` : v)} />
+              <Tooltip formatter={formatTooltip} />
               <Legend />
               <Area
                 type="monotone"
                 dataKey={valueKey}
                 stroke="#1976d2"
                 fill="#90caf9"
-                name={valueKey === "totalRevenue" ? "Revenue" : "Sold"}
+                name={valueKey === "totalComments" ? "Comments" : "Ratings"}
               />
             </AreaChart>
           </ResponsiveContainer>
@@ -97,20 +99,17 @@ const BestSellingStats = ({ data = [] }: { data?: BestSellingProduct[] }) => {
         return (
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
-              <Tooltip />
+              <Tooltip formatter={formatTooltip} />
               <Legend />
               <Pie
                 data={data}
                 dataKey={valueKey}
-                nameKey="name"
+                nameKey="productName"
                 outerRadius={120}
                 label
               >
                 {data.map((_, index) => (
-                  <Cell
-                    key={index}
-                    fill={COLORS[index % COLORS.length]}
-                  />
+                  <Cell key={index} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
             </PieChart>
@@ -121,14 +120,14 @@ const BestSellingStats = ({ data = [] }: { data?: BestSellingProduct[] }) => {
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={data}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
+              <XAxis dataKey="productName" />
               <YAxis />
-              <Tooltip formatter={(v) => (valueKey === "totalRevenue" ? `$${v}` : v)} />
+              <Tooltip formatter={formatTooltip} />
               <Legend />
               <Bar
                 dataKey={valueKey}
                 fill="#1976d2"
-                name={valueKey === "totalRevenue" ? "Revenue" : "Sold"}
+                name={valueKey === "totalComments" ? "Comments" : "Ratings"}
               />
             </BarChart>
           </ResponsiveContainer>
@@ -139,7 +138,7 @@ const BestSellingStats = ({ data = [] }: { data?: BestSellingProduct[] }) => {
   return (
     <Box sx={{ mt: 5 }}>
       <Typography variant="h5" fontWeight={555} gutterBottom>
-        📊 Best Selling Products
+        📊 Most Popular Products 
       </Typography>
 
       {/* Chart Controls */}
@@ -149,7 +148,9 @@ const BestSellingStats = ({ data = [] }: { data?: BestSellingProduct[] }) => {
           <Select
             value={chartType}
             label="Chart Type"
-            onChange={(e) => setChartType(e.target.value)}
+            onChange={(e) =>
+              setChartType(e.target.value as "bar" | "line" | "area" | "pie")
+            }
             sx={{ minWidth: 150 }}
           >
             <MenuItem value="bar">Bar</MenuItem>
@@ -164,11 +165,13 @@ const BestSellingStats = ({ data = [] }: { data?: BestSellingProduct[] }) => {
           <Select
             value={valueKey}
             label="Value"
-            onChange={(e) => setValueKey(e.target.value as "totalRevenue" | "totalSold")}
+            onChange={(e) =>
+              setValueKey(e.target.value as "totalComments" | "averageRating")
+            }
             sx={{ minWidth: 150 }}
           >
-            <MenuItem value="totalRevenue">Revenue ($)</MenuItem>
-            <MenuItem value="totalSold">Sold (items)</MenuItem>
+            <MenuItem value="totalComments">Total Comments (items)</MenuItem>
+            <MenuItem value="averageRating">Average Rating (stars)</MenuItem>
           </Select>
         </FormControl>
       </Box>
@@ -181,4 +184,5 @@ const BestSellingStats = ({ data = [] }: { data?: BestSellingProduct[] }) => {
   );
 };
 
-export default BestSellingStats;
+
+export default MostPopularProducts;

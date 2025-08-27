@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   getBestSellingProducts,
+  getListOfMostPopularProducts,
   revenueStatistics,
 } from "../controllers/stats.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
@@ -13,5 +14,11 @@ statsRoutes.get(
   authMiddleware,
   isAdmin,
   getBestSellingProducts
+);
+statsRoutes.get(
+  "/most-popular-products",
+  authMiddleware,
+  isAdmin,
+  getListOfMostPopularProducts
 );
 export default statsRoutes;

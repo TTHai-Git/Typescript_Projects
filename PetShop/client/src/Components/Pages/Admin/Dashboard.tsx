@@ -31,6 +31,8 @@ import RevenueStats from "./stats/RevenueStats";
 import OrdersStats from "./stats/OrdersStats";
 import { CalcGrowthRevenueStats } from "./stats/CalcGrowthRevenueStats";
 import { CalcGrowthOrdersStats } from "./stats/CalcGrowthOrdersStats";
+import MostPopularProducts, { MostPopularProduct } from "./stats/MostPopularProducts";
+
 
 export interface RevenueData {
   index: number;
@@ -48,6 +50,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState<RevenueResponse>();
   const [statsBestSellingProducts, setStatsBestSellingProducts] = useState<BestSellingProduct[]>([])
+  const [statsMostPopularProducts, setStatsMostPopularProducts] = useState<MostPopularProduct[]>([])
   const [loading, setLoading] = useState(true);
 
   const dashboardItems = [
@@ -72,8 +75,8 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchStatsRevenueData = async () => {
       try {
-        const res_1 = await APIs.get(adminEndpoints["stats-revenue"]);
-        setStats(res_1.data as RevenueResponse);
+        const res= await APIs.get(adminEndpoints["stats-revenue"]);
+        setStats(res.data as RevenueResponse);
       } catch (error) {
         console.error("Failed to fetch stats:", error);
       } finally {
@@ -83,8 +86,20 @@ const Dashboard = () => {
 
     const fetchStatsBestSellingOfProductsData = async () => {
       try {
-        const res_2 = await APIs.get(adminEndpoints["stats-best-selling-products"]);
-        setStatsBestSellingProducts(res_2.data as BestSellingProduct[]);
+        const res = await APIs.get(adminEndpoints["stats-best-selling-products"]);
+        setStatsBestSellingProducts(res.data as BestSellingProduct[]);
+
+      } catch (error) {
+        console.error("Failed to fetch stats:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchStatsMostPopularProductsData = async () => {
+      try {
+        const res = await APIs.get(adminEndpoints["stats-most-popular-products"]);
+        setStatsMostPopularProducts(res.data as MostPopularProduct[]);
 
       } catch (error) {
         console.error("Failed to fetch stats:", error);
@@ -94,16 +109,20 @@ const Dashboard = () => {
     };
     fetchStatsRevenueData();
     fetchStatsBestSellingOfProductsData()
+    fetchStatsMostPopularProductsData()
   }, []);
   
 
   return (
     <Box sx={{ p: 4 }}>
-      <Typography variant="h1" gutterBottom fontWeight={600}>
+      <Typography variant="h1" gutterBottom fontWeight={777}>
         Admin Dashboard
       </Typography>
-      <Typography variant="h4" gutterBottom fontWeight={600}>
+      <Typography variant="h2" gutterBottom fontWeight={666} textAlign={"center"}>
         Stats
+      </Typography>
+       <Typography variant="h5" fontWeight={555} gutterBottom>
+        📊Revenue And Order
       </Typography>
 
       {/* Tổng quan nhanh */}
@@ -127,9 +146,10 @@ const Dashboard = () => {
         </Grid>
       </Grid>
       {statsBestSellingProducts && <BestSellingStats data={statsBestSellingProducts} />}
+      {statsMostPopularProducts && <MostPopularProducts data={statsMostPopularProducts} />}
 
       {/* Navigation cards */}
-      <Typography variant="h5" mt={5} mb={2} fontWeight={600}>
+      <Typography variant="h2" mt={5} mb={2} fontWeight={600} textAlign={"center"}>
         Management
       </Typography>
       <Grid container spacing={3}>

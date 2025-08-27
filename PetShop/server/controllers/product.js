@@ -46,7 +46,7 @@ const calculateTotalOrderOfProduct = async (productId) => {
   return totalOrder;
 };
 
-const calculateRating = async (productId) => {
+export const calculateRating = async (productId) => {
   const comments = await Comment.find({ product: productId });
   // console.log(comments.length);
 

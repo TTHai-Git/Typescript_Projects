@@ -43,7 +43,6 @@ export const endpoints = {
   getShipmentOfOrder: (orderId) => `/shipments/order/${orderId}`,
   chatBot: `/chat-bot-faq/chat`,
   "csrf-token": "/csrf-token",
-  "stats-revenue": "stats/revenue",
 };
 
 export const adminEndpoints = {
@@ -55,6 +54,7 @@ export const adminEndpoints = {
   deleteOne: (model, id) => `/admin/${model}/${id}`,
   "stats-revenue": "/admin/stats/revenue",
   "stats-best-selling-products": "/admin/stats/selling-best-products",
+  "stats-most-popular-products": "/admin/stats/most-popular-products",
 };
 
 let csrfToken = null; // lưu tạm trong memory

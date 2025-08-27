@@ -1,5 +1,8 @@
 import OrderDetails from "../models/orderdetails.js";
+import Product from "../models/product.js";
 import Payment from "../models/payment.js";
+import Comment from "../models/comment.js";
+import { calculateRating } from "./product.js";
 
 export const revenueStatistics = async (req, res) => {
   try {
@@ -120,6 +123,10 @@ export const getBestSellingProducts = async (req, res) => {
         },
       },
 
+      {
+        $match: { totalRevenue: { $gt: 0 } },
+      },
+
       // Lookup product details
       {
         $lookup: {
@@ -132,7 +139,7 @@ export const getBestSellingProducts = async (req, res) => {
       { $unwind: "$product" },
 
       // Sort by best-selling
-      { $sort: { totalSold: -1 } },
+      { $sort: { totalRevenue: -1 } },
 
       // Limit to top 10
       { $limit: 10 },
@@ -154,5 +161,55 @@ export const getBestSellingProducts = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server Error" });
+  }
+};
+
+export const getListOfMostPopularProducts = async (req, res) => {
+  try {
+    const data = await Comment.aggregate([
+      {
+        // Group comments by product
+        $group: {
+          _id: "$product", // foreign key to Product
+          averageRating: { $avg: "$rating" },
+          totalComments: { $sum: 1 },
+        },
+      },
+      {
+        // Only keep products with at least 1 rating > 0
+        $match: { averageRating: { $gt: 0 } },
+      },
+      {
+        // Lookup product details
+        $lookup: {
+          from: "products", // collection name in MongoDB
+          localField: "_id",
+          foreignField: "_id",
+          as: "product",
+        },
+      },
+      { $unwind: "$product" },
+      {
+        // Shape the output
+        $project: {
+          _id: 0,
+          productName: "$product.name",
+          averageRating: { $round: ["$averageRating", 1] }, // round to 1 decimal
+          totalComments: 1,
+        },
+      },
+      {
+        // Sort by rating desc
+        $sort: { averageRating: -1 },
+      },
+
+      // Limit to top 10
+      { $limit: 10 },
+    ]);
+
+    return res.status(200).json(data);
+  } catch (error) {
+    console.error("Error fetching popular products:", error);
+    return res.status(500).json({ message: "Server Error" });
   }
 };
