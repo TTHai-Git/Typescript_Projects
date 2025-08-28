@@ -4,13 +4,13 @@ services:
   client:
     image: haiou2003/petshop-client:latest
     env_file:
-      - ./PetShop/client/.env
+      -  ./client/.env
     ports:
       - "8080:80"
 
   server:
     image: haiou2003/petshop-server:latest
     env_file:
-      - ./PetShop/server/.env
+      -  ./server/.env
     ports:
       - "5000:5000"
