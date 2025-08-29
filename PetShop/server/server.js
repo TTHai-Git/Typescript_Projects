@@ -65,6 +65,7 @@ app.use(
     origin: [
       process.env.REACT_APP_PUBLIC_URL_VERCEL_CLIENT,
       "http://localhost:3000",
+      "http://localhost:8080",
     ],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
