@@ -30,7 +30,6 @@ import Cart from './Components/Cart';
 import Shipment from './Components/Shipment';
 import ShipmentInfomation from './Components/ShipmentInfomation';
 import VerifyEmail from './Components/VerifyEmail';
-import PhoneVerify from './Components/PhoneVerify';
 import Dashboard from './Components/Pages/Admin/Dashboard';
 import RequireAdmin from './Components/Pages/Admin/RequireAdmin';
 import AdminProducts from './Components/Pages/Admin/AdminProducts';
@@ -67,7 +66,6 @@ function App() {
               <Route path="/reset-password" element={<ResetPassword/>} />
               <Route path="/register" element={<Register/>} />
               <Route path ="/verify-email" element={<VerifyEmail/>} />
-              <Route path ="/verify-phone" element={<PhoneVerify/>} />
               <Route path="/userinfo" element={<UserInfo/>} />
               <Route path="/userinfo/:user_id/orders" element={<ListOrders/>}/>
               <Route path="/userinfo/:user_id/orders/:order_id/orderDetails" element={<ListOrderDetails/>}/>
