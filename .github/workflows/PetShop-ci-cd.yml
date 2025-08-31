@@ -35,17 +35,34 @@ jobs:
         working-directory: PetShop/server
         run: npm test -- --watchAll=false --passWithNoTests
 
-      # ======== BUILD DOCKER IMAGES ========
-      - name: Build Client Image
+      # ======== BUILD DOCKER IMAGES (PROD) ========
+      - name: Build Client Image (Prod)
         run: |
           docker build \
+            -f ./PetShop/client/Dockerfile \
             -t ${{ secrets.DOCKERHUB_USERNAME }}/petshop-client:latest \
             ./PetShop/client
 
-      - name: Build Server Image
+      - name: Build Server Image (Prod)
         run: |
           docker build \
+            -f ./PetShop/server/Dockerfile \
             -t ${{ secrets.DOCKERHUB_USERNAME }}/petshop-server:latest \
+            ./PetShop/server
+
+      # ======== BUILD DOCKER IMAGES (DEV) ========
+      - name: Build Client Image (Dev)
+        run: |
+          docker build \
+            -f ./PetShop/client/Dockerfile.dev \
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/petshop-client:dev \
+            ./PetShop/client
+
+      - name: Build Server Image (Dev)
+        run: |
+          docker build \
+            -f ./PetShop/server/Dockerfile.dev \
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/petshop-server:dev \
             ./PetShop/server
 
       # ======== PUSH DOCKER IMAGES ========
@@ -55,8 +72,14 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Push Client Image
+      - name: Push Client Image (Prod)
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/petshop-client:latest
 
-      - name: Push Server Image
+      - name: Push Server Image (Prod)
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/petshop-server:latest
+
+      - name: Push Client Image (Dev)
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/petshop-client:dev
+
+      - name: Push Server Image (Dev)
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/petshop-server:dev
