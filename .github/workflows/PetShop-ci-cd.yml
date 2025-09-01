@@ -95,7 +95,7 @@ jobs:
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
           script: |
-            cd /home/${{ secrets.VM_HOST }}
+            cd /home/${{ secrets.VM_USER }}
             # Clone hoặc update repo
             if [ ! -d "/Typescript_Projects" ]; then
               git clone https://github.com/TTHai-Git/Typescript_Projects
@@ -105,9 +105,13 @@ jobs:
             git pull origin main
           
             # Copy .env cho client và server
-            echo "${{ secrets.CLIENT_ENV }}" > Typescript_Projects-main/PetShop/client/.env
-            echo "${{ secrets.SERVER_ENV }}" > Typescript_Projects-main/PetShop/server/.env
-          
+            echo "${{ secrets.CLIENT_ENV }}" > client/.env
+            echo "${{ secrets.SERVER_ENV }}" > server/.env
+
+            # Debug: xem toàn bộ cấu trúc thư mục
+            echo "=== Folder structure ==="
+            ls -R .
+                      
             # Pull docker images
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/petshop-client:dev
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/petshop-server:dev
