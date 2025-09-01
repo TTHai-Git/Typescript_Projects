@@ -95,24 +95,24 @@ jobs:
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
           script: |
+            cd /home/${{ secrets.VM_HOST }}
             # Clone hoặc update repo
-            if [ ! -d "/srv/petshop" ]; then
-              git clone https://github.com/TTHai-Git/Typescript_Projects /srv/petshop
+            if [ ! -d "/Typescript_Projects" ]; then
+              git clone https://github.com/TTHai-Git/Typescript_Projects
             fi
-            cd /srv/petshop
+            cd /Typescript_Projects/PetShop
             git reset --hard
             git pull origin main
           
             # Copy .env cho client và server
-            echo "${{ secrets.CLIENT_ENV }}" > /srv/petshop/Typescript_Projects-main/PetShop/client/.env
-            echo "${{ secrets.SERVER_ENV }}" > /srv/petshop/Typescript_Projects-main/PetShop/server/.env
+            echo "${{ secrets.CLIENT_ENV }}" > Typescript_Projects-main/PetShop/client/.env
+            echo "${{ secrets.SERVER_ENV }}" > Typescript_Projects-main/PetShop/server/.env
           
             # Pull docker images
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/petshop-client:dev
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/petshop-server:dev
           
             # Chạy docker compose
-            cd /srv/petshop/Typescript_Projects-main/PetShop/
             docker compose -f PetShop-docker-compose.yml --profile dev up -d
           
             # Xoá image không cần thiết
