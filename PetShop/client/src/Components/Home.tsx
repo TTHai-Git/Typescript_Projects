@@ -36,7 +36,7 @@ const Home = () => {
       {/* Hero Section */}
       <Box sx={{ py: 10, textAlign: 'center', bgcolor: '#fdf6f0' }}>
         <Typography variant="h2" fontWeight="bold" gutterBottom>
-          Welcome to the Dog Shop (Test CI/CD To Deploy By SSH To Linux Vitural Machine By Using VMWare Workstations Local Environment (dev))
+          Welcome to the Dog Shop (Test Deloy Dev By SSH)
         </Typography>
         <Typography variant="h5" color="text.secondary">
           Find your perfect furry companion
