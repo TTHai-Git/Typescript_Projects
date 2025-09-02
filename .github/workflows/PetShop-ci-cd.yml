@@ -8,81 +8,81 @@ on:
       - 'PetShop/**'
 
 jobs:
-  # build-test-push:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
+  build-test-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-  #     - name: Set up Docker
-  #       uses: docker/setup-buildx-action@v3
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v3
 
-  #     # ======== CLIENT TEST ========
-  #     - name: Install dependencies (Client)
-  #       working-directory: PetShop/client
-  #       run: npm ci
+      # ======== CLIENT TEST ========
+      - name: Install dependencies (Client)
+        working-directory: PetShop/client
+        run: npm ci
 
-  #     - name: Run tests (Client)
-  #       working-directory: PetShop/client
-  #       run: npm test -- --watchAll=false --passWithNoTests
+      - name: Run tests (Client)
+        working-directory: PetShop/client
+        run: npm test -- --watchAll=false --passWithNoTests
 
-  #     # ======== SERVER TEST ========
-  #     - name: Install dependencies (Server)
-  #       working-directory: PetShop/server
-  #       run: npm ci
+      # ======== SERVER TEST ========
+      - name: Install dependencies (Server)
+        working-directory: PetShop/server
+        run: npm ci
 
-  #     - name: Run tests (Server)
-  #       working-directory: PetShop/server
-  #       run: npm test -- --watchAll=false --passWithNoTests
+      - name: Run tests (Server)
+        working-directory: PetShop/server
+        run: npm test -- --watchAll=false --passWithNoTests
 
-  #     # ======== BUILD DOCKER IMAGES (PROD) ========
-  #     - name: Build Client Image (Prod)
-  #       run: |
-  #         docker build \
-  #           -f ./PetShop/client/Dockerfile \
-  #           -t ${{ secrets.DOCKERHUB_USERNAME }}/petshop-client:latest \
-  #           ./PetShop/client
+      # ======== BUILD DOCKER IMAGES (PROD) ========
+      - name: Build Client Image (Prod)
+        run: |
+          docker build \
+            -f ./PetShop/client/Dockerfile \
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/petshop-client:latest \
+            ./PetShop/client
 
-  #     - name: Build Server Image (Prod)
-  #       run: |
-  #         docker build \
-  #           -f ./PetShop/server/Dockerfile \
-  #           -t ${{ secrets.DOCKERHUB_USERNAME }}/petshop-server:latest \
-  #           ./PetShop/server
+      - name: Build Server Image (Prod)
+        run: |
+          docker build \
+            -f ./PetShop/server/Dockerfile \
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/petshop-server:latest \
+            ./PetShop/server
 
-  #     # ======== BUILD DOCKER IMAGES (DEV) ========
-  #     - name: Build Client Image (Dev)
-  #       run: |
-  #         docker build \
-  #           -f ./PetShop/client/Dockerfile.dev \
-  #           -t ${{ secrets.DOCKERHUB_USERNAME }}/petshop-client:dev \
-  #           ./PetShop/client
+      # ======== BUILD DOCKER IMAGES (DEV) ========
+      - name: Build Client Image (Dev)
+        run: |
+          docker build \
+            -f ./PetShop/client/Dockerfile.dev \
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/petshop-client:dev \
+            ./PetShop/client
 
-  #     - name: Build Server Image (Dev)
-  #       run: |
-  #         docker build \
-  #           -f ./PetShop/server/Dockerfile.dev \
-  #           -t ${{ secrets.DOCKERHUB_USERNAME }}/petshop-server:dev \
-  #           ./PetShop/server
+      - name: Build Server Image (Dev)
+        run: |
+          docker build \
+            -f ./PetShop/server/Dockerfile.dev \
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/petshop-server:dev \
+            ./PetShop/server
 
-  #     # ======== PUSH DOCKER IMAGES ========
-  #     - name: Login to DockerHub
-  #       uses: docker/login-action@v3
-  #       with:
-  #         username: ${{ secrets.DOCKERHUB_USERNAME }}
-  #         password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # ======== PUSH DOCKER IMAGES ========
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-  #     - name: Push Client Image (Prod)
-  #       run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/petshop-client:latest
+      - name: Push Client Image (Prod)
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/petshop-client:latest
 
-  #     - name: Push Server Image (Prod)
-  #       run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/petshop-server:latest
+      - name: Push Server Image (Prod)
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/petshop-server:latest
 
-  #     - name: Push Client Image (Dev)
-  #       run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/petshop-client:dev
+      - name: Push Client Image (Dev)
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/petshop-client:dev
 
-  #     - name: Push Server Image (Dev)
-  #       run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/petshop-server:dev
+      - name: Push Server Image (Dev)
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/petshop-server:dev
 
   deploy-dev:
     runs-on: ubuntu-latest
@@ -124,13 +124,20 @@ jobs:
             # Debug: xem toàn bộ cấu trúc thư mục
             echo "=== Folder structure ==="
             ls -R .
-                      
-            # Pull docker images
+
+            # 1. Dừng và xóa tất cả container trong file compose
+            docker compose -f PetShop-docker-compose.yml --profile dev down
+
+            # 2. Xóa images cũ của dự án
+            docker rmi -f ${{ secrets.DOCKERHUB_USERNAME }}/petshop-client:dev || true
+            docker rmi -f ${{ secrets.DOCKERHUB_USERNAME }}/petshop-server:dev || true
+
+            # 3. Pull images mới nhất từ registry
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/petshop-client:dev
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/petshop-server:dev
           
-            # Chạy docker compose
+            # 4. Khởi chạy lại container từ images mới pull về
             docker compose -f PetShop-docker-compose.yml --profile dev up -d
           
-            # Xoá image không cần thiết
+            # 5. (Tuỳ chọn) Dọn dẹp images rác không dùng đến
             docker image prune -f
