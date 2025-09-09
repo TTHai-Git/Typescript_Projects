@@ -30,36 +30,57 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { logout } from '../features/login/authSlice';
 import { authApi, endpoints } from '../Config/APIs';
 import { AdminPanelSettings } from '@mui/icons-material';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import NotificationList from './NotificationList';
+import { useNotification } from '../Context/Notification';
 
-export const NavBar = () => {
+const NavBar = () => {
   const { cartItems } = useCart();
+  const {notificationItems} = useNotification()
   const user = useSelector((state: RootState) => state.auth.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
   const timeoutRef = useRef<number | undefined>(undefined);
 
+  // avatar dropdown state
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
+  // notifications dropdown state
+  const [anchorElNotification, setAnchorElNotification] = useState<null | HTMLElement>(null);
+
+  // avatar handlers
   const handleMouseEnter = (event: React.MouseEvent<HTMLElement>) => {
-  if (timeoutRef.current) {
-    clearTimeout(timeoutRef.current);
-  }
-  setAnchorEl(event.currentTarget);
-};
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setAnchorEl(event.currentTarget);
+  };
 
   const handleMouseLeave = () => {
-  timeoutRef.current = window.setTimeout(() => {
-    setAnchorEl(null);
-  }, 200); // delay to allow moving into the menu
-}
+    timeoutRef.current = window.setTimeout(() => {
+      setAnchorEl(null);
+    }, 200);
+  };
+
+  // notification handlers
+  const handleNotifEnter = (event: React.MouseEvent<HTMLElement>) => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setAnchorElNotification(event.currentTarget);
+  };
+
+  const handleNotifLeave = () => {
+    timeoutRef.current = window.setTimeout(() => {
+      setAnchorElNotification(null);
+    }, 200);
+  };
 
   const open = Boolean(anchorEl);
+  const openNotif = Boolean(anchorElNotification);
 
-   const handleLogOut = async () => {
-      dispatch(logout());
-      const res = await authApi.post(endpoints.logout)
-      if (res.status === 200) navigate('/login');
-    };
+  const handleLogOut = async () => {
+    dispatch(logout());
+    const res = await authApi.post(endpoints.logout);
+    if (res.status === 200) navigate('/login');
+  };
 
   return (
     <AppBar position="static" color="default" elevation={2}>
@@ -92,6 +113,7 @@ export const NavBar = () => {
 
         {/* Action Section */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          {/* Cart */}
           <IconButton component={Link} to="/cart" color="primary">
             <Badge badgeContent={cartItems.length} color="secondary">
               <ShoppingCartIcon />
@@ -100,75 +122,118 @@ export const NavBar = () => {
           </IconButton>
 
           {user && user.isAuthenticated ? (
-          <Box
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-            sx={{ display: 'inline-block' }}
-          >
-            <IconButton>
-              <Avatar alt={user.username} src={user?.avatar} />
-            </IconButton>
+            <>
+              {/* Notifications */}
+              <Box
+                onMouseEnter={handleNotifEnter}
+                onMouseLeave={handleNotifLeave}
+                sx={{ display: 'inline-block' }}
+              >
+                <IconButton color="primary">
+                  <Badge badgeContent={notificationItems.filter((prevItems) => {
+                    return prevItems.isRead === false
+                  }).length} color="error">
+                    <NotificationsIcon />
+                  </Badge>
+                </IconButton>
 
-            <Menu
-              anchorEl={anchorEl}
-              open={open}
-              onClose={() => setAnchorEl(null)}
-              TransitionComponent={Grow}
-              MenuListProps={{
-                onMouseEnter: () => clearTimeout(timeoutRef.current),
-                onMouseLeave: handleMouseLeave,
-              }}
-              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-              PaperProps={{
-                sx: {
-                  mt: 1,
-                  borderRadius: 2,
-                  minWidth: 220,
-                  boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
-                  backgroundColor: '#fff',
-                },
-              }}
-            >
-              <MenuItem onClick={() => navigate('/userinfo')}>
-                <ListItemIcon>
-                  <PersonIcon fontSize="small" color="primary" />
-                </ListItemIcon>
-                <ListItemText primary="User Info" />
-              </MenuItem>
+                <Menu
+                  anchorEl={anchorElNotification}
+                  open={openNotif}
+                  onClose={() => setAnchorElNotification(null)}
+                  TransitionComponent={Grow}
+                  MenuListProps={{
+                    onMouseEnter: () => clearTimeout(timeoutRef.current),
+                    onMouseLeave: handleNotifLeave,
+                  }}
+                  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                  transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                  PaperProps={{
+                    sx: {
+                      mt: 1,
+                      borderRadius: 2,
+                      minWidth: 320,
+                      maxHeight: 400,
+                      boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                      backgroundColor: '#fff',
+                      overflowY: 'auto',
+                    },
+                  }}
+                >
+                  <NotificationList />
+                </Menu>
+              </Box>
 
-              <MenuItem onClick={() => navigate(`/userinfo/${user?._id}/orders?page=1`)}>
-                <ListItemIcon>
-                  <AssignmentIcon fontSize="small" color="info" />
-                </ListItemIcon>
-                <ListItemText primary="Follow Orders" />
-              </MenuItem>
+              {/* User Avatar */}
+              <Box
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+                sx={{ display: 'inline-block' }}
+              >
+                <IconButton>
+                  <Avatar alt={user.username} src={user?.avatar} />
+                </IconButton>
 
-              <MenuItem onClick={() => navigate(`/userinfo/${user?._id}/favoritelist?page=1`)}>
-                <ListItemIcon>
-                  <FavoriteIcon fontSize="small" color="error" />
-                </ListItemIcon>
-                <ListItemText primary="Favorites List" />
-              </MenuItem>
+                <Menu
+                  anchorEl={anchorEl}
+                  open={open}
+                  onClose={() => setAnchorEl(null)}
+                  TransitionComponent={Grow}
+                  MenuListProps={{
+                    onMouseEnter: () => clearTimeout(timeoutRef.current),
+                    onMouseLeave: handleMouseLeave,
+                  }}
+                  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                  transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                  PaperProps={{
+                    sx: {
+                      mt: 1,
+                      borderRadius: 2,
+                      minWidth: 220,
+                      boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
+                      backgroundColor: '#fff',
+                    },
+                  }}
+                >
+                  <MenuItem onClick={() => navigate('/userinfo')}>
+                    <ListItemIcon>
+                      <PersonIcon fontSize="small" color="primary" />
+                    </ListItemIcon>
+                    <ListItemText primary="User Info" />
+                  </MenuItem>
 
-              <MenuItem onClick={() => navigate(`/admin-dashboard`)}>
-                <ListItemIcon>
-                  <AdminPanelSettings fontSize="small" color="error" />
-                </ListItemIcon>
-                <ListItemText primary="Dashboard Management" />
-              </MenuItem>
+                  <MenuItem onClick={() => navigate(`/userinfo/${user?._id}/orders?page=1`)}>
+                    <ListItemIcon>
+                      <AssignmentIcon fontSize="small" color="info" />
+                    </ListItemIcon>
+                    <ListItemText primary="Follow Orders" />
+                  </MenuItem>
 
-              <Divider />
+                  <MenuItem onClick={() => navigate(`/userinfo/${user?._id}/favoritelist?page=1`)}>
+                    <ListItemIcon>
+                      <FavoriteIcon fontSize="small" color="error" />
+                    </ListItemIcon>
+                    <ListItemText primary="Favorites List" />
+                  </MenuItem>
 
-              <MenuItem onClick={handleLogOut}>
-                <ListItemIcon>
-                  <LogoutIcon fontSize="small" color="action" />
-                </ListItemIcon>
-                <ListItemText primary="Logout" />
-              </MenuItem>
-            </Menu>
-          </Box>
+                  <MenuItem onClick={() => navigate(`/admin-dashboard`)}>
+                    <ListItemIcon>
+                      <AdminPanelSettings fontSize="small" color="error" />
+                    </ListItemIcon>
+                    <ListItemText primary="Dashboard Management" />
+                  </MenuItem>
 
+                  <Divider />
+
+                  <MenuItem onClick={handleLogOut}>
+                    <ListItemIcon>
+                      <LogoutIcon fontSize="small" color="action" />
+                    </ListItemIcon>
+                    <ListItemText primary="Logout" />
+                  </MenuItem>
+                </Menu>
+              </Box>
+            </>
           ) : (
             <>
               <Button
@@ -194,3 +259,4 @@ export const NavBar = () => {
     </AppBar>
   );
 };
+export default NavBar

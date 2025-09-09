@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router';
 import { UserState } from '../Interface/Users';
 import { Alert } from '@mui/material';
 import APIs, { endpoints, fetchCsrfToken } from '../Config/APIs';
+import { useNotification } from '../Context/Notification';
 
 const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -17,6 +18,7 @@ const Login: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string>("")
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const { showNotification} = useNotification()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +40,7 @@ const Login: React.FC = () => {
         navigate("/products")
         
       } else {
-      alert('Invalid username or password');
+        showNotification("Username or password is incorect", "error")
       }
     } catch (error:any) {
       setIsError(true);

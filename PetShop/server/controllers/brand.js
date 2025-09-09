@@ -41,7 +41,7 @@ export const createBrand = async (req, res) => {
     }
 
     const brand = await Brand.create({ name, description, logoUrl });
-    res.status(201).json(brand);
+    res.status(201).json({ doc: brand, message: "Brand created successfully" });
   } catch (error) {
     console.error("Error create brand:", error);
     res.status(500).json({ message: "server error", error });

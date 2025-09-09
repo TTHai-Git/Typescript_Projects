@@ -1,6 +1,5 @@
 import './App.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { NavBar } from './Components/NavBar';
 import Home from './Components/Home';
 import { CartProvider } from './Context/Cart';
 import Login from './Components/Login';
@@ -48,6 +47,11 @@ import AdminShipments from './Components/Pages/Admin/AdminShipments';
 import AdminVendors from './Components/Pages/Admin/AdminVendors';
 import AdminVouchers from './Components/Pages/Admin/AdminVouchers';
 import Chatbot from './Components/ChatBot';
+import { RecentlyViewedProductsProvider } from './Context/RecentlyViewedProducts';
+import ListOfRecentlyViewedProducts from './Components/ListOfRecentlyViewedProducts';
+import NavBar from './Components/NavBar';
+import { NotificationProvider } from './Context/Notification';
+
 
 
 function App() {
@@ -55,6 +59,11 @@ function App() {
     <Provider store={store}>
       <Router>
         <CartProvider>
+          <RecentlyViewedProductsProvider>
+            <NotificationProvider>
+              
+
+              
           <NavBar />
           <div className='page-container'>
             <Breadcrumbs />
@@ -104,8 +113,11 @@ function App() {
             </Routes>
           </div>
           <Chatbot/>
-          
+         
+          </NotificationProvider>
+          <ListOfRecentlyViewedProducts/>
           <Footer/>
+          </RecentlyViewedProductsProvider>
         </CartProvider>
       </Router>
     </Provider>

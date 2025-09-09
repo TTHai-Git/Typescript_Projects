@@ -2,6 +2,7 @@ import { createContext, ReactNode, useContext, useState } from "react";
 import { useNavigate } from "react-router";
 import Product from "../Interface/Product";
 import APIs, { endpoints } from "../Config/APIs";
+import { useNotification } from "./Notification";
 
 interface CartContextType {
   cartItems: Product[];
@@ -32,6 +33,7 @@ export const useCart = () => useContext(CartContext);
 export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [cartItems, setCartItems] = useState<any[]>([]);
   const navigate = useNavigate();
+  const { showNotification } = useNotification()
 
   const addToCart = async (item: Product, quantity:number) => {
     setCartItems((prevItems) => {
@@ -39,21 +41,21 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       if (itemInCart) {
           const isAvailableStock = itemInCart.quantity && itemInCart.quantity + quantity <= item.stock;
           if (!isAvailableStock) {
-            alert(`Only ${item.stock} items available in stock.`);
+            showNotification(`Only ${item.stock} items available in stock.`, "warning");
             return prevItems;
           }
           else {
-            alert(`${item.name} has been added to your cart with ${quantity} items!`)
+            showNotification(`${item.name} has been added to your cart with ${quantity} items!`, "warning")
             return prevItems.map((i) => i._id === item._id ? { ...i, quantity: (i.quantity || 1) + quantity } : i);
           }
       }
       const isAvailableStock = item.stock && quantity <= item.stock;
       if (!isAvailableStock) {
-        alert(`Only ${item.stock} items available in stock.`);
+        showNotification(`Only ${item.stock} items available in stock.`, "warning");
         return prevItems;
       }
       else {
-        alert(`${item.name} has been added to your cart with ${quantity} items!`)
+        showNotification(`${item.name} has been added to your cart with ${quantity} items!`, "warning")
         return [...prevItems, { ...item, quantity: quantity }];
       }
     })
@@ -70,7 +72,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       if (itemInCart) {
         const isAvailableStock = itemInCart.quantity && itemInCart.quantity + 1 <= stock;
         if (!isAvailableStock) {
-          alert(`Only ${stock} items available in stock.`);
+          showNotification(`Only ${stock} items available in stock.`, "warning");
           return [...prevItems];
         }
         else {
@@ -114,7 +116,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   }
 
   const checkOutFromCart = () => {
-    alert(`Thank you for shopping with us! Total: $${Number(caculateTotalOfCart())}`);
+    showNotification(`Thank you for shopping with us! Total: $${Number(caculateTotalOfCart())}`, "success");
     setCartItems([]);
   }
 

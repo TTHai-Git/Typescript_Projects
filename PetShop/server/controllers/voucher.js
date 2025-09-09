@@ -12,7 +12,9 @@ export const createVoucher = async (req, res) => {
       usageCount,
       maxUsage,
     });
-    return res.status(201).json(newVoucher);
+    return res
+      .status(201)
+      .json({ doc: newVoucher, message: "Voucher created successfully" });
   } catch (error) {
     return res.status(500).json({ message: "Internal server error" });
   }

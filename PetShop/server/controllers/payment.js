@@ -10,7 +10,9 @@ export const createPaymentForOrder = async (req, res) => {
   for (const orderDetail of orderDetails) {
     updateStock(orderDetail.product, orderDetail.quantity);
   }
-  return res.status(201).json(newPayment);
+  return res
+    .status(201)
+    .json({ doc: newPayment, message: "Payment created successfully" });
 };
 
 export const getPaymentForOrder = async (req, res) => {

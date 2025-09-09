@@ -15,7 +15,8 @@ const voucherSchema = new Schema(
     },
     expiryDate: {
       type: Date,
-      requried: true,
+      required: true,
+      default: () => new Date(+new Date() + 30 * 24 * 60 * 60 * 1000), // Default to 30 days from now
     },
     isActive: {
       type: Boolean,

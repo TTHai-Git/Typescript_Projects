@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 // import axios from 'axios';
 import APIs, { endpoints } from '../Config/APIs';
+import { useNotification } from '../Context/Notification';
 
 const ResetPassword = () => {
   const location = useLocation();
@@ -27,6 +28,7 @@ const ResetPassword = () => {
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
 
   const inputRefs = useRef<HTMLInputElement[]>([]);
+  const { showNotification } = useNotification()
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -80,7 +82,7 @@ const ResetPassword = () => {
       });
 
       if (res.status === 200) {
-        alert(res.data.message);
+        showNotification(res.data.message, 'success');
         navigate('/login');
       }
     } catch (error: any) {

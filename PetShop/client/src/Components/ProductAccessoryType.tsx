@@ -119,7 +119,7 @@ const ProductAccessoryType = () => {
   useEffect(() => {
     loadInfoDetailsOfProduct();
     if (user) handleCheckFavorite();
-  }, []);
+  }, [product_id]);
   
 
   if (loading) {

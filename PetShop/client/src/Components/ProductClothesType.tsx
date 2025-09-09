@@ -67,7 +67,7 @@ const ProductClothesType = () => {
   useEffect(() => {
     loadInfoDetailsOfProduct();
     if (user) handleCheckFavorite();
-  }, []);
+  }, [product_id]);
 
   const handleSizeClick = (size: string) => setSelectedSize(size);
   const handleMaterialClick = (material: string) => setSelectedMaterial(material);

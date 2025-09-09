@@ -268,7 +268,9 @@ export const createProduct = async (req, res) => {
       ...rest, // contains type-specific fields like ingredients, size, etc.
     });
 
-    return res.status(201).json(newProduct);
+    return res
+      .status(201)
+      .json({ doc: newProduct, message: "Product created successfully" });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }

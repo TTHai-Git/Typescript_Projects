@@ -34,6 +34,7 @@ import { useLocation, useNavigate } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
 import { ArrowBack, SportsCricketOutlined } from '@mui/icons-material';
 import { Category } from '../Interface/Category';
+import { useNotification } from '../Context/Notification';
 
 const FavoriteList = () => {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -49,6 +50,7 @@ const FavoriteList = () => {
   const [sortBy, setSortBy] = useState<string>('')
   const navigate = useNavigate();
   const location = useLocation()
+  const { showNotification} = useNotification()
   
 
   const getFavoriteProductsList = async () => {
@@ -91,12 +93,11 @@ const FavoriteList = () => {
     try {
       const res = await authApi.delete(endpoints.deleteFavorite(favoriteId));
       if (res.status === 200) {
-        alert("Favorite removed successfully!")
+        showNotification(res.data.message, "success")
         setFavoriteList((prev) => prev.filter((fav) => fav._id !== favoriteId));
       }
      else {
-        console.error("Error deleting favorite:", res.data.message)
-        alert("Failed to delete favorite. Please try again.")
+        showNotification(res.data.message, "error")
       }
     } catch (error) {
       console.log(error);

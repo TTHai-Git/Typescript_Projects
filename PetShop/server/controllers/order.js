@@ -10,7 +10,9 @@ export const createOrder = async (req, res) => {
   // console.log(req.body);
   try {
     const newOrder = await Order.create(req.body);
-    res.status(201).json(newOrder);
+    res
+      .status(201)
+      .json({ doc: newOrder, message: "Order created successfully" });
   } catch {
     res.status(500).json({ message: "Error" });
   }
@@ -154,7 +156,10 @@ export const updateStatusOfOrder = async (req, res) => {
         .status(400)
         .json({ message: "Order not found to update status" });
     }
-    return res.status(200).json(updatedOrder);
+    return res.status(200).json({
+      doc: updatedOrder,
+      message: "Order status updated successfully",
+    });
   } catch {
     return res.status(500).json({ message: "Server Error" });
   }

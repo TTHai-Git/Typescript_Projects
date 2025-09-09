@@ -15,6 +15,7 @@ import { adminEndpoints, authApi, endpoints } from "../Config/APIs";
 import { useSearchParams } from "react-router-dom";
 import { set } from "date-fns";
 import formatDate from "../Convert/formatDate ";
+import { useNotification } from "../Context/Notification";
 
 interface CrudTableProps {
   model: string;
@@ -111,6 +112,7 @@ const CrudTable = ({ model, fields, createFields, updateFields, searchableFields
   const [sortBy, setSortBy] = useState<string>("");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [filters, setFilters] = useState<Record<string, string>>({});
+  const { showNotification } = useNotification()
 
 
   const fetchData = async () => {
@@ -184,7 +186,13 @@ const CrudTable = ({ model, fields, createFields, updateFields, searchableFields
     try {
       if (editing && editing._id) {
         // console.log("formData", formData)
-        await authApi.put(adminEndpoints.updateOne(model,editing._id), formData);
+        const res =  await authApi.put(adminEndpoints.updateOne(model,editing._id), formData);
+        if (res.status === 200) {
+          showNotification(res.data.message, "success")
+        }
+        else {
+          showNotification("Update item failed", "error")
+        }
       } else {
         console.log("formData", formData)
         if (model === "products" || model === "users" || model === "brands") {
@@ -212,7 +220,13 @@ const CrudTable = ({ model, fields, createFields, updateFields, searchableFields
             formData.logURL = res_1.data.secure_url;
           }
         }
-        await authApi.post(adminEndpoints.createOne(model), formData);
+        const res = await authApi.post(adminEndpoints.createOne(model), formData);
+        if (res.status === 201) {
+          showNotification(res.data.message, "success")
+        }
+        else {
+          showNotification("Create item failed", "error")
+        }
       }
       setOpen(false);
       setFormData({});
@@ -228,7 +242,14 @@ const CrudTable = ({ model, fields, createFields, updateFields, searchableFields
     if (!window.confirm("Are you sure you want to delete this item?")) return;
     try {
       // await axios.delete(`/api/admin/${model}/${id}`);
-      await authApi.delete(adminEndpoints.deleteOne(model,id))
+      const res = await authApi.delete(adminEndpoints.deleteOne(model,id))
+      console.log("res", res)
+      if (res.status === 204) {
+        showNotification("Item was deleted successfully", "success")
+      }
+      else {
+        showNotification("Item wasn't deleted successfully", "error")
+      }
       fetchData();
     } catch (error) {
       console.error("Failed to delete data:", error);

@@ -43,6 +43,9 @@ export const endpoints = {
   getShipmentOfOrder: (orderId) => `/shipments/order/${orderId}`,
   chatBot: `/chat-bot-faq/chat`,
   "csrf-token": "/csrf-token",
+  getNotifications: "/notifications",
+  markANotificationAsRead: (notificationId) =>
+    `/notifications/${notificationId}/update`,
 };
 
 export const adminEndpoints = {
@@ -93,8 +96,8 @@ authApi.interceptors.request.use(
       }
       config.headers["X-CSRF-Token"] = csrfToken;
     }
-    console.log("🚀 Sending request:", config.url);
-    console.log("Headers:", config.headers);
+    // console.log("🚀 Sending request:", config.url);
+    // console.log("Headers:", config.headers);
     return config;
   },
   (error) => Promise.reject(error)

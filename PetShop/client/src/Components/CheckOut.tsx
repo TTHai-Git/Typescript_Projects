@@ -7,6 +7,7 @@ import { useCart } from '../Context/Cart';
 import { useLocation, useNavigate } from 'react-router';
 import { authApi, endpoints } from '../Config/APIs';
 import { Box, Button, Card, Divider, Grid, Typography } from '@mui/material';
+import { useNotification } from '../Context/Notification';
 
 const CheckOut = () => {
     const navigate = useNavigate();
@@ -17,6 +18,7 @@ const CheckOut = () => {
     const { cartItems, checkOutFromCart} = useCart();
     const [qrDataURL, setqrDataURL] = useState<string>("");
     const [loading, setLoading] = useState(false)
+    const { showNotification } = useNotification()
     const handleMakePayment = async (choice: string) => {
         console.log("Choice: ", choice)
         
@@ -62,13 +64,19 @@ const CheckOut = () => {
                 }
             }
             if (choice === "CASH") {
-            await authApi.post(endpoints.createPaymentForOrder, {
+            const res = await authApi.post(endpoints.createPaymentForOrder, {
                 method: "Cash",
                 provider: "Manual",
                 amount: totalPrice,
                 status: "PAID",
                 order: orderId,
             });
+            if  (res.status === 201) {
+              showNotification(res.data.message, "success")
+            }
+            else {
+              showNotification("Payment Failed", "error")
+            }
             checkOutFromCart()
             navigate('/') 
             }

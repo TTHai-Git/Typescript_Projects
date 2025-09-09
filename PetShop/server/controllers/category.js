@@ -42,7 +42,9 @@ export const createCategory = async (req, res) => {
     }
 
     const category = await Category.create({ name, description });
-    res.status(201).json(category);
+    res
+      .status(201)
+      .json({ doc: category, message: "Category created successfully" });
   } catch (error) {
     console.error("Error create category:", error);
     res.status(500).json({ message: "server error", error });
@@ -81,7 +83,7 @@ export const deleteCategory = async (req, res) => {
     }
 
     await category.deleteOne();
-    return res.status(204).json({ message: "Category deleted successfully" });
+    return res.status(204).send();
   } catch (error) {
     console.error("Error delete category:", error);
     res.status(500).json({ message: "server error", error });

@@ -25,9 +25,11 @@ import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import { authApi, endpoints } from '../Config/APIs';
 import { AdminPanelSettings, Favorite } from '@mui/icons-material';
+import { useNotification } from '../Context/Notification';
 
 const UserInfo = () => {
   const user = useSelector((state: RootState) => state.auth.user);
+  const { showNotification } = useNotification()
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation()
@@ -81,13 +83,13 @@ const UserInfo = () => {
       });
 
       if (res.status === 200) {
-        alert("Saving user data successfully...");
+        showNotification(res.data.message, "success");
         setIsEditing(false);
         handleLogOut();
       }
     } catch (err: any) {
       console.error("Update failed", err);
-      alert("Error saving user data: " + (err.response?.data?.message || err.message));
+      showNotification((err.response?.data?.message || err.message), "error");
     }
   };
 

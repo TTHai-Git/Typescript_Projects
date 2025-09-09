@@ -20,7 +20,10 @@ export const createOrUpdateFavorite = async (req, res) => {
       user: userId,
       product: productId,
     });
-    return res.status(201).json(newFavorite);
+    return res.status(201).json({
+      doc: newFavorite,
+      message: "Add or Update to favorite successfully",
+    });
   } else {
     existsFavorite.isFavorite = !existsFavorite.isFavorite;
     existsFavorite.save();
@@ -88,7 +91,7 @@ export const getFavoriteProductsList = async (req, res) => {
       .limit(perPage);
 
     if (favorites.length === 0) {
-      return res.status(204).json({ message: "No Favorite Product Found" });
+      return res.status(200).json({ message: "No Favorite Product Found" });
     }
 
     // Step 4: Load related Products

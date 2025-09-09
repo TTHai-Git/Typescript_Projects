@@ -36,7 +36,9 @@ export const createdBreed = async (req, res) => {
   try {
     const breed = new Breed({ name, description });
     await breed.save();
-    return res.status(201).json(breed);
+    return res
+      .status(201)
+      .json({ doc: breed, message: "Breed created successfully" });
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
   }

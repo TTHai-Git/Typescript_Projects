@@ -39,6 +39,7 @@ import Product from '../Interface/Product';
 import { Category } from '../Interface/Category';
 import '../Assets/CSS/Pagination.css';
 import APIs, { endpoints } from '../Config/APIs';
+import { useRecentlyViewedProducts } from '../Context/RecentlyViewedProducts';
 
 const Products = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -54,6 +55,8 @@ const Products = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('');
   const location = useLocation()
+
+  const { addToRecentlyViewedProducts} = useRecentlyViewedProducts()
 
 
   const navigate = useNavigate();
@@ -120,7 +123,16 @@ const Products = () => {
     { label: 'Z-A', id: 'za' },
   ];
   
- 
+  const handleAddToRecentLyViewedProducts = (product: Product) => {
+    addToRecentlyViewedProducts(product)
+    navigate(`/products/${product.type}/${product._id}`, 
+    { state: {
+      type: product.type,
+      from: location.pathname + location.search, 
+      } 
+    })
+  }
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" mt={5}>
@@ -355,10 +367,7 @@ const Products = () => {
                           variant="outlined"
                           color="info"
                           startIcon={<InfoIcon />}
-                          onClick={() => navigate(`/products/${item.type}/${item._id}`, { state: {
-                            type: item.type,
-                            from: location.pathname + location.search, 
-                          } })}
+                          onClick={() => handleAddToRecentLyViewedProducts(item)}
                         >
                           Details
                         </Button>
@@ -397,6 +406,7 @@ const Products = () => {
         <Button onClick={() => changePage(currentPage + 1)} disabled={currentPage === pages}>Next</Button>
         <Button onClick={() => changePage(pages)} disabled={currentPage === pages}>Last</Button>
       </Stack>
+      
     </Box>
   );
   

@@ -19,13 +19,16 @@ import { useNavigate } from 'react-router';
 import {  useState } from 'react';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import { authApi, endpoints } from '../Config/APIs';
+import { useNotification } from '../Context/Notification';
 
 
 const Cart = () => {
   const { cartItems, removeFromCart, increaseQuantity, decreaseQuantity, caculateTotalOfCart } = useCart();
+  const { showNotification } = useNotification()
   const user = useSelector((state: RootState) => state.auth.user);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  
 
   const handleMakeOrder = async () => {
     setLoading(true);
@@ -37,8 +40,9 @@ const Cart = () => {
       });
 
       if (orderRes.status === 201) {
+        showNotification(orderRes.data.message, "success")
         const orderDetails = cartItems.map(item => ({
-          order: orderRes.data._id,
+          order: orderRes.data.doc._id,
           product: item._id,
           quantity: item.quantity,
           price: item.price,
@@ -47,11 +51,11 @@ const Cart = () => {
         const res_2 = await authApi.post(endpoints.createOrderDetails, { data: orderDetails });
 
         if (res_2.status === 201) {
-          alert("Order placed successfully! Go to make shipement info")
+          showNotification(res_2.data.message, "success")
           navigate("/cart/shipment", {
             state: {
-              orderId: orderRes.data._id,
-              totalPrice: orderRes.data.totalPrice
+              orderId: orderRes.data.doc._id,
+              totalPrice: orderRes.data.doc.totalPrice
             }
           })
         }

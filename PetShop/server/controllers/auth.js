@@ -63,6 +63,7 @@ export const register = async (req, res) => {
     });
 
     return res.status(201).json({
+      doc: newUser,
       message:
         "User registered successfully. Verification email has sent to your email. Please check your email to verify acount as soon as !",
     });

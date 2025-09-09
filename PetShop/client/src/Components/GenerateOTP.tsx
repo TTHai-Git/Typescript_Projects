@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router'
 import '../Assets/CSS/Login.css';
 // import axios from 'axios';
 import APIs, { endpoints } from '../Config/APIs';
+import { useNotification } from '../Context/Notification';
 
 const GenerateOTP = () => {
     const [email, setEmail] = useState<string>("")
@@ -10,6 +11,7 @@ const GenerateOTP = () => {
     const [isError, setIsError] = useState<Boolean>(false)
     const [errorMessage, setErrorMessage] = useState<string>("")
     const navigate = useNavigate()
+    const { showNotification } = useNotification()
     const handleGenerateOTP = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
@@ -22,7 +24,7 @@ const GenerateOTP = () => {
            })
             // console.log(res)
             if (res.status === 200) {
-                alert(res.data.message)
+                showNotification(res.data.message, "success")
                 navigate('/reset-password', {state: email})
             }
             

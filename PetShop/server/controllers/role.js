@@ -17,7 +17,9 @@ export const createRole = async (req, res) => {
   try {
     const { name } = req.body;
     const newRole = await Role.create({ name });
-    return res.status(201).json(newRole);
+    return res
+      .status(201)
+      .json({ doc: newRole, message: "Role created successfully" });
   } catch (err) {
     if (err.name === "ValidationError") {
       return res.status(400).json({ message: err.message });
@@ -81,7 +83,7 @@ export const deleteRole = async (req, res) => {
       return res.status(404).json({ message: "Role not found to delete" });
     }
     await role.deleteOne();
-    return res.status(204).json({ message: "Role deleted successfully" });
+    return res.status(204).send();
   } catch (error) {
     console.error("Error deleting role:", error);
   }

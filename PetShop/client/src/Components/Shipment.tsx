@@ -15,6 +15,7 @@ import {
 import axios from 'axios'
 import { authApi, endpoints } from '../Config/APIs'
 import { useLocation, useNavigate, useParams } from 'react-router'
+import { useNotification } from '../Context/Notification'
 
 
 
@@ -41,12 +42,14 @@ const Shipment = () => {
     ward: "",
     
   });
+
+  const { showNotification } = useNotification()
   
   const handleMakeShipment = async () => {
     try {
         setLoading(true)
         if (!buyerName || !buyerAddress || !buyerPhone || !method || !distance) {
-          alert("Vui lòng điền đầy đủ thông tin trước khi tạo đơn giao hàng.")
+          showNotification("Vui lòng điền đầy đủ thông tin trước khi tạo đơn giao hàng.", "warning")
           return
         }
         const res = await authApi.post(endpoints.createShipment, {
@@ -58,7 +61,7 @@ const Shipment = () => {
           order: orderId,
         })
         if(res.status === 201) {
-          alert("Thông tin giao hàng đã được tạo thành công! Tiến hành thanh toán.")
+          showNotification(res.data.message, "success")
           navigate("/cart/shipment/checkout", {
             state: {
               orderId: orderId,
@@ -139,7 +142,7 @@ const Shipment = () => {
   try {
     // Ensure all components are present
     if (!buyerAddress.trim() || !order.ward || !order.district || !order.city) {
-      alert("Vui lòng nhập đầy đủ địa chỉ và chọn phường/xã, quận/huyện, tỉnh/thành.");
+      showNotification("Vui lòng nhập đầy đủ địa chỉ và chọn phường/xã, quận/huyện, tỉnh/thành.", "warning");
       return;
     }
 
@@ -149,14 +152,14 @@ const Shipment = () => {
 
     if (!destinationAddress) {
       console.error("Environment variable 'REACT_APP_DestinationAddress' is not set.");
-      alert("Không tìm thấy địa chỉ cửa hàng.");
+      showNotification("Không tìm thấy địa chỉ cửa hàng.", "warning");
       return;
     }
 
     const mapboxToken = process.env.REACT_APP_MapToken;
     if (!mapboxToken) {
       console.error("Mapbox token is missing.");
-      alert("Token Mapbox không hợp lệ.");
+      showNotification("Token Mapbox không hợp lệ.", "error");
       return;
     }
 
@@ -173,7 +176,7 @@ const Shipment = () => {
     const destinationCoordinates = destinationResponse.data.features[0]?.center;
 
     if (!originCoordinates || !destinationCoordinates) {
-      alert("Lỗi: Không tìm thấy tọa độ cho địa chỉ.");
+      showNotification("Lỗi: Không tìm thấy tọa độ cho địa chỉ.", "error");
       return;
     }
 
@@ -185,12 +188,12 @@ const Shipment = () => {
     const distanceInKilometers = (directionsResponse.data.routes[0]?.distance || 0) / 1000;
 
     if (distanceInKilometers <= 0 && method === "Delivery") {
-      alert("Địa chỉ không hợp lệ. Vui lòng kiểm tra lại.");
+      showNotification("Địa chỉ không hợp lệ. Vui lòng kiểm tra lại.", "warning");
       return;
     }
 
     setDistance(distanceInKilometers.toFixed(2));
-    alert("Địa chỉ hợp lệ. Đã tính toán khoảng cách thành công!");
+    showNotification("Địa chỉ hợp lệ. Đã tính toán khoảng cách thành công!", "success");
 
     const res = await authApi.post(endpoints.calculateShipmentFee, {
       method,
@@ -200,7 +203,7 @@ const Shipment = () => {
     setBuyerAddress(fullAddress)
   } catch (error) {
     console.error("Error calculating distance:", error);
-    alert("Có lỗi xảy ra khi tính khoảng cách.");
+    showNotification("Có lỗi xảy ra khi tính khoảng cách.", "error");
   }
 };
 

@@ -46,7 +46,9 @@ export const createVendor = async (req, res) => {
       email,
       phone,
     });
-    res.status(201).json(vendor);
+    res
+      .status(201)
+      .json({ doc: vendor, message: "Vendor created successfully" });
   } catch (error) {
     console.error("Error create vendor:", error);
     res.status(500).json({ message: "server error", error });

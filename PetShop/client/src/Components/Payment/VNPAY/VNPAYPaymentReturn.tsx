@@ -16,6 +16,7 @@ import { motion } from 'framer-motion'
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from '../../../store'
 import { login } from '../../../features/login/authSlice'
+import { useNotification } from '../../../Context/Notification'
 
 const PaymentReturn = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -23,6 +24,7 @@ const PaymentReturn = () => {
   const query = new URLSearchParams(location.search)
   const [countdown, setCountdown] = useState<number>(4)
   const navigate = useNavigate()
+  const {showNotification} = useNotification()
 
   const vnp_ResponseCode = query.get("vnp_ResponseCode")
   const vnp_TxnRef = query.get('vnp_TxnRef')
@@ -57,18 +59,31 @@ const PaymentReturn = () => {
           return
         }
 
-        await authApi.post(endpoints.createPaymentForOrder, {
+        const res = await authApi.post(endpoints.createPaymentForOrder, {
           method: "VNPay",
           provider: "VNPay",
           order: vnp_TxnRef,
           status: "PAID",
           extraData: extraData
         })
-        await authApi.put(endpoints.updateStatusOfOrder(vnp_TxnRef), {
+
+        if (res.status === 201) {
+          showNotification(res.data.message, "success")
+        }
+        else {
+          showNotification("Payment Failed", "error")
+        }
+
+        const res_1 = await authApi.put(endpoints.updateStatusOfOrder(vnp_TxnRef), {
           status: "Confirmed"
         })
-        setSuccess(true)
-
+        if (res_1.status === 200) {
+          showNotification(res_1.data.message, "success")
+          setSuccess(true)
+        }
+        else {
+          showNotification("Updating order status failed", "error")
+        }
       } catch (error: any) {
         setError(true)
         setErrorMessage(error.response?.data?.message || 'Something went wrong!')
@@ -84,18 +99,31 @@ const PaymentReturn = () => {
           setErrorMessage("This payment has already been processed.")
           return
         }
-        await authApi.post(endpoints.createPaymentForOrder, {
+        const res = await authApi.post(endpoints.createPaymentForOrder, {
           method: "VNPay",
           provider: "VNPay",
           order: vnp_TxnRef,
           status: "FAILED",
           extraData: extraData
         })
-        await authApi.put(endpoints.updateStatusOfOrder(vnp_TxnRef), {
+        if (res.status === 201) {
+          showNotification(res.data.message, "success")
+        }
+        else {
+          showNotification("Payment Failed", "error")
+        }
+        const res_1 = await authApi.put(endpoints.updateStatusOfOrder(vnp_TxnRef), {
           status: "FAILED"
         })
-        setError(true)
-        setErrorMessage('Payment failed or invalid transaction.')
+        if (res_1.status === 200) {
+          showNotification(res_1.data.message, "success")
+        }
+        else {
+          showNotification("Updating order status failed", "error")
+          setError(true)
+          setErrorMessage('Payment failed or invalid transaction.')
+        }
+        
       } catch (error: any) {
         setError(true)
         setErrorMessage(error.response?.data?.message || 'Something went wrong!')

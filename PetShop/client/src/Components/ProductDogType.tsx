@@ -34,6 +34,7 @@ import { RootState } from '../store';
 import UserComment from './UserComment';
 import CommentsByProduct from './CommentsByProduct';
 import { useCart } from '../Context/Cart';
+import { useNotification } from '../Context/Notification';
 
 const ProductDogType: React.FC = () => {
   const user = useSelector((state: RootState) => state.auth.user)
@@ -50,12 +51,13 @@ const ProductDogType: React.FC = () => {
   const [snackbarOpen, setSnackbarOpen] = React.useState(false);
   const [snackbarMessage, setSnackbarMessage] =React.useState('');
   const navigate = useNavigate()
+  const { showNotification } = useNotification()
  
  
 
   const handleAddToCart = (dog: ProductDog, quantity: number) => {
     if(!selectedSize){
-      alert("Please choose size for your dog!!")
+      showNotification("Please choose size for your dog!!", "warning")
     }
     else {
       let note = `Size: ${selectedSize} - Age: ${new Date().getFullYear() - dog.age} years - Weight: ${dog.weight} Kg\n - Height: ${dog.height} cm - Breed: ${dog.breed.name} - Color: `
@@ -118,7 +120,7 @@ const ProductDogType: React.FC = () => {
   React.useEffect(() => {
     loadInfoDetailsOfProduct()
     if (user) handleCheckFavorite();
-  }, []);
+  }, [product_id]);
 
   const handleSizeClick = (size: string) => {
     setSelectedSize(size)

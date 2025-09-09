@@ -72,7 +72,7 @@ const ProductFoodType = () => {
    useEffect(() => {
       loadInfoDetailsOfProduct();
       if (user) handleCheckFavorite();
-    }, []);
+    }, [product_id]);
 
   const handleAddToCart = (ProductFood: ProductFood, quantity: number) => {
     let note = "Ingredients: ";

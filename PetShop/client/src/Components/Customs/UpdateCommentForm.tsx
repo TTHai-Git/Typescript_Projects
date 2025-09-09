@@ -6,6 +6,7 @@ import { Box, Button, Card, CardActions, CardMedia, CircularProgress, Grid, Icon
 import { Delete } from '@mui/icons-material'
 import { useLocation, useNavigate, useParams } from 'react-router'
 import axios from 'axios'
+import { useNotification } from '../../Context/Notification'
 
 const UpdateCommentForm = () => {
     const user = useSelector((state: RootState) => state.auth.user)
@@ -13,6 +14,7 @@ const UpdateCommentForm = () => {
     const from = location.state.from || null
     const type = location.state.type || null
     const { commentId } = useParams(); // from URL
+    const { showNotification } = useNotification()
 
     const [comment, setComment] = useState<{
         content: string;
@@ -97,7 +99,7 @@ const UpdateCommentForm = () => {
     );
 
     if (res.status === 201) {
-      alert("Comment updated successfully");
+      showNotification(res.data.message, "success");
       navigate(`${from}`, {state: {
         from: from,
         type: type
@@ -139,22 +141,25 @@ const UpdateCommentForm = () => {
         if (!window.confirm('Are you sure you want to delete this image?')) return;
         if (commentDetails_id) {
           const res = await authApi.delete(endpoints.deleteCommentDetails(commentDetails_id))
-          if (res.status === 204) setError(false)
+          if (res.status === 204) {
+            setError(false)
+            showNotification("Image was deleted successfully", "success")
+            setComment(prev => ({
+            ...prev,
+            urls: prev.urls.filter((_: any, i: number) => i !== index)
+        }));
+          } 
           else {
-            setErrorMessage(res.data.message)
-            alert(errorMessage)
             setError(true)
+            setErrorMessage(res.data.message)
+            showNotification(errorMessage, "error")
           }
         }
-        alert("Delete Image Successfully")
-        setComment(prev => ({
-        ...prev,
-        urls: prev.urls.filter((_: any, i: number) => i !== index)
-        }));
+        
     } catch (error:any) {
         setError(true)
         setErrorMessage(error.response?.data.message)
-        alert(errorMessage)
+        showNotification(errorMessage, "error")
     } finally {
         setLoading(false)
     }

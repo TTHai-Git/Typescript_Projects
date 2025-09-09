@@ -28,6 +28,7 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import formatDate from '../Convert/formatDate '
 import { useSelector } from 'react-redux'
 import { RootState } from '../store'
+import { useNotification } from '../Context/Notification';
 
 export interface Props {
   productId: string
@@ -67,6 +68,7 @@ const CommentsByProduct = ({ productId, totalRating, beforeTotalRatingRounded, l
   const [ratingFilter, setRatingFilter] = useState<number | null>(null);
   const navigate = useNavigate()
   const locaion = useLocation()
+  const { showNotification} = useNotification()
 
   const getCommentsByProduct = async () => {
     try {
@@ -127,15 +129,14 @@ const ratingOptions = [
       setLoading(true)
       if (!window.confirm('Are you sure you want to remove this comment?')) return;
       const res = await authApi.delete(endpoints.deleteComment(commentId))
-      if (res.status === 200) {
+      if (res.status === 204) {
         // console.log(res)
-        alert("Comment deleted successfully")
+        showNotification("Comment deleted successfully", "success")
         loadInfoDetailsOfProduct()
         getCommentsByProduct()
       }
       else {
-        console.error("Error deleting comment:", res.data.message)
-        alert("Failed to delete comment. Please try again.")
+        showNotification(res.data.message, "error")
       }
     } catch (error) {
       console.error("Error deleting comment:", error)

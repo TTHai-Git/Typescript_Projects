@@ -4,9 +4,11 @@ export const createShipment = async (req, res) => {
   try {
     // console.log(req.body);
     const shipment = await Shipment.create(req.body);
-    return res
-      .status(201)
-      .json({ message: "Shipment created successfully", shipment: shipment });
+    return res.status(201).json({
+      message:
+        "Thông tin giao hàng đã được tạo thành công! Tiến hành thanh toán.",
+      doc: shipment,
+    });
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
   }

@@ -140,6 +140,7 @@ export const addComment = async (req, res) => {
       createdAt: newComment.createdAt,
       updatedAt: newComment.updatedAt,
       urls: createdUrls,
+      message: "Create comment successfully",
     });
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -177,7 +178,7 @@ export const deleteComment = async (req, res) => {
       await CommentDetails.deleteMany({ comment: commentId });
     }
 
-    return res.status(200).json({ message: "Comment deleted successfully" });
+    return res.status(204).send();
   } catch (error) {
     console.error("Error deleting comment:", error);
     return res.status(500).json({ message: error.message });
@@ -217,6 +218,7 @@ export const updateComment = async (req, res) => {
       createdAt: comment.createdAt,
       updatedAt: comment.updatedAt,
       urls: createdUrls,
+      message: "Update comment successfully",
     });
   } catch (error) {
     return res.status(500).json({ message: error.message });

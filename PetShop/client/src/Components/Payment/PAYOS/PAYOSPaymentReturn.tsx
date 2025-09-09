@@ -16,6 +16,7 @@ import axios from 'axios'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '../../../store'
 import { login } from '../../../features/login/authSlice'
+import { useNotification } from '../../../Context/Notification'
 
 const PAYOSPaymentReturn = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -32,6 +33,7 @@ const PAYOSPaymentReturn = () => {
   const [error, setError] = useState<boolean>(false)
   const [errorMessage, setErrorMessage] = useState<string>('')
   const [countdown, setCountdown] = useState<number>(4)
+  const {showNotification} = useNotification()
 
   const createPayment = async () => {
   if (cancel === "true") {
@@ -49,20 +51,32 @@ const PAYOSPaymentReturn = () => {
       const extraData = res.data.transactions[0]
 
       if (res.status === 200) {
-        await authApi.post(endpoints.createPaymentForOrder, {
+        const res = await authApi.post(endpoints.createPaymentForOrder, {
           method: "PAYOS",
           provider: "PAYOS",
           order: orderId,
           status: "FAILED",
           extraData: extraData,
         })
+        if (res.status === 201) {
+          showNotification(res.data.message, "success")
+        }
+        else {
+          showNotification("Payment Failed", "error")
+        }
 
-        await authApi.put(endpoints.updateStatusOfOrder(orderId), {
+        const res_1 = await authApi.put(endpoints.updateStatusOfOrder(orderId), {
           status: "Failed",
         })
 
-        setError(true)
-        setErrorMessage('Payment failed or invalid transaction.')
+        if (res_1.status === 200) {
+          showNotification(res_1.data.message, "success")
+        }
+        else {
+          showNotification("Updating order status failed", "error")
+          setError(true)
+          setErrorMessage('Payment failed or invalid transaction.')
+        } 
       }
     } catch (error: any) {
       setError(true)
@@ -84,13 +98,19 @@ const PAYOSPaymentReturn = () => {
       const extraData = res.data.transactions[0]
 
       if (res.status === 200) {
-        await authApi.post(endpoints.createPaymentForOrder, {
+        const res = await authApi.post(endpoints.createPaymentForOrder, {
           method: "PAYOS",
           provider: "PAYOS",
           order: orderId,
           status: "PAID",
           extraData: extraData,
         })
+        if (res.status === 201) {
+          showNotification(res.data.message, "success")
+        }
+        else {
+          showNotification("Payment Failed", "error")
+        }
 
         await authApi.put(endpoints.updateStatusOfOrder(orderId), {
           status: "Confirmed",

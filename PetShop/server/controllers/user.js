@@ -22,7 +22,7 @@ export const updateInfor = async (req, res) => {
       "password",
       "createdAt",
       "updatedAt",
-      "isVerified"
+      "isVerified",
     ];
     forbiddenFields.forEach((field) => delete updates[field]);
 
@@ -50,7 +50,9 @@ export const updateInfor = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    return res.status(200).json(updatedUser);
+    return res
+      .status(200)
+      .json(updatedUser, { message: "User information updated successfully" });
   } catch (err) {
     console.error(err);
     return res

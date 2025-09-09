@@ -38,9 +38,7 @@ export const deleteCommentDetails = async (req, res) => {
         const deletedUrls = await deleteImageOnCloudinary(
           commentDetails.public_id
         );
-        return res
-          .status(204)
-          .json({ message: "Delete Comment Details Successfully" });
+        return res.status(204).send();
       }
     }
   } catch (error) {

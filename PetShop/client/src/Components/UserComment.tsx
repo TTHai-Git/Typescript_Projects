@@ -17,6 +17,8 @@ import APIs, { authApi, endpoints } from '../Config/APIs';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
+import { useNotification } from '../Context/Notification';
+
 
 export interface Props {
   userId: string;
@@ -26,6 +28,7 @@ export interface Props {
 
 const UserComment = (props: Props) => {
   const user = useSelector((state: RootState) => state.auth.user)
+  const { showNotification } = useNotification()
   const [comment, setComment] = useState({
     content: '',
     rating: 0,
@@ -107,12 +110,15 @@ const UserComment = (props: Props) => {
       });
 
       // console.log('Comment added successfully:', res.data);
-      setComment({ content: '', rating: 0, urls: [] });
-      alert('Comment added successfully!');
-      props.loadInfoDetailsOfProduct();
+      if(res.status === 201) {
+        setComment({ content: '', rating: 0, urls: [] });
+        showNotification(res.data.message, "success");
+        props.loadInfoDetailsOfProduct();
+      }
+      
     } catch (err) {
       console.error('Error adding comment:', err);
-      alert('Failed to add comment. Please try again.');
+      showNotification('Failed to add comment. Please try again.', "error");
     } finally {
       setLoading(false);
     }
