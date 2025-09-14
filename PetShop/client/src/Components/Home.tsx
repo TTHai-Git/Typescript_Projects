@@ -64,7 +64,7 @@ const Home = () => {
             gutterBottom
             sx={{ color: "#2c2c2c" }}
           >
-            {t("Welcome to Dog Shop 🐾")}
+            {t("Welcome To Dog Shop 🐾")}
           </Typography>
           <Typography
             variant="h6"
