@@ -58,12 +58,10 @@ function App() {
   return (
     <Provider store={store}>
       <Router>
+        <NotificationProvider>
         <CartProvider>
           <RecentlyViewedProductsProvider>
-            <NotificationProvider>
-              
-
-              
+            
           <NavBar />
           <div className='page-container'>
             <Breadcrumbs />
@@ -113,12 +111,11 @@ function App() {
             </Routes>
           </div>
           <Chatbot/>
-         
-          </NotificationProvider>
           <ListOfRecentlyViewedProducts/>
           <Footer/>
           </RecentlyViewedProductsProvider>
         </CartProvider>
+        </NotificationProvider>
       </Router>
     </Provider>
   );

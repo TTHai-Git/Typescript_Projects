@@ -29,6 +29,7 @@ import formatDate from '../Convert/formatDate '
 import { useSelector } from 'react-redux'
 import { RootState } from '../store'
 import { useNotification } from '../Context/Notification';
+import { useTranslation } from 'react-i18next';
 
 export interface Props {
   productId: string
@@ -69,6 +70,7 @@ const CommentsByProduct = ({ productId, totalRating, beforeTotalRatingRounded, l
   const navigate = useNavigate()
   const locaion = useLocation()
   const { showNotification} = useNotification()
+  const {t} = useTranslation()
 
   const getCommentsByProduct = async () => {
     try {
@@ -106,8 +108,8 @@ const CommentsByProduct = ({ productId, totalRating, beforeTotalRatingRounded, l
   };
 
   const sortOptions = [
-  { label: 'Latest', id: 'latest' },
-  { label: 'Oldest', id: 'oldest' },
+  { label: t('Latest'), id: 'latest' },
+  { label: t('Oldest'), id: 'oldest' },
 ]
 
 const ratingOptions = [
@@ -157,216 +159,220 @@ const ratingOptions = [
   }
 
   return (
-    <Box mt={2}>
-      <Typography variant="h4" gutterBottom>
-        Customer Reviews: {total ? `${total}` : '0'} Reviews
-      </Typography>
-      <Typography variant="h5" gutterBottom>
-        Average Rating:
-        <Chip
-          key={productId}
-          label={
-            <Stack direction="row" alignItems="center" spacing={0.5}>
-              <span>{beforeTotalRatingRounded}</span>
-              {Array.from({ length: 5 }).map((_, i) => {
-                const rating = totalRating ?? 0;
-                if (rating === 0) {
-                  return <StarBorderIcon key={i} sx={{ color: '#ccc', fontSize: 18 }} />;
-                } else if (i + 1 <= Math.floor(rating)) {
-                  return <StarIcon key={i} sx={{ color: '#fdd835', fontSize: 18 }} />;
-                } else if (i < rating) {
-                  return <StarHalfIcon key={i} sx={{ color: '#fdd835', fontSize: 18 }} />;
-                } else {
-                  return <StarBorderIcon key={i} sx={{ color: '#ccc', fontSize: 18 }} />;
-                }
-              })}
-            </Stack>
-          }
-        />
-      </Typography>  
-      
-    <Box
-  sx={{
-    display: 'flex',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: 2,
-    mb: 2,
-  }}
->
-  {/* Rating Filter Chips (left side) */}
-  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-    {ratingOptions.map((opt) => (
+  <Box mt={2}>
+    <Typography variant="h4" gutterBottom>
+      {t("Customer Reviews")}: {total ? `${total}` : '0'} {t("Reviews")}
+    </Typography>
+    <Typography variant="h5" gutterBottom>
+      {t("Average Rating")}:
       <Chip
-        key={opt.value}
+        key={productId}
         label={
           <Stack direction="row" alignItems="center" spacing={0.5}>
-            <span>{opt.label}</span>
-            {Array.from({ length: opt.value }, (_, i) => (
-              <StarIcon key={i} sx={{ color: '#fdd835', fontSize: 18 }} />
-            ))}
+            <span>{beforeTotalRatingRounded}</span>
+            {Array.from({ length: 5 }).map((_, i) => {
+              const rating = totalRating ?? 0;
+              if (rating === 0) {
+                return <StarBorderIcon key={i} sx={{ color: '#ccc', fontSize: 18 }} />;
+              } else if (i + 1 <= Math.floor(rating)) {
+                return <StarIcon key={i} sx={{ color: '#fdd835', fontSize: 18 }} />;
+              } else if (i < rating) {
+                return <StarHalfIcon key={i} sx={{ color: '#fdd835', fontSize: 18 }} />;
+              } else {
+                return <StarBorderIcon key={i} sx={{ color: '#ccc', fontSize: 18 }} />;
+              }
+            })}
           </Stack>
         }
-        variant="outlined"
-        color={ratingFilter === opt.value ? 'secondary' : 'default'}
-        onClick={() => {
-          const newRating = ratingFilter === opt.value ? null : opt.value;
-          setRatingFilter(newRating);
-          const newParams: any = { page: '1', sortBy };
-          if (newRating) newParams.rating = newRating.toString();
-          setSearchParams(newParams);
-        }}
-        clickable
-        sx={{
-          borderRadius: 2,
-          px: 1.5,
-        }}
       />
-    ))}
-    <Chip
-        key={null}
-        label={
-          <Stack direction="row" alignItems="center" spacing={0.5}>
-            <span>All</span>
-            
-          </Stack>
-        }
-        variant="outlined"
-        color={ratingFilter === null ? 'secondary' : 'default'}
-        onClick={() => {
-          const newRating = null;
-          setRatingFilter(newRating);
-          const newParams: any = { page: '1', sortBy };
-          if (newRating) newParams.rating = newRating;
-          setSearchParams(newParams);
-        }}
-        clickable
-        sx={{
-          borderRadius: 2,
-          px: 1.5,
-        }}
-      />
-  </Box>
+    </Typography>
 
-  {/* Sort Dropdown (right side) */}
-  <Autocomplete
-    disablePortal
-    options={sortOptions}
-    value={sortOptions.find((opt) => opt.id === sortBy) || null}
-    onChange={(event, newValue) => {
-      const selectedSort = newValue?.id || '';
-      setSortBy(selectedSort);
-      const params: any = { page: '1' };
-      if (ratingFilter) params.rating = ratingFilter.toString();
-      if (selectedSort) params.sortBy = selectedSort;
-      setSearchParams(params);
-    }}
-    renderInput={(params) => (
-      <TextField
-        {...params}
-        label="Sort by"
-        size="small"
-        InputProps={{
-          ...params.InputProps,
-          startAdornment: (
-            <InputAdornment position="start">
-              <SortIcon color="action" />
-            </InputAdornment>
-          ),
+    <Box
+      sx={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        gap: 2,
+        mb: 2,
+      }}
+    >
+      {/* Rating Filter Chips */}
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+        {ratingOptions.map((opt) => (
+          <Chip
+            key={opt.value}
+            label={
+              <Stack direction="row" alignItems="center" spacing={0.5}>
+                <span>{t(opt.label)}</span>
+                {Array.from({ length: opt.value }, (_, i) => (
+                  <StarIcon key={i} sx={{ color: '#fdd835', fontSize: 18 }} />
+                ))}
+              </Stack>
+            }
+            variant="outlined"
+            color={ratingFilter === opt.value ? 'secondary' : 'default'}
+            onClick={() => {
+              const newRating = ratingFilter === opt.value ? null : opt.value;
+              setRatingFilter(newRating);
+              const newParams: any = { page: '1', sortBy };
+              if (newRating) newParams.rating = newRating.toString();
+              setSearchParams(newParams);
+            }}
+            clickable
+            sx={{ borderRadius: 2, px: 1.5 }}
+          />
+        ))}
+        <Chip
+          key={null}
+          label={<span>{t("All")}</span>}
+          variant="outlined"
+          color={ratingFilter === null ? 'secondary' : 'default'}
+          onClick={() => {
+            const newRating = null;
+            setRatingFilter(newRating);
+            const newParams: any = { page: '1', sortBy };
+            if (newRating) newParams.rating = newRating;
+            setSearchParams(newParams);
+          }}
+          clickable
+          sx={{ borderRadius: 2, px: 1.5 }}
+        />
+      </Box>
+
+      {/* Sort Dropdown */}
+      <Autocomplete
+        disablePortal
+        options={sortOptions}
+        value={sortOptions.find((opt) => opt.id === sortBy) || null}
+        onChange={(event, newValue) => {
+          const selectedSort = newValue?.id || '';
+          setSortBy(selectedSort);
+          const params: any = { page: '1' };
+          if (ratingFilter) params.rating = ratingFilter.toString();
+          if (selectedSort) params.sortBy = selectedSort;
+          setSearchParams(params);
+        }}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            label={t("Sort by")}
+            size="small"
+            InputProps={{
+              ...params.InputProps,
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SortIcon color="action" />
+                </InputAdornment>
+              ),
+            }}
+          />
+        )}
+        sx={{
+          minWidth: 200,
+          bgcolor: 'white',
+          borderRadius: 2,
+          boxShadow: 1,
         }}
       />
-    )}
-    sx={{
-      minWidth: 200,
-      bgcolor: 'white',
-      borderRadius: 2,
-      boxShadow: 1,
-    }}
-  />
-</Box>
+    </Box>
 
-            
-      {error ? <>
-        <Alert severity="info" sx={{ mt: 2 }}>
-         {errorMessage}
-        </Alert>
-      </>: <>
-      {/* Comments List */}
-      <Grid container spacing={2}>
-        {comments.map((comment) => (
-          <Grid item xs={12} key={comment._id}>
-            <Card sx={{ backgroundColor: '#fefefe', borderRadius: 3, boxShadow: 4 }}>
-              <CardHeader
-                avatar={<Avatar src={comment.user.avatar} alt={comment.user.name} />}
-                title={comment.user.name}
-                subheader={formatDate(comment.createdAt)}
-              />
-              <CardContent>
-                <Rating value={comment.rating} precision={0.5} readOnly />
-                <Typography variant="body1" sx={{ mt: 1 }}>
-                  {comment.content}
-                </Typography>
-                {comment.urls?.length > 0 && (
+    {error ? (
+      <Alert severity="info" sx={{ mt: 2 }}>
+        {errorMessage}
+      </Alert>
+    ) : (
+      <>
+        {/* Comments List */}
+        <Grid container spacing={2}>
+          {comments.map((comment) => (
+            <Grid item xs={12} key={comment._id}>
+              <Card sx={{ backgroundColor: '#fefefe', borderRadius: 3, boxShadow: 4 }}>
+                <CardHeader
+                  avatar={<Avatar src={comment.user.avatar} alt={comment.user.name} />}
+                  title={comment.user.name}
+                  subheader={formatDate(comment.createdAt)}
+                />
+                <CardContent>
+                  <Rating value={comment.rating} precision={0.5} readOnly />
+                  <Typography variant="body1" sx={{ mt: 1 }}>
+                    {comment.content}
+                  </Typography>
+                  {comment.urls?.length > 0 && (
                     <ImageList
-                    cols={comment.urls.length < 3 ? comment.urls.length : 3}
-                    gap={4} // reduced from 8
-                    sx={{
+                      cols={comment.urls.length < 3 ? comment.urls.length : 3}
+                      gap={4}
+                      sx={{
                         mt: 1,
                         justifyContent: 'flex-start',
                         display: 'flex',
                         flexDirection: 'row',
                         flexWrap: 'wrap',
-                    }}
+                      }}
                     >
-                    {comment.urls.map((url, idx) => (
+                      {comment.urls.map((url, idx) => (
                         <ImageListItem key={idx} sx={{ mr: 1 }}>
-                        <img
+                          <img
                             src={url}
                             alt={`comment-img-${idx}`}
                             loading="lazy"
-                            style={{
-                            borderRadius: 8,
-                            objectFit: 'cover',
-                            width: '100px',
-                            height: '100px',
-                            }}
-                        />
+                            style={{ borderRadius: 8, objectFit: 'cover', width: '100px', height: '100px' }}
+                          />
                         </ImageListItem>
-                    ))}
+                      ))}
                     </ImageList>
+                  )}
+                </CardContent>
+                {user && user._id === comment.user._id && (
+                  <Stack direction="row" spacing={2} justifyContent="flex-end" mb={2}>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      onClick={() => handleDeleteComment(comment._id)}
+                    >
+                      {t("Delete")}
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="info"
+                      onClick={() =>
+                        navigate(`/comments/${comment._id}/updateCommentForm`, {
+                          state: { from: locaion.pathname + locaion.search },
+                        })
+                      }
+                    >
+                      {t("Update")}
+                    </Button>
+                  </Stack>
+                )}
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
 
-                    )}
+        {/* Pagination */}
+        <Stack direction="row" spacing={2} justifyContent="center" mt={4}>
+          <Button onClick={() => changePage(1)} disabled={currentPage === 1}>
+            {t("First")}
+          </Button>
+          <Button onClick={() => changePage(currentPage - 1)} disabled={currentPage === 1}>
+            {t("Previous")}
+          </Button>
+          <Typography variant="body1">
+            {t("Page")} {currentPage} {t("of")} {pages}
+          </Typography>
+          <Button onClick={() => changePage(currentPage + 1)} disabled={currentPage === pages}>
+            {t("Next")}
+          </Button>
+          <Button onClick={() => changePage(pages)} disabled={currentPage === pages}>
+            {t("Last")}
+          </Button>
+        </Stack>
+      </>
+    )}
+  </Box>
+);
 
-              </CardContent>
-              {user && user._id === comment.user._id && (
-                <Stack direction="row" spacing={2} justifyContent="flex-end" mb={2}>
-                  <Button variant="outlined" color="error" onClick={() => handleDeleteComment(comment._id)}>
-                    Delete
-                  </Button>
-                  <Button variant="outlined" color="info" onClick={() => navigate(`/comments/${comment._id}/updateCommentForm`,{ state: {
-                    from: locaion.pathname + locaion.search,
-                  } })}>
-                    Update
-                  </Button>
-                </Stack>
-              )}
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-      {/* Pagination */}
-      <Stack direction="row" spacing={2} justifyContent="center" mt={4}>
-        <Button onClick={() => changePage(1)} disabled={currentPage === 1}>First</Button>
-        <Button onClick={() => changePage(currentPage - 1)} disabled={currentPage === 1}>Previous</Button>
-        <Typography variant="body1">Page {currentPage} of {pages}</Typography>
-        <Button onClick={() => changePage(currentPage + 1)} disabled={currentPage === pages}>Next</Button>
-        <Button onClick={() => changePage(pages)} disabled={currentPage === pages}>Last</Button>
-      </Stack>
-      </> }
-      
-    </Box>
-  )
 }
 
 export default CommentsByProduct

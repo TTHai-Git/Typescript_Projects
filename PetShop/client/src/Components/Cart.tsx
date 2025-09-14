@@ -20,6 +20,7 @@ import {  useState } from 'react';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import { authApi, endpoints } from '../Config/APIs';
 import { useNotification } from '../Context/Notification';
+import { useTranslation } from 'react-i18next';
 
 
 const Cart = () => {
@@ -28,6 +29,7 @@ const Cart = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { t } = useTranslation()
   
 
   const handleMakeOrder = async () => {
@@ -70,7 +72,7 @@ const Cart = () => {
   return (
     <Box p={4}>
       <Typography variant="h4" gutterBottom>
-        🛒 Your Cart
+        {t("🛒 Your Cart")}
       </Typography>
 
       {loading && (
@@ -80,7 +82,7 @@ const Cart = () => {
       )}
 
       {cartItems.length === 0 ? (
-        <Typography variant="h6" color="textSecondary">Your cart is empty.</Typography>
+        <Typography variant="h6" color="textSecondary">{t("Your cart is empty.")}</Typography>
       ) : (
         <Grid container spacing={3}>
           <Grid item xs={12} md={8}>
@@ -95,21 +97,23 @@ const Cart = () => {
                 <CardContent sx={{ flex: 1 }}>
                   <Typography variant="h6">{item.name}</Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {item.category.name} | {item.brand.name} | {item.vendor.name}
+                    {t("Category")}: {t(item.category?.name)} | {t("Brand")}: {item.brand.name} | {t("Vendor")}: {item.vendor.name}
                   </Typography>
                   <Typography variant="body2" sx={{ my: 1 }}>
-                    {item.note?.split(' - ').map((line, i) => <div key={i}>{line}</div>)}
+                    {item.note?.split(" - ").map((line, i) => (
+                      <div key={i}>{line}</div>
+                    ))}
                   </Typography>
-                  <Typography variant="subtitle1">Price: {item.price.toLocaleString()} VND</Typography>
-                  <Typography variant="subtitle2">Stock: {item.stock} items</Typography>
+                  <Typography variant="subtitle1">{t("Price")}: {item.price.toLocaleString()} VND</Typography>
+                  <Typography variant="subtitle2">{t("Stock")}: {item.stock} {t("items")}</Typography>
                   <Box display="flex" alignItems="center" mt={1}>
-                    <Tooltip title="Decrease">
+                    <Tooltip title={t("Decrease")}>
                       <IconButton onClick={() => decreaseQuantity(item._id)} color="warning">
                         <Remove />
                       </IconButton>
                     </Tooltip>
                     <Typography mx={1}>{item.quantity}</Typography>
-                    <Tooltip title="Increase">
+                    <Tooltip title={t("Increase")}>
                       <IconButton onClick={() => increaseQuantity(item._id, item.stock)} color="primary">
                         <Add />
                       </IconButton>
@@ -128,9 +132,9 @@ const Cart = () => {
           {/* Checkout Summary */}
           <Grid item xs={12} md={4}>
             <Card elevation={3} sx={{ p: 3 }}>
-              <Typography variant="h6">Order Summary</Typography>
+              <Typography variant="h6">{t("Order Summary")}</Typography>
               <Divider sx={{ my: 1 }} />
-              <Typography variant="subtitle1">Temp Total: {caculateTotalOfCart().toLocaleString()} VND</Typography>
+              <Typography variant="subtitle1">{t("Temp Total")}: {caculateTotalOfCart().toLocaleString()} VND</Typography>
 
               {user?.isAuthenticated ? (
                 <>
@@ -142,13 +146,13 @@ const Cart = () => {
                     sx={{ mt: 2 }}
                     onClick={() => handleMakeOrder()}
                   >
-                    Make Order
+                    {t("Make Order")}
                   </Button>
                   
                 </>
               ) : (
                 <Box mt={2}>
-                  <Typography variant="body2" color="text.secondary">Please login to proceed make order.</Typography>
+                  <Typography variant="body2" color="text.secondary">{t("Please login to proceed make order.")}</Typography>
                   <Button
                     fullWidth
                     variant="outlined"
@@ -156,7 +160,7 @@ const Cart = () => {
                     sx={{ mt: 1 }}
                     onClick={() => navigate('/login', { state: "/cart" })}
                   >
-                    Login To Make Shipment Info
+                    {t("Login To Make Shipment Info")}
                   </Button>
                 </Box>
               )}

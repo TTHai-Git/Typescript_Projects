@@ -9,31 +9,43 @@ import {
   CardContent,
   Container,
 } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 const Home = () => {
+  console.log(`${process.env.PUBLIC_URL}`)
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // Mock data for categories/features
   const categories = [
+    
     {
-      title: "Adopt a Dog",
-      description: "Find your perfect furry companion from our certified breeders.",
+      title: t(`Adopt a Dog`),
+      description: t("Find your perfect furry companion from our certified breeders."),
       image: `${process.env.PUBLIC_URL}/images/DogsShop.jpg`,
-      link: "/products?page=1&category=dogs",
+      link: "/products?category=67f8b16808c00df1c417a843&page=1",
     },
     {
-      title: "Dog Food & Treats",
-      description: "Premium nutrition and delicious snacks for your best friend.",
+      title: t("Dog Food & Treats"),
+      description: t("Premium nutrition and delicious snacks for your best friend."),
       image: `${process.env.PUBLIC_URL}/images/DogsShop_2.jpg`,
-      link: "/products?page=1&category=food",
+      link: "/products?category=67efb30aacc6552c10d1b3da&page=1",
     },
     {
-      title: "Accessories & Toys",
-      description: "Everything from collars to fun toys to keep your dog happy.",
+      title: t("Clothes"),
+      description: t("Everything from collars to nice clothes to keep your dog beautifu."),
+      image: `https://res.cloudinary.com/${process.env.REACT_APP_CLOUD_NAME}${process.env.REACT_APP_DIR_CLOUD}v1757479958/${process.env.REACT_APP_FOLDER_CLOUD}/houndsome-homepage-banner-knits_9480144e-e48a-4b93-b69f-6811bb618103_x8ck3k.webp`,
+      link: "/products?category=67efb5e3821737f5b78eec89&page=1",
+    },
+    {
+      title: t("Accessories & Toys"),
+      description: t("Everything from collars to fun toys to keep your dog happy."),
       image: `${process.env.PUBLIC_URL}/images/DogsShop_3.jpg`,
-      link: "/products?page=1&category=accessories",
+      link: "/products?category=67f0ccd1c0610fa866ee7289&page=1",
     },
   ];
+
+  
 
   return (
     <Box>
@@ -52,7 +64,7 @@ const Home = () => {
             gutterBottom
             sx={{ color: "#2c2c2c" }}
           >
-            Welcome to Dog Shop 🐾
+            {t("Welcome to Dog Shop 🐾")}
           </Typography>
           <Typography
             variant="h6"
@@ -60,7 +72,7 @@ const Home = () => {
             paragraph
             sx={{ mb: 4 }}
           >
-            Adopt, care, and shop for everything your furry best friend needs.
+            {t("Adopt, care, and shop for everything your furry best friend needs.")}
           </Typography>
           <Button
             variant="contained"
@@ -75,7 +87,7 @@ const Home = () => {
               "&:hover": { bgcolor: "#c5672d" },
             }}
           >
-            Shop Now
+            {t("Shop Now")}
           </Button>
         </Container>
       </Box>
@@ -88,7 +100,7 @@ const Home = () => {
           gutterBottom
           textAlign="center"
         >
-          Explore Our Categories
+          {t("Explore Our Categories")}
         </Typography>
         <Typography
           variant="body1"
@@ -96,8 +108,7 @@ const Home = () => {
           textAlign="center"
           mb={6}
         >
-          Whether you’re adopting or shopping for essentials, we’ve got you
-          covered.
+          {t("Whether you’re adopting or shopping for essentials, we’ve got you covered.")}
         </Typography>
         <Grid container spacing={4}>
           {categories.map((cat, index) => (
@@ -139,7 +150,7 @@ const Home = () => {
           <Grid container spacing={6} alignItems="center">
             <Grid item xs={12} md={6}>
               <img
-                src={`${process.env.PUBLIC_URL}/images/DogsShop_highlight.jpg`}
+                src={`https://res.cloudinary.com/${process.env.REACT_APP_CLOUD_NAME}${process.env.REACT_APP_DIR_CLOUD}v1757480544/${process.env.REACT_APP_FOLDER_CLOUD}/istockphoto-1283863174-612x612_kd51xo.jpg`}
                 alt="Happy Dog"
                 style={{
                   width: "100%",
@@ -150,16 +161,16 @@ const Home = () => {
             </Grid>
             <Grid item xs={12} md={6}>
               <Typography variant="h4" fontWeight="bold" gutterBottom>
-                Why Choose Dog Shop?
+                {t("Why Choose Dog Shop?")}
               </Typography>
               <Typography variant="body1" color="text.secondary" paragraph>
-                ✅ Certified Breeders & Healthy Dogs
+                {t("✅ Certified Breeders & Healthy Dogs")}
               </Typography>
               <Typography variant="body1" color="text.secondary" paragraph>
-                ✅ Premium Products & Nutrition
+                {t("✅ Premium Products & Nutrition")}
               </Typography>
               <Typography variant="body1" color="text.secondary" paragraph>
-                ✅ Expert Guidance & 24/7 Support
+                {t("✅ Expert Guidance & 24/7 Support")}
               </Typography>
               <Button
                 variant="contained"
@@ -173,7 +184,7 @@ const Home = () => {
                   "&:hover": { bgcolor: "#c5672d" },
                 }}
               >
-                Discover More
+                {t("Discover More")}
               </Button>
             </Grid>
           </Grid>
@@ -183,15 +194,14 @@ const Home = () => {
       {/* Call to Action */}
       <Box sx={{ py: 10, bgcolor: "#ffefe1", textAlign: "center" }}>
         <Typography variant="h4" fontWeight="bold" gutterBottom>
-          Ready to Meet Your New Best Friend?
+          {t("Ready to Meet Your New Best Friend?")}
         </Typography>
         <Typography
           variant="body1"
           color="text.secondary"
           sx={{ maxWidth: "600px", mx: "auto", mb: 4 }}
         >
-          Browse our wide selection of adorable dogs, premium food, and fun
-          accessories to make your pup’s life amazing.
+          {t("Browse our wide selection of adorable dogs, premium food, and fun accessories to make your pup’s life amazing.")}
         </Typography>
         <Button
           variant="contained"
@@ -206,7 +216,7 @@ const Home = () => {
             "&:hover": { bgcolor: "#c5672d" },
           }}
         >
-          View Products
+          {t("View Products")}
         </Button>
       </Box>
     </Box>

@@ -32,7 +32,7 @@ import OrdersStats from "./stats/OrdersStats";
 import { CalcGrowthRevenueStats } from "./stats/CalcGrowthRevenueStats";
 import { CalcGrowthOrdersStats } from "./stats/CalcGrowthOrdersStats";
 import MostPopularProducts, { MostPopularProduct } from "./stats/MostPopularProducts";
-
+import { useTranslation } from "react-i18next";
 
 export interface RevenueData {
   index: number;
@@ -48,30 +48,31 @@ export interface RevenueResponse {
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [stats, setStats] = useState<RevenueResponse>();
   const [statsBestSellingProducts, setStatsBestSellingProducts] = useState<BestSellingProduct[]>([])
   const [statsMostPopularProducts, setStatsMostPopularProducts] = useState<MostPopularProduct[]>([])
   const [loading, setLoading] = useState(true);
 
   const dashboardItems = [
-    { label: "Manage Brands", icon: <LocalOfferIcon fontSize="large" color="primary" />, path: "brands" },
-    { label: "Manage Breeds", icon: <PetsIcon fontSize="large" color="primary" />, path: "breeds" },
-    { label: "Manage Categories", icon: <CategoryIcon fontSize="large" color="primary" />, path: "categories" },
-    { label: "Manage Comments", icon: <ChatBubbleOutlineIcon fontSize="large" color="primary" />, path: "comments" },
-    { label: "Manage Comments Details", icon: <CommentIcon fontSize="large" color="primary" />, path: "commentDetails" },
-    { label: "Manage Favorites", icon: <FavoriteBorderIcon fontSize="large" color="primary" />, path: "favorites" },
-    { label: "Manage Orders", icon: <ShoppingCartIcon fontSize="large" color="primary" />, path: "orders" },
-    { label: "Manage Order Details", icon: <ReceiptLongIcon fontSize="large" color="primary" />, path: "orderDetails" },
-    { label: "Manage Payments", icon: <PaymentIcon fontSize="large" color="primary" />, path: "payments" },
-    { label: "Manage Products", icon: <Inventory2Icon fontSize="large" color="primary" />, path: "products" },
-    { label: "Manage Roles", icon: <AdminPanelSettingsIcon fontSize="large" color="primary" />, path: "roles" },
-    { label: "Manage Shipments", icon: <LocalShippingIcon fontSize="large" color="primary" />, path: "shipments" },
-    { label: "Manage Users", icon: <PeopleIcon fontSize="large" color="primary" />, path: "users" },
-    { label: "Manage Vendors", icon: <StorefrontIcon fontSize="large" color="primary" />, path: "vendors" },
-    { label: "Manage Vouchers", icon: <CardGiftcardIcon fontSize="large" color="primary" />, path: "vouchers" },
+    { label: t("Manage Brands"), icon: <LocalOfferIcon fontSize="large" color="primary" />, path: "brands" },
+    { label: t("Manage Breeds"), icon: <PetsIcon fontSize="large" color="primary" />, path: "breeds" },
+    { label: t("Manage Categories"), icon: <CategoryIcon fontSize="large" color="primary" />, path: "categories" },
+    { label: t("Manage Comments"), icon: <ChatBubbleOutlineIcon fontSize="large" color="primary" />, path: "comments" },
+    { label: t("Manage Comments Details"), icon: <CommentIcon fontSize="large" color="primary" />, path: "commentDetails" },
+    { label: t("Manage Favorites"), icon: <FavoriteBorderIcon fontSize="large" color="primary" />, path: "favorites" },
+    { label: t("Manage Orders"), icon: <ShoppingCartIcon fontSize="large" color="primary" />, path: "orders" },
+    { label: t("Manage Order Details"), icon: <ReceiptLongIcon fontSize="large" color="primary" />, path: "orderDetails" },
+    { label: t("Manage Payments"), icon: <PaymentIcon fontSize="large" color="primary" />, path: "payments" },
+    { label: t("Manage Products"), icon: <Inventory2Icon fontSize="large" color="primary" />, path: "products" },
+    { label: t("Manage Roles"), icon: <AdminPanelSettingsIcon fontSize="large" color="primary" />, path: "roles" },
+    { label: t("Manage Shipments"), icon: <LocalShippingIcon fontSize="large" color="primary" />, path: "shipments" },
+    { label: t("Manage Users"), icon: <PeopleIcon fontSize="large" color="primary" />, path: "users" },
+    { label: t("Manage Vendors"), icon: <StorefrontIcon fontSize="large" color="primary" />, path: "vendors" },
+    { label: t("Manage Vouchers"), icon: <CardGiftcardIcon fontSize="large" color="primary" />, path: "vouchers" },
   ];
 
-  // Fetch API stats
+  // Fetch stats
   useEffect(() => {
     const fetchStatsRevenueData = async () => {
       try {
@@ -88,7 +89,6 @@ const Dashboard = () => {
       try {
         const res = await APIs.get(adminEndpoints["stats-best-selling-products"]);
         setStatsBestSellingProducts(res.data as BestSellingProduct[]);
-
       } catch (error) {
         console.error("Failed to fetch stats:", error);
       } finally {
@@ -100,7 +100,6 @@ const Dashboard = () => {
       try {
         const res = await APIs.get(adminEndpoints["stats-most-popular-products"]);
         setStatsMostPopularProducts(res.data as MostPopularProduct[]);
-
       } catch (error) {
         console.error("Failed to fetch stats:", error);
       } finally {
@@ -108,24 +107,23 @@ const Dashboard = () => {
       }
     };
     fetchStatsRevenueData();
-    fetchStatsBestSellingOfProductsData()
-    fetchStatsMostPopularProductsData()
+    fetchStatsBestSellingOfProductsData();
+    fetchStatsMostPopularProductsData();
   }, []);
   
-
   return (
     <Box sx={{ p: 4 }}>
       <Typography variant="h1" gutterBottom fontWeight={777}>
-        Admin Dashboard
+        {t("Admin Dashboard")}
       </Typography>
       <Typography variant="h2" gutterBottom fontWeight={666} textAlign={"center"}>
-        Stats
+        {t("Stats")}
       </Typography>
-       <Typography variant="h5" fontWeight={555} gutterBottom>
-        📊Revenue And Order
+      <Typography variant="h5" fontWeight={555} gutterBottom>
+        📊 {t("Revenue And Order")}
       </Typography>
 
-      {/* Tổng quan nhanh */}
+      {/* Stats Cards */}
       <Grid container spacing={3} mt={2}>
         <Grid item xs={12} sm={6} md={3}>
           <CalcGrowthRevenueStats stats={stats} loading={loading}/>
@@ -135,22 +133,22 @@ const Dashboard = () => {
         </Grid>
       </Grid>
 
-      {/* Biểu đồ */}
+      {/* Charts */}
       <Grid container spacing={3} mt={4}>
         <Grid item xs={12} md={6}>
           <RevenueStats stats={stats} loading={loading} />
         </Grid>
-
         <Grid item xs={12} md={6}>
           <OrdersStats stats={stats} loading={loading}/>
         </Grid>
       </Grid>
+
       {statsBestSellingProducts && <BestSellingStats data={statsBestSellingProducts} />}
       {statsMostPopularProducts && <MostPopularProducts data={statsMostPopularProducts} />}
 
       {/* Navigation cards */}
       <Typography variant="h2" mt={5} mb={2} fontWeight={600} textAlign={"center"}>
-        Management
+        {t("Management")}
       </Typography>
       <Grid container spacing={3}>
         {dashboardItems.map((item, index) => (

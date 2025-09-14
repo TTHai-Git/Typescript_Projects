@@ -16,6 +16,7 @@ import axios from 'axios'
 import { authApi, endpoints } from '../Config/APIs'
 import { useLocation, useNavigate, useParams } from 'react-router'
 import { useNotification } from '../Context/Notification'
+import { useTranslation } from 'react-i18next'
 
 
 
@@ -44,6 +45,7 @@ const Shipment = () => {
   });
 
   const { showNotification } = useNotification()
+  const {t} = useTranslation()
   
   const handleMakeShipment = async () => {
     try {
@@ -219,141 +221,144 @@ const Shipment = () => {
   }, []);
 
   return (
-    <Box sx={{ maxWidth: 800, mx: 'auto', mt: 4, p: 3 }}>
-      <Paper elevation={3} sx={{ p: 4 }}>
-        <Typography variant="h5" gutterBottom fontWeight="bold">
-          Thông tin giao hàng
-        </Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Họ tên người nhận"
-              value={buyerName}
-              onChange={(e) => setBuyerName(e.target.value)}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Số điện thoại"
-              value={buyerPhone}
-              onChange={(e) => setBuyerPhone(e.target.value)}
-            />
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <FormControl fullWidth>
-              <InputLabel>Tỉnh/Thành phố</InputLabel>
-              <Select
-                name="city"
-                value={order.city_id || ''}
-                onChange={handleCityChange}
-                label="Tỉnh/Thành phố"
-              >
-                <MenuItem value="">Chọn tỉnh/thành</MenuItem>
-                {cities.map((city) => (
-                  <MenuItem key={city.province_id} value={city.province_id}>
-                    {city.province_name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-
-          <Grid item xs={12} sm={4}>
-            <FormControl fullWidth disabled={!order.city_id}>
-              <InputLabel>Quận/Huyện</InputLabel>
-              <Select
-                name="district"
-                value={order.district_id || ''}
-                onChange={handleDistrictChange}
-                label="Quận/Huyện"
-              >
-                <MenuItem value="">Chọn quận/huyện</MenuItem>
-                {districts.map((district) => (
-                  <MenuItem key={district.district_id} value={district.district_id}>
-                    {district.district_name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-
-          <Grid item xs={12} sm={4}>
-            <FormControl fullWidth disabled={!order.district_id}>
-              <InputLabel>Phường/Xã</InputLabel>
-              <Select
-                name="ward"
-                value={order.ward_id || ''}
-                onChange={handleWardChange}
-                label="Phường/Xã"
-              >
-                <MenuItem value="">Chọn phường/xã</MenuItem>
-                {wards.map((ward) => (
-                  <MenuItem key={ward.ward_id} value={ward.ward_id}>
-                    {ward.ward_name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Địa chỉ người nhận (Chỉ nhập số nhà (khoảng cách) tên đường)"
-              value={buyerAddress}
-              onChange={(e) => setBuyerAddress(e.target.value)}
-            />
-          </Grid>
-
-          <Grid item xs={12} sm={4}>
-            <FormControl fullWidth>
-              <InputLabel>Phương thức vận chuyển</InputLabel>
-              <Select
-                value={method}
-                label="Phương thức vận chuyển"
-                onChange={(e) => setMethod(e.target.value)}
-              >
-                <MenuItem value="At the store">At the store</MenuItem>
-                <MenuItem value="Delivery">Delivery</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-
-          <Grid item xs={12} sm={8}>
-            <Button
-              variant="outlined"
-              onClick={() => calculateDistance(buyerAddress)}
-              sx={{ height: '100%' }}
-            >
-              Tính khoảng cách
-            </Button>
-          </Grid>
-
-          <Grid item xs={12} sm={6}>
-            <Typography>Khoảng cách: {distance ? `${distance} km` : 'Chưa xác định'}</Typography>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Typography>Phí giao hàng: {fee > 0 ? `${fee.toLocaleString()} VND` : 'Chưa có'}</Typography>
-          </Grid>
-          <Grid item xs={12}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => handleMakeShipment()}
-              disabled={loading}
-              fullWidth
-              sx={{ mt: 2 }}
-            >
-              {loading ? <CircularProgress size={24} /> : 'Xác nhận thông tin giao hàng'}
-            </Button>
-          </Grid>
+  <Box sx={{ maxWidth: 800, mx: 'auto', mt: 4, p: 3 }}>
+    <Paper elevation={3} sx={{ p: 4 }}>
+      <Typography variant="h5" gutterBottom fontWeight="bold">
+        {t("Shipping Information")}
+      </Typography>
+      <Grid container spacing={2}>
+        <Grid item xs={12} sm={6}>
+          <TextField
+            fullWidth
+            label={t("Recipient Name")}
+            value={buyerName}
+            onChange={(e) => setBuyerName(e.target.value)}
+          />
         </Grid>
-        
-      </Paper>
-      
-    </Box>
-  )
+        <Grid item xs={12} sm={6}>
+          <TextField
+            fullWidth
+            label={t("Phone Number")}
+            value={buyerPhone}
+            onChange={(e) => setBuyerPhone(e.target.value)}
+          />
+        </Grid>
+        <Grid item xs={12} sm={4}>
+          <FormControl fullWidth>
+            <InputLabel>{t("City/Province")}</InputLabel>
+            <Select
+              name="city"
+              value={order.city_id || ''}
+              onChange={handleCityChange}
+              label={t("City/Province")}
+            >
+              <MenuItem value="">{t("Select City/Province")}</MenuItem>
+              {cities.map((city) => (
+                <MenuItem key={city.province_id} value={city.province_id}>
+                  {city.province_name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+
+        <Grid item xs={12} sm={4}>
+          <FormControl fullWidth disabled={!order.city_id}>
+            <InputLabel>{t("District")}</InputLabel>
+            <Select
+              name="district"
+              value={order.district_id || ''}
+              onChange={handleDistrictChange}
+              label={t("District")}
+            >
+              <MenuItem value="">{t("Select District")}</MenuItem>
+              {districts.map((district) => (
+                <MenuItem key={district.district_id} value={district.district_id}>
+                  {district.district_name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+
+        <Grid item xs={12} sm={4}>
+          <FormControl fullWidth disabled={!order.district_id}>
+            <InputLabel>{t("Ward/Commune")}</InputLabel>
+            <Select
+              name="ward"
+              value={order.ward_id || ''}
+              onChange={handleWardChange}
+              label={t("Ward/Commune")}
+            >
+              <MenuItem value="">{t("Select Ward/Commune")}</MenuItem>
+              {wards.map((ward) => (
+                <MenuItem key={ward.ward_id} value={ward.ward_id}>
+                  {ward.ward_name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label={t("Recipient Address (Only house number and street name)")}
+            value={buyerAddress}
+            onChange={(e) => setBuyerAddress(e.target.value)}
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={4}>
+          <FormControl fullWidth>
+            <InputLabel>{t("Shipping Method")}</InputLabel>
+            <Select
+              value={method}
+              label={t("Shipping Method")}
+              onChange={(e) => setMethod(e.target.value)}
+            >
+              <MenuItem value="At the store">{t("At the store")}</MenuItem>
+              <MenuItem value="Delivery">{t("Delivery")}</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
+
+        <Grid item xs={12} sm={8}>
+          <Button
+            variant="outlined"
+            onClick={() => calculateDistance(buyerAddress)}
+            sx={{ height: '100%' }}
+          >
+            {t("Calculate Distance")}
+          </Button>
+        </Grid>
+
+        <Grid item xs={12} sm={6}>
+          <Typography>
+            {t("Distance")}: {distance ? `${distance} km` : t("Not determined")}
+          </Typography>
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <Typography>
+            {t("Shipping Fee")}: {fee > 0 ? `${fee.toLocaleString()} VND` : t("Not available")}
+          </Typography>
+        </Grid>
+        <Grid item xs={12}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => handleMakeShipment()}
+            disabled={loading}
+            fullWidth
+            sx={{ mt: 2 }}
+          >
+            {loading ? <CircularProgress size={24} /> : t("Confirm Shipping Information")}
+          </Button>
+        </Grid>
+      </Grid>
+    </Paper>
+  </Box>
+);
+
 }
 export default Shipment

@@ -40,6 +40,7 @@ import { Category } from '../Interface/Category';
 import '../Assets/CSS/Pagination.css';
 import APIs, { endpoints } from '../Config/APIs';
 import { useRecentlyViewedProducts } from '../Context/RecentlyViewedProducts';
+import { useTranslation } from 'react-i18next';
 
 const Products = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -57,6 +58,7 @@ const Products = () => {
   const location = useLocation()
 
   const { addToRecentlyViewedProducts} = useRecentlyViewedProducts()
+  const {t} = useTranslation()
 
 
   const navigate = useNavigate();
@@ -115,10 +117,10 @@ const Products = () => {
   };
   
   const options = [
-    { label: 'Increasing By Price', id: 'price_asc' },
-    { label: 'Decrease By Price', id: 'price_desc' },
-    { label: 'Latest', id: 'latest' },
-    { label: 'Oldest', id: 'oldest' },
+    { label: t('Increasing By Price'), id: 'price_asc' },
+    { label: t('Decrease By Price'), id: 'price_desc' },
+    { label: t('Latest'), id: 'latest' },
+    { label: t('Oldest'), id: 'oldest' },
     { label: 'A-Z', id: 'az' },
     { label: 'Z-A', id: 'za' },
   ];
@@ -144,7 +146,7 @@ const Products = () => {
   return (
     <Box p={4}>
       <Typography variant="h4" mb={4} fontWeight="bold" color="primary">
-        Product List: {total} Products
+        {t("Product List")}: {total} {t("Products")}
       </Typography>
       
       
@@ -153,7 +155,7 @@ const Products = () => {
       <Box sx={{ mb: 4, display: 'flex', flexDirection: 'column', gap: 3 }}>
         {/* 🔍 Search Bar */}
         <TextField
-          label="Search"
+          label={t("Search")}
           variant="outlined"
           value={searchTerm}
           onChange={(e) => setSearchTerm((e.target as HTMLInputElement).value)}
@@ -189,7 +191,7 @@ const Products = () => {
           {/* 🏷 Category Chips */}
           <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
             <Chip
-              label="All"
+              label={t("All")}
               icon={<CategoryIcon />}
               onClick={() => setSearchParams({ page: '1' })}
               sx={{
@@ -205,7 +207,7 @@ const Products = () => {
             {categories.map((cat) => (
               <Chip
                 key={cat._id}
-                label={cat.name}
+                label={t(`${cat.name}`)}
                 icon={<CategoryIcon />}
                 onClick={() => setSearchParams({ category: cat._id, page: '1' })}
                 sx={{
@@ -239,7 +241,7 @@ const Products = () => {
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Sort By"
+                label={t("Sort By")}
                 InputProps={{
                   ...params.InputProps,
                   startAdornment: (
@@ -276,7 +278,7 @@ const Products = () => {
               top: '100px',
             }}
           >
-            <Typography variant="h6" color="secondary">Advertisement</Typography>
+            <Typography variant="h6" color="secondary">{t("Advertisement")}</Typography>
             {/* You can replace this with an image/banner */}
           </Box>
         </Grid>
@@ -317,10 +319,10 @@ const Products = () => {
                         <AttachMoneyIcon fontSize="small" /> {item.price.toLocaleString()} VND
                       </Typography>
                       <Typography variant="h6" gutterBottom>
-                        <Inventory sx={{ mr: 1 }} /> Inventory: {item.stock} items
+                        <Inventory sx={{ mr: 1 }} /> {t("Inventory")}: {item.stock} {t("items")}
                       </Typography>
                       <Typography variant="subtitle2" fontWeight="bold" color="primary">
-                        <AddShoppingCartIcon fontSize="small" /> {item.totalOrder} Orders
+                        <AddShoppingCartIcon fontSize="small" /> {item.totalOrder} {t("Orders")}
                       </Typography>
                       <Box>
                     <Chip
@@ -351,25 +353,25 @@ const Products = () => {
   
                   <CardContent>
                     <Stack spacing={1} mb={2}>
-                      <Chip icon={<CategoryIcon />} label={`Category: ${item.category?.name}`} />
-                      <Chip icon={<FactoryIcon />} label={`Brand: ${item.brand?.name}`} />
-                      <Chip icon={<LocalShippingIcon />} label={`Vendor: ${item.vendor?.name}`} />
+                      <Chip icon={<CategoryIcon />} label={`${t("Category")}: ${t(`${item.category.name}`)}`} />
+                      <Chip icon={<FactoryIcon />} label={`${t("Brand")}: ${item.brand?.name}`} />
+                      <Chip icon={<LocalShippingIcon />} label={`${t("Vendor")}: ${item.vendor?.name}`} />
                       <Chip
                         icon={item.status ? <CheckCircleOutlineIcon /> : <CancelOutlinedIcon />}
-                        label={item.status ? 'Active' : 'Inactive'}
+                        label={item.status ? t("Active") : t('Inactive')}
                         color={item.status ? 'success' : 'default'}
                       />
                     </Stack>
   
                     <Stack direction="row" spacing={1} justifyContent="center">
-                      <Tooltip title="View Details" arrow>
+                      <Tooltip title={t("View Details")} arrow>
                         <Button
                           variant="outlined"
                           color="info"
                           startIcon={<InfoIcon />}
                           onClick={() => handleAddToRecentLyViewedProducts(item)}
                         >
-                          Details
+                          {t("Details")}
                         </Button>
                       </Tooltip>
                     </Stack>
@@ -393,18 +395,18 @@ const Products = () => {
               top: '100px',
             }}
           >
-            <Typography variant="h6" color="secondary">Advertisement</Typography>
+            <Typography variant="h6" color="secondary">{t("Advertisement")}</Typography>
           </Box>
         </Grid>
       </Grid>
   
       {/* Pagination */}
       <Stack direction="row" spacing={2} justifyContent="center" mt={4}>
-        <Button onClick={() => changePage(1)} disabled={currentPage === 1}>First</Button>
-        <Button onClick={() => changePage(currentPage - 1)} disabled={currentPage === 1}>Previous</Button>
+        <Button onClick={() => changePage(1)} disabled={currentPage === 1}>{t("First")}</Button>
+        <Button onClick={() => changePage(currentPage - 1)} disabled={currentPage === 1}>{t("Previous")}</Button>
         <Typography variant="body1">Page {currentPage} of {pages}</Typography>
-        <Button onClick={() => changePage(currentPage + 1)} disabled={currentPage === pages}>Next</Button>
-        <Button onClick={() => changePage(pages)} disabled={currentPage === pages}>Last</Button>
+        <Button onClick={() => changePage(currentPage + 1)} disabled={currentPage === pages}>{t("Next")}</Button>
+        <Button onClick={() => changePage(pages)} disabled={currentPage === pages}>{t("Last")}</Button>
       </Stack>
       
     </Box>

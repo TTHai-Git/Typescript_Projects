@@ -35,6 +35,7 @@ import { useSearchParams } from 'react-router-dom';
 import { ArrowBack, SportsCricketOutlined } from '@mui/icons-material';
 import { Category } from '../Interface/Category';
 import { useNotification } from '../Context/Notification';
+import { useTranslation } from 'react-i18next';
 
 const FavoriteList = () => {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -51,6 +52,7 @@ const FavoriteList = () => {
   const navigate = useNavigate();
   const location = useLocation()
   const { showNotification} = useNotification()
+  const {t} = useTranslation()
   
 
   const getFavoriteProductsList = async () => {
@@ -120,10 +122,10 @@ const FavoriteList = () => {
   };
 
   const options = [
-    { label: 'Increasing By Price', id: 'price_asc' },
-    { label: 'Decrease By Price', id: 'price_desc' },
-    { label: 'Latest', id: 'latest' },
-    { label: 'Oldest', id: 'oldest' },
+    { label: t('Increasing By Price'), id: 'price_asc' },
+    { label: t('Decrease By Price'), id: 'price_desc' },
+    { label: t('Latest'), id: 'latest' },
+    { label: t('Oldest'), id: 'oldest' },
     { label: 'A-Z', id: 'az' },
     { label: 'Z-A', id: 'za' },
   ];
@@ -151,12 +153,12 @@ const FavoriteList = () => {
     
     <Box p={4}>
       <Typography variant="h4" mb={4} fontWeight="bold" color="primary">
-        Your Favorite Products
+        {t("Your Favorite Products")}
       </Typography>
       <Box sx={{ mb: 4, display: 'flex', flexDirection: 'column', gap: 3 }}>
         {/* 🔍 Search Bar */}
         <TextField
-          label="Search"
+          label={t("Search")}
           variant="outlined"
           value={searchTerm}
           onChange={(e) => setSearchTerm((e.target as HTMLInputElement).value)}
@@ -192,7 +194,7 @@ const FavoriteList = () => {
           {/* 🏷 Category Chips */}
           <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
             <Chip
-              label="All"
+             label={t("All")}
               icon={<CategoryIcon />}
               onClick={() => setSearchParams({ page: '1' })}
               sx={{
@@ -208,7 +210,7 @@ const FavoriteList = () => {
             {categories.map((cat) => (
               <Chip
                 key={cat._id}
-                label={cat.name}
+                label={t(`${cat.name}`)}
                 icon={<CategoryIcon />}
                 onClick={() => setSearchParams({ category: cat._id, page: '1' })}
                 sx={{
@@ -242,7 +244,7 @@ const FavoriteList = () => {
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Sort By"
+                label={t("Sort By")}
                 InputProps={{
                   ...params.InputProps,
                   startAdornment: (
@@ -277,7 +279,7 @@ const FavoriteList = () => {
               top: '100px',
             }}
           >
-            <Typography variant="h6" color="secondary">Advertisement</Typography>
+             <Typography variant="h6" color="secondary">{t("Advertisement")}</Typography>
           </Box>
         </Grid>
         {favoriteList ? <>
@@ -332,26 +334,27 @@ const FavoriteList = () => {
                         </Typography>
                       </Box>
   
-                      <Box display="flex" alignItems="center" gap={1}>
-                        <CategoryIcon sx={{ color: blue[600] }} />
-                        <Typography variant="body2" color="text.secondary">
-                          Category: {fav.product.category?.name}
-                        </Typography>
-                      </Box>
-  
-                      <Box display="flex" alignItems="center" gap={1}>
-                        <StoreIcon sx={{ color: blue[800] }} />
-                        <Typography variant="body2" color="text.secondary">
-                          Vendor: {fav.product.vendor?.name}
-                        </Typography>
-                      </Box>
-  
-                      <Box display="flex" alignItems="center" gap={1}>
-                        <BrandingWatermarkIcon sx={{ color: pink[600] }} />
-                        <Typography variant="body2" color="text.secondary">
-                          Brand: {fav.product.brand?.name}
-                        </Typography>
-                      </Box>
+                     <Box display="flex" alignItems="center" gap={1}>
+                      <CategoryIcon sx={{ color: blue[600] }} />
+                      <Typography variant="body2" color="text.secondary">
+                        {t("Category")}: {fav.product.category?.name}
+                      </Typography>
+                    </Box>
+
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <StoreIcon sx={{ color: blue[800] }} />
+                      <Typography variant="body2" color="text.secondary">
+                        {t("Vendor")}: {fav.product.vendor?.name}
+                      </Typography>
+                    </Box>
+
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <BrandingWatermarkIcon sx={{ color: pink[600] }} />
+                      <Typography variant="body2" color="text.secondary">
+                        {t("Brand")}: {fav.product.brand?.name}
+                      </Typography>
+                    </Box>
+
                     </Stack>
   
                     <Box display="flex" justifyContent="space-between" alignItems="center" mt={3}>
@@ -362,7 +365,7 @@ const FavoriteList = () => {
                           startIcon={<VisibilityIcon />}
                           onClick={() => viewProductDetails(fav.product._id, fav.product.type)}
                         >
-                          View
+                          {t("View")}
                         </Button>
                       </Tooltip>
   
@@ -405,18 +408,18 @@ const FavoriteList = () => {
               top: '100px',
             }}
           >
-            <Typography variant="h6" color="secondary">Advertisement</Typography>
+            <Typography variant="h6" color="secondary">{t("Advertisement")}</Typography>
           </Box>
         </Grid>
       </Grid>
   
       {/* Pagination */}
-      <Stack direction="row" spacing={2} justifyContent="center" mt={3}>
-        <Button onClick={() => changePage(1)} disabled={currentPage === 1}>First</Button>
-        <Button onClick={() => changePage(currentPage - 1)} disabled={currentPage === 1}>Previous</Button>
+      <Stack direction="row" spacing={2} justifyContent="center" mt={4}>
+        <Button onClick={() => changePage(1)} disabled={currentPage === 1}>{t("First")}</Button>
+        <Button onClick={() => changePage(currentPage - 1)} disabled={currentPage === 1}>{t("Previous")}</Button>
         <Typography variant="body1">Page {currentPage} of {pages}</Typography>
-        <Button onClick={() => changePage(currentPage + 1)} disabled={currentPage === pages}>Next</Button>
-        <Button onClick={() => changePage(pages)} disabled={currentPage === pages}>Last</Button>
+        <Button onClick={() => changePage(currentPage + 1)} disabled={currentPage === pages}>{t("Next")}</Button>
+        <Button onClick={() => changePage(pages)} disabled={currentPage === pages}>{t("Last")}</Button>
       </Stack>
     </Box>
   );

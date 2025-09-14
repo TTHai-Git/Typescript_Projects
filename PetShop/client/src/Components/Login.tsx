@@ -9,6 +9,7 @@ import { UserState } from '../Interface/Users';
 import { Alert } from '@mui/material';
 import APIs, { endpoints, fetchCsrfToken } from '../Config/APIs';
 import { useNotification } from '../Context/Notification';
+import { useTranslation } from 'react-i18next';
 
 const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -19,10 +20,12 @@ const Login: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { showNotification} = useNotification()
+  const { t } = useTranslation()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    
 
     try {
   
@@ -58,16 +61,16 @@ const Login: React.FC = () => {
     <div className="login-container">
       {loading && <div className="loading-spinner"></div>}
       <div className="login-box">
-        <h2>Welcome Back</h2>
-        <p className="login-subtitle">Please login to your account</p>
+        <h2>{t("Welcome Back")}</h2>
+        <p className="login-subtitle">{t("Please login to your account")}</p>
         
         <form onSubmit={handleLogin} className="login-form">
           <div className="form-group">
-            <label htmlFor="username">Username/Email/Phone</label>
+            <label htmlFor="username">{t("Username/Email/Phone")}</label>
             <input
               id="username"
               type="text"
-              placeholder="Enter your username"
+              placeholder={t("Enter your username")}
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
@@ -75,11 +78,11 @@ const Login: React.FC = () => {
           </div>
           
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">{t("Password")}</label>
             <input
-              id="password"
+              id={t("password")}
               type="password"
-              placeholder="Enter your password"
+              placeholder={t("Enter your password")}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -93,11 +96,11 @@ const Login: React.FC = () => {
               )}  
           </div>
           <div className="form-group">
-          <a className="forgotpassword-subtitle" href='/generate-otp' onClick={() => navigate("/generate-otp")}>Do you forgot password?</a>
+          <a className="forgotpassword-subtitle" href='/generate-otp' onClick={() => navigate("/generate-otp")}>{t("Do you forgot your password?")}</a>
           </div>
           <div className="form-group">
           <button type="submit" className="login-button">
-            Login
+            {t("Login")}
           </button>
           <div className="line">
             
@@ -106,7 +109,7 @@ const Login: React.FC = () => {
             className="register-button"
             onClick={() => navigate('/register', { state: { from: '/login' } })}
           >
-           Register
+           {t("Register")}
           </button>
           </div>
         </form>

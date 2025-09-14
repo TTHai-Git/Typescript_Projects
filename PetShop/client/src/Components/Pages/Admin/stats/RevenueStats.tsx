@@ -28,6 +28,7 @@ import {
   Legend,
 } from "recharts";
 import { RevenueResponse } from "../Dashboard";
+import { useTranslation } from "react-i18next";
 
 
 const COLORS = [
@@ -38,6 +39,7 @@ const COLORS = [
 
 const RevenueStats = ({ stats, loading }: { stats?: RevenueResponse; loading: boolean }) => {
   const [chartType, setChartType] = useState("bar");
+  const { t } = useTranslation();
 
   const renderChart = () => {
     if (!stats || !stats.data) return null;
@@ -108,19 +110,19 @@ const RevenueStats = ({ stats, loading }: { stats?: RevenueResponse; loading: bo
   return (
     <Card sx={{ p: 2, borderRadius: 3, boxShadow: 4 }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h6">Revenue by Month</Typography>
+        <Typography variant="h6">{t("Revenue by Month")}</Typography>
         <FormControl size="small">
-          <InputLabel>Chart Type</InputLabel>
+          <InputLabel>{t("Chart Type")}</InputLabel>
           <Select
             value={chartType}
             label="Chart Type"
             onChange={(e) => setChartType(e.target.value)}
             sx={{ minWidth: 120 }}
           >
-            <MenuItem value="bar">Bar</MenuItem>
-            <MenuItem value="line">Line</MenuItem>
-            <MenuItem value="area">Area</MenuItem>
-            <MenuItem value="pie">Pie</MenuItem>
+            <MenuItem value="bar">{t("Bar")}</MenuItem>
+            <MenuItem value="line">{t("Line")}</MenuItem>
+            <MenuItem value="area">{t("Area")}</MenuItem>
+            <MenuItem value="pie">{t("Pie")}</MenuItem>
           </Select>
         </FormControl>
       </Box>

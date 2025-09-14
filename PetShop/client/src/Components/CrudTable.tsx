@@ -16,6 +16,9 @@ import { useSearchParams } from "react-router-dom";
 import { set } from "date-fns";
 import formatDate from "../Convert/formatDate ";
 import { useNotification } from "../Context/Notification";
+import { useTranslation } from "react-i18next";
+
+
 
 interface CrudTableProps {
   model: string;
@@ -34,7 +37,14 @@ interface RecordData {
 }
 
 
-const nestedFieldConfig: {
+
+
+
+
+const CrudTable = ({ model, fields, createFields, updateFields, searchableFields = [], sortableFields = [], }: CrudTableProps) => {
+  const {t} = useTranslation()
+
+  const nestedFieldConfig: {
   [model: string]: {
     [field: string]: string; // field = "category", value = "name" (nested key)
   };
@@ -76,18 +86,16 @@ const nestedFieldConfig: {
   // add more models as needed
 };
 
-const productTypes = ["food", "clothes", "dog", "accessory"];
+const productTypes = [t("food"), t("clothes"), t("dog"), t("accessory")];
 
 const childModelFields: Record<string, string[]> = {
-  food: ["ingredients", "expirationDate", "recommendedFor"],
-  clothes: ["size", "material", "color", "season"],
-  accessory: ["dimensions", "material", "usage"],
-  dog: ["size", "age", "color", "weight", "height", "breed"],
+  food: [t("ingredients"), t("expirationDate"), t("recommendedFor")],
+  clothes: [t("size"), t("material"), t("color"), t("season")],
+  accessory: [t("dimensions"), t("material"), t("usage")],
+  dog: [t("size"), t("age"), t("color"), t("weight"), t("height"), t("breed")],
 };
 
 
-
-const CrudTable = ({ model, fields, createFields, updateFields, searchableFields = [], sortableFields = [], }: CrudTableProps) => {
   const [rows, setRows] = useState<RecordData[]>([]);
   const [editing, setEditing] = useState<RecordData | null>(null);
   const isEditing = Boolean(editing);
@@ -313,11 +321,11 @@ const CrudTable = ({ model, fields, createFields, updateFields, searchableFields
   return (
     <>
       <Button variant="contained" color="primary" onClick={() => openDialog()}>
-        Create New {model}
+        {t("Create New")} {model}
       </Button>
       <Stack direction="row" spacing={2} alignItems="center" mt={2}>
           <TextField
-            label="Search"
+            label={t("Search")}
             variant="outlined"
             value={searchTerm}
             onChange={(e) => {
@@ -333,10 +341,10 @@ const CrudTable = ({ model, fields, createFields, updateFields, searchableFields
           />
 
             <FormControl style={{ minWidth: 140 }}>
-              <InputLabel>Search Type</InputLabel>
+              <InputLabel>{t("Search Type")}</InputLabel>
               <Select
                 value={searchType}
-                label="Search Type"
+                label={t("Search Type")}
                 onChange={(e) => {
                   const val = e.target.value;
                   setSearchType(val);
@@ -348,24 +356,24 @@ const CrudTable = ({ model, fields, createFields, updateFields, searchableFields
                   });
                 }}
               >
-                <MenuItem value="contains">Contains</MenuItem>
-                <MenuItem value="exact">Exact</MenuItem>
-                <MenuItem value="startsWith">Starts With</MenuItem>
-                <MenuItem value="endsWith">Ends With</MenuItem>
+                <MenuItem value="contains">{t("Contains")}</MenuItem>
+                <MenuItem value="exact">{t("Exact")}</MenuItem>
+                <MenuItem value="startsWith">{t("Starts With")}</MenuItem>
+                <MenuItem value="endsWith">{t("Ends With")}</MenuItem>
               </Select>
             </FormControl>
 
             <FormControl style={{ minWidth: 140 }}>
-              <InputLabel id="search-field-label">Search by</InputLabel>
+              <InputLabel id="search-field-label">{t("Search by")}</InputLabel>
               <Select
                 labelId="search-field-label"
                 value={searchField}
                 onChange={(e) => setSearchField(e.target.value)}
-                label="Search by"
+                label={t("Search by")}
               >
                 {searchableFields.map((field) => (
                   <MenuItem value={field} key={field}>
-                    {field}
+                    {t(`${field}`)}
                   </MenuItem>
                 ))}
                 
@@ -375,10 +383,10 @@ const CrudTable = ({ model, fields, createFields, updateFields, searchableFields
 
 
             <FormControl>
-              <InputLabel>Sort By</InputLabel>
+              <InputLabel>{t("Sort By")}</InputLabel>
               <Select
                 value={sortBy}
-                label="Sort By"
+                label={t("Sort By")}
                 onChange={(e) => {
                   const f = e.target.value;
                   if (sortableFields.includes(f)) {
@@ -396,7 +404,7 @@ const CrudTable = ({ model, fields, createFields, updateFields, searchableFields
               >
                 {sortableFields.map((f) => (
                   <MenuItem value={f} key={f}>
-                    {f}
+                    {t(`${f}`)}
                   </MenuItem>
                 ))}
               </Select>
@@ -419,10 +427,10 @@ const CrudTable = ({ model, fields, createFields, updateFields, searchableFields
               {sortOrder === "asc" ? <ArrowUpward /> : <ArrowDownward />}
             </IconButton>
              <Button variant="contained" color="info" onClick={() => handleClearFilters(setSearchParams)}>
-                Clear Filters
+                {t("Clear Filters")}
               </Button>
               <Button variant="contained" color="success" onClick={() => handleApplyFilters(setSearchParams)}>
-                Apply Filters
+                {t("Apply Filters")}
               </Button>
           </Stack>
 
@@ -456,7 +464,7 @@ const CrudTable = ({ model, fields, createFields, updateFields, searchableFields
                       }}
                     >
                       <Stack direction="row" alignItems="center" spacing={0.5}>
-                        <span>{field}</span>
+                        <span>{t(`${field}`)}</span>
                         {sortableFields.includes(field) && (
                           sortBy === field ? (
                             sortOrder === "asc" ? "🔼" : "🔽"
@@ -467,7 +475,7 @@ const CrudTable = ({ model, fields, createFields, updateFields, searchableFields
                       </Stack>
                     </TableCell>
                   ))}
-                  <TableCell sx={{ fontWeight: "bold", whiteSpace: "nowrap" }}>Actions</TableCell>
+                  <TableCell sx={{ fontWeight: "bold", whiteSpace: "nowrap" }}>{t("Actions")}</TableCell>
                 </TableRow>
               </TableHead>
 
@@ -500,19 +508,19 @@ const CrudTable = ({ model, fields, createFields, updateFields, searchableFields
                               />
                             ) : (
                               <Typography variant="body2" color="textSecondary">
-                                No Image
+                                {t("No Image")}
                               </Typography>
                             )
                           ) : ["status", "isVerified", "isFavorite"].includes(field) ? (
                             <Typography variant="body2" color={value ? "success.main" : "error.main"}>
-                              {value ? "Active" : "Inactive"}
+                              {value ? t("Active") : t("Inactive")}
                             </Typography>
                           ) : ["createdAt", "updatedAt"].includes(field) ? (
                             <Typography variant="body2">
                               {value ? formatDate(value) : "—"}
                             </Typography>
                           ) : (
-                            <Typography variant="body2">{value}</Typography>
+                            <Typography variant="body2">{t(`${value}`)}</Typography>
                           )}
                         </TableCell>
                       );
@@ -533,17 +541,14 @@ const CrudTable = ({ model, fields, createFields, updateFields, searchableFields
               </TableBody>
             </Table>
 </TableContainer>
-
-        
-        
       )}
       {/* Pagination */}
       <Stack direction="row" spacing={2} justifyContent="center" mt={4}>
-        <Button onClick={() => changePage(1)} disabled={currentPage === 1}>First</Button>
-        <Button onClick={() => changePage(currentPage - 1)} disabled={currentPage === 1}>Previous</Button>
-        <Typography variant="body1">Page {currentPage} of {pages}</Typography>
-        <Button onClick={() => changePage(currentPage + 1)} disabled={currentPage === pages}>Next</Button>
-        <Button onClick={() => changePage(pages)} disabled={currentPage === pages}>Last</Button>
+        <Button onClick={() => changePage(1)} disabled={currentPage === 1}>{t("First")}</Button>
+        <Button onClick={() => changePage(currentPage - 1)} disabled={currentPage === 1}>{t("Previous")}</Button>
+        <Typography variant="body1">{t("Page")} {currentPage} {t("of")} {pages}</Typography>
+        <Button onClick={() => changePage(currentPage + 1)} disabled={currentPage === pages}>{t("Next")}</Button>
+        <Button onClick={() => changePage(pages)} disabled={currentPage === pages}>{t("Last")}</Button>
       </Stack>
 
       <Dialog open={open} onClose={() => setOpen(false)} fullWidth>
@@ -551,11 +556,11 @@ const CrudTable = ({ model, fields, createFields, updateFields, searchableFields
         <DialogContent>
           {model === "products" &&(
             <FormControl fullWidth margin="dense">
-              <InputLabel id="type-label">Product Type</InputLabel>
+              <InputLabel id="type-label">{t("Product Type")}</InputLabel>
                 <Select
                   labelId="type-label"
                   value={formData.type || ""}
-                  label="Product Type"
+                  label={t("Product Type")}
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
@@ -569,7 +574,7 @@ const CrudTable = ({ model, fields, createFields, updateFields, searchableFields
                 >
                   {productTypes.map((type) => (
                     <MenuItem key={type} value={type}>
-                      {type.charAt(0).toUpperCase() + type.slice(1)}
+                      {t(`${type.charAt(0).toUpperCase() + type.slice(1)}`)}
                     </MenuItem>
                   ))}
                 </Select>
@@ -588,31 +593,29 @@ const CrudTable = ({ model, fields, createFields, updateFields, searchableFields
                 <Select
                   labelId={`${field}-label`}
                   value={formData[field] || ""}
-                  label={field}
+                  label={t(`${field}`)}
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, [field]: e.target.value }))
                   }
                 >
                   <MenuItem value="">
-                    <em>None</em>
+                    <em>{t("None")}</em>
                   </MenuItem>
                   {options.map((option) => (
                     <MenuItem key={option._id} value={option._id}>
-                      {option.name || option._id}
+                      {t(`${option.name || option._id}`)}
+                      {/* {option.name || option._id} */}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
             );
           }
-
-          
-
           if (isImageField) {
             return (
               <FormControl fullWidth margin="dense" key={field}>
                 <Button variant="contained" component="label">
-                  Upload {field}
+                  {t("Upload")} {t(`${field}`)}
                   <input
                     type="file"
                     hidden
@@ -641,11 +644,10 @@ const CrudTable = ({ model, fields, createFields, updateFields, searchableFields
               </FormControl>
             );
           }
-          
           return (
             <TextField
               key={field}
-              label={field}
+              label={t(`${field}`)}
               fullWidth
               margin="dense"
               value={formData[field] || ""}
@@ -653,21 +655,15 @@ const CrudTable = ({ model, fields, createFields, updateFields, searchableFields
                 setFormData((prev) => ({ ...prev, [field]: e.target.value }))
               }
             />
-            
           );
-
-          
-
         })}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleSubmit}>Save</Button>
+          <Button onClick={() => setOpen(false)}>{t("Cancel")}</Button>
+          <Button variant="contained" onClick={handleSubmit}>{t("Save")}</Button>
         </DialogActions>
       </Dialog>
-      
     </>
-    
   );
 };
 

@@ -26,6 +26,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import { authApi, endpoints } from '../Config/APIs';
 import { AdminPanelSettings, Favorite } from '@mui/icons-material';
 import { useNotification } from '../Context/Notification';
+import { useTranslation } from 'react-i18next';
 
 const UserInfo = () => {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -41,6 +42,8 @@ const UserInfo = () => {
     phone: '',
     address: ''
   });
+
+  const {t} = useTranslation()
 
   useEffect(() => {
     console.log("user", user)
@@ -94,18 +97,32 @@ const UserInfo = () => {
   };
 
   return (
-    <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh" bgcolor="#f0f2f5" p={2}>
-      <Card sx={{ maxWidth: 600, width: '100%', borderRadius: 4, boxShadow: 3 }}>
+    <Box
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      minHeight="100vh"
+      bgcolor="#f0f2f5"
+      p={2}
+    >
+      <Card sx={{ maxWidth: 600, width: "100%", borderRadius: 4, boxShadow: 3 }}>
         <CardContent>
-          <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2}>
+          {/* Header */}
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+            mb={2}
+          >
             <Typography variant="h5" fontWeight={600}>
-              User Information
+              {t("User Information")}
             </Typography>
             <IconButton onClick={handleEditToggle} size="small">
               <EditIcon color="primary" />
             </IconButton>
           </Stack>
 
+          {/* User Content */}
           {user && (
             <Box>
               <Stack alignItems="center" mb={3}>
@@ -115,30 +132,37 @@ const UserInfo = () => {
                   sx={{ width: 100, height: 100, mb: 1 }}
                 />
                 <Typography variant="subtitle1">{user.username}</Typography>
-                <Tooltip title={user.isVerified ? 'Your email is verified' : 'Please verify your email'}>
-  <Chip
-    label={user.isVerified ? 'Verified' : 'Not Verified'}
-    color={user.isVerified ? 'success' : 'default'}
-    icon={
-      user.isVerified ? (
-        <CheckCircleIcon style={{ color: 'white' }} />
-      ) : (
-        <CancelIcon style={{ color: 'gray' }} />
-      )
-    }
-    sx={{
-      color: 'white',
-      fontWeight: 'bold',
-    }}
-  />
-</Tooltip>
 
+                <Tooltip
+                  title={
+                    user.isVerified
+                      ? t("Your email is verified")
+                      : t("Please verify your email")
+                  }
+                >
+                  <Chip
+                    label={user.isVerified ? t("Verified") : t("Not Verified")}
+                    color={user.isVerified ? "success" : "default"}
+                    icon={
+                      user.isVerified ? (
+                        <CheckCircleIcon style={{ color: "white" }} />
+                      ) : (
+                        <CancelIcon style={{ color: "gray" }} />
+                      )
+                    }
+                    sx={{
+                      color: "white",
+                      fontWeight: "bold",
+                    }}
+                  />
+                </Tooltip>
               </Stack>
 
+              {/* Editable User Info */}
               <Grid container spacing={2}>
                 <Grid item xs={12}>
                   <TextField
-                    label="Name"
+                    label={t("Name")}
                     name="name"
                     value={editedUser.name}
                     onChange={handleInputChange}
@@ -149,7 +173,7 @@ const UserInfo = () => {
                 </Grid>
                 <Grid item xs={12}>
                   <TextField
-                    label="Email"
+                    label={t("Email")}
                     name="email"
                     value={editedUser.email}
                     onChange={handleInputChange}
@@ -160,7 +184,7 @@ const UserInfo = () => {
                 </Grid>
                 <Grid item xs={12}>
                   <TextField
-                    label="Phone"
+                    label={t("Phone")}
                     name="phone"
                     value={editedUser.phone}
                     onChange={handleInputChange}
@@ -171,7 +195,7 @@ const UserInfo = () => {
                 </Grid>
                 <Grid item xs={12}>
                   <TextField
-                    label="Address"
+                    label={t("Address")}
                     name="address"
                     value={editedUser.address}
                     onChange={handleInputChange}
@@ -182,6 +206,7 @@ const UserInfo = () => {
                 </Grid>
               </Grid>
 
+              {/* Save Button */}
               {isEditing && (
                 <Stack direction="row" justifyContent="flex-end" mt={3}>
                   <Button
@@ -190,14 +215,20 @@ const UserInfo = () => {
                     startIcon={<SaveIcon />}
                     onClick={handleSave}
                   >
-                    Save
+                    {t("Save")}
                   </Button>
                 </Stack>
               )}
             </Box>
           )}
 
-          <Stack direction="row" spacing={2} mt={4} justifyContent="space-between">
+          {/* Actions */}
+          <Stack
+            direction="row"
+            spacing={2}
+            mt={4}
+            justifyContent="space-between"
+          >
             <Button
               variant="outlined"
               color="error"
@@ -205,43 +236,48 @@ const UserInfo = () => {
               fullWidth
               onClick={handleLogOut}
             >
-              Logout
+              {t("Logout")}
             </Button>
             <Button
               variant="contained"
               color="secondary"
               startIcon={<ReceiptIcon />}
               fullWidth
-              onClick={() => navigate(`${user?._id}/orders?page=1`, {state: {
-                from: location.pathname + location.search
-              }})}
-              
+              onClick={() =>
+                navigate(`${user?._id}/orders?page=1`, {
+                  state: { from: location.pathname + location.search },
+                })
+              }
             >
-              Follow Orders
+              {t("Follow Orders")}
             </Button>
             <Button
               variant="contained"
               color="info"
               startIcon={<Favorite />}
               fullWidth
-              onClick={() => navigate(`${user?._id}/favoritelist?page=1`, {state: {
-                from: location.pathname + location.search
-              }})}
+              onClick={() =>
+                navigate(`${user?._id}/favoritelist?page=1`, {
+                  state: { from: location.pathname + location.search },
+                })
+              }
             >
-              Follow Favoritelist
+              {t("Follow Favoritelist")}
             </Button>
-            { user?.role.name === 'Admin' && (
+            {user?.role.name === "Admin" && (
               <Button
-              variant="outlined"
-              color="warning"
-              startIcon={<AdminPanelSettings />}
-              fullWidth
-              onClick={() => navigate(`/admin-dashboard`, {state: {
-                from: location.pathname + location.search
-              }})}
-            >
-              Dashboard Management
-            </Button>
+                variant="outlined"
+                color="warning"
+                startIcon={<AdminPanelSettings />}
+                fullWidth
+                onClick={() =>
+                  navigate(`/admin-dashboard`, {
+                    state: { from: location.pathname + location.search },
+                  })
+                }
+              >
+                {t("Dashboard Management")}
+              </Button>
             )}
           </Stack>
         </CardContent>

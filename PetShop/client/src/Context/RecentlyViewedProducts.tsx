@@ -1,6 +1,7 @@
 
 import React, { createContext, ReactNode, useContext } from "react";
 import Product from "../Interface/Product";
+import { useNotification } from "./Notification";
 
 interface RecentlyViewedProductsContextType {
     recentlyViewedProducts: Product[],
@@ -23,6 +24,7 @@ export const useRecentlyViewedProducts = () => useContext(RecentlyViewedProducts
 
 export const RecentlyViewedProductsProvider: React.FC<RecentlyViewedProductsProviderProps> = ({ children }) => {
     const [recentlyViewedProducts, setRecentlyViewedProducts] = React.useState<any[]>([])
+    const { showNotification } = useNotification()
 
     const addToRecentlyViewedProducts = (item: Product) => {
         setRecentlyViewedProducts((prevItems) => {
@@ -44,10 +46,13 @@ export const RecentlyViewedProductsProvider: React.FC<RecentlyViewedProductsProv
 
     const removeFromRecentlyViewedProducts = (_id: string) => {
         setRecentlyViewedProducts((prevItems) => prevItems.filter((i) => i._id !== _id))
+        showNotification("Remove item success", "success")
+        
     }
     
     const clearRecentlyViewedProducts = () => {
         setRecentlyViewedProducts([])
+        showNotification("Clear Recently Viewed Products success", "success")
     }
 
     return (

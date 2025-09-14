@@ -28,6 +28,7 @@ import {
   AreaChart,
   Area,
 } from "recharts";
+import { useTranslation } from "react-i18next";
 
 export interface MostPopularProduct {
   totalComments: number;
@@ -49,6 +50,7 @@ const COLORS = [
 const MostPopularProducts = ({ data = [] }: { data?: MostPopularProduct[] }) => {
   const [chartType, setChartType] = useState<"bar" | "line" | "area" | "pie">("bar");
   const [valueKey, setValueKey] = useState<"totalComments" | "averageRating">("averageRating");
+  const {t} = useTranslation()
 
   const formatTooltip = (v: number) =>
     valueKey === "totalComments" ? `${v} items` : `${v} ⭐`;
@@ -138,13 +140,13 @@ const MostPopularProducts = ({ data = [] }: { data?: MostPopularProduct[] }) => 
   return (
     <Box sx={{ mt: 5 }}>
       <Typography variant="h5" fontWeight={555} gutterBottom>
-        📊 Most Popular Products 
+        {t("📊 Most Popular Products")}
       </Typography>
 
       {/* Chart Controls */}
       <Box display="flex" gap={3} mb={3}>
         <FormControl size="small">
-          <InputLabel>Chart Type</InputLabel>
+          <InputLabel>{t("Chart Type")}</InputLabel>
           <Select
             value={chartType}
             label="Chart Type"
@@ -153,15 +155,15 @@ const MostPopularProducts = ({ data = [] }: { data?: MostPopularProduct[] }) => 
             }
             sx={{ minWidth: 150 }}
           >
-            <MenuItem value="bar">Bar</MenuItem>
-            <MenuItem value="line">Line</MenuItem>
-            <MenuItem value="area">Area</MenuItem>
-            <MenuItem value="pie">Pie</MenuItem>
+            <MenuItem value="bar">{t("Bar")}</MenuItem>
+            <MenuItem value="line">{t("Line")}</MenuItem>
+            <MenuItem value="area">{t("Area")}</MenuItem>
+            <MenuItem value="pie">{t("Pie")}</MenuItem>
           </Select>
         </FormControl>
 
         <FormControl size="small">
-          <InputLabel>Value</InputLabel>
+          <InputLabel>{t("Value")}</InputLabel>
           <Select
             value={valueKey}
             label="Value"
@@ -170,8 +172,13 @@ const MostPopularProducts = ({ data = [] }: { data?: MostPopularProduct[] }) => 
             }
             sx={{ minWidth: 150 }}
           >
-            <MenuItem value="totalComments">Total Comments (items)</MenuItem>
-            <MenuItem value="averageRating">Average Rating (stars)</MenuItem>
+            <MenuItem value="totalComments">
+              {t("Total Comments")} ({t("items")})
+            </MenuItem>
+            <MenuItem value="averageRating">
+              {t("Average Rating")} ({t("stars")})
+            </MenuItem>
+
           </Select>
         </FormControl>
       </Box>

@@ -5,6 +5,7 @@ import { useNavigate } from "react-router";
 import APIs, { endpoints } from "../Config/APIs";
 import axios from "axios";
 import { Alert, Snackbar } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -21,6 +22,8 @@ const Register = () => {
     phone: "",
     address: "",
   });
+
+  const { t } = useTranslation()
 
 
   const handleSetState = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,9 +100,9 @@ const Register = () => {
     <div className="register-container">
       {loading && <div className="loading-spinner"></div>}
       <form className="register-form" onSubmit={handleRegister}>
-        <h2>Register Account</h2>
+        <h2>{t("Register Account")}</h2>
 
-        <label htmlFor="username">Username:</label>
+        <label htmlFor="username">{t("Username")}:</label>
         <input
           type="text"
           id="username"
@@ -109,7 +112,7 @@ const Register = () => {
           onChange={handleSetState}
         />
 
-        <label htmlFor="password">Password:</label>
+        <label htmlFor="password">{t("Password")}:</label>
         <input
           type="password"
           id="password"
@@ -119,7 +122,7 @@ const Register = () => {
           onChange={handleSetState}
         />
 
-        <label htmlFor="name">Name:</label>
+        <label htmlFor="name">{t("Full Name")}:</label>
         <input
           type="text"
           id="name"
@@ -129,7 +132,7 @@ const Register = () => {
           onChange={handleSetState}
         />
 
-        <label>Avatar:</label>
+        <label>{t("Avatar")}:</label>
         <input
           type="file"
           name="avatar"
@@ -145,7 +148,7 @@ const Register = () => {
           />
         )}
 
-        <label htmlFor="email">Email:</label>
+        <label htmlFor="email">{t("Email")}:</label>
         <input
           type="email"
           id="email"
@@ -155,7 +158,7 @@ const Register = () => {
           onChange={handleSetState}
         />
 
-        <label htmlFor="phone">Phone:</label>
+        <label htmlFor="phone">{t("Phone")}:</label>
         <input
           type="tel"
           id="phone"
@@ -165,7 +168,7 @@ const Register = () => {
           onChange={handleSetState}
         />
 
-        <label htmlFor="address">Address:</label>
+        <label htmlFor="address">{t("Address")}:</label>
         <input
           type="text"
           id="address"
@@ -175,9 +178,9 @@ const Register = () => {
           onChange={handleSetState}
         />
         <div className="form-group">
-          <button className="register-button" type="submit" disabled={loading}>Register</button>
+          <button className="register-button" type="submit" disabled={loading}>{t("Register")}</button>
           <div className="line"></div>
-          <button className="back-button" onClick={() => navigate('/login')}>Back To Login</button>
+          <button className="back-button" onClick={() => navigate('/login')}>{t("Back To Login")}</button>
         </div>
         
       </form>

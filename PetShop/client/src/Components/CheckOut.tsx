@@ -8,6 +8,7 @@ import { useLocation, useNavigate } from 'react-router';
 import { authApi, endpoints } from '../Config/APIs';
 import { Box, Button, Card, Divider, Grid, Typography } from '@mui/material';
 import { useNotification } from '../Context/Notification';
+import { useTranslation } from 'react-i18next';
 
 const CheckOut = () => {
     const navigate = useNavigate();
@@ -19,6 +20,7 @@ const CheckOut = () => {
     const [qrDataURL, setqrDataURL] = useState<string>("");
     const [loading, setLoading] = useState(false)
     const { showNotification } = useNotification()
+    const {t} = useTranslation()
     const handleMakePayment = async (choice: string) => {
         console.log("Choice: ", choice)
         
@@ -123,77 +125,82 @@ const CheckOut = () => {
         }
     }, []);
   return (
-    <Grid item xs={12} md={4}>
-            <Card elevation={3} sx={{ p: 3 }}>
-              <Typography variant="h6">Order Summary</Typography>
-              <Divider sx={{ my: 1 }} />
-             
-              <Typography variant="subtitle1">Total: { totalPrice } VND</Typography>
+  <Grid item xs={12} md={4}>
+    <Card elevation={3} sx={{ p: 3 }}>
+      <Typography variant="h6">{t("Order Summary")}</Typography>
+      <Divider sx={{ my: 1 }} />
 
-              {user?.isAuthenticated ? (
-                <>
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    color="success"
-                    startIcon={<AttachMoneyIcon />}
-                    sx={{ mt: 2 }}
-                    onClick={() => handleMakePayment("CASH")}
-                  >
-                    Pay with Cash
-                  </Button>
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    color="primary"
-                    sx={{ mt: 2 }}
-                    onClick={() => handleMakePayment("VNPAY")}
-                  >
-                    <img
-                      src="https://stcd02206177151.cloud.edgevnpay.vn/assets/images/logo-icon/logo-primary.svg"
-                      alt="VNPay"
-                      style={{ height: 24, marginRight: 8 }}
-                    />
-                    Pay with VNPay
-                  </Button>
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    sx={{ mt: 2 }}
-                    onClick={generateVIETQRCODE}
-                  >
-                    Generate QR Code
-                  </Button>
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    sx={{ mt: 2 }}
-                    onClick={() => handleMakePayment("PAYOS")}
-                  >
-                   Pay With PayOs
-                  </Button>
-                  {qrDataURL && (
-                    <Box mt={2} display="flex" justifyContent="center">
-                      <img src={qrDataURL} alt="QR Code" width="500" height="auto"  />
-                    </Box>
-                  )}
-                </>
-              ) : (
-                <Box mt={2}>
-                  <Typography variant="body2" color="text.secondary">Please login to proceed to checkout.</Typography>
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    color="secondary"
-                    sx={{ mt: 1 }}
-                    onClick={() => navigate('/login', { state: "/checkout" })}
-                  >
-                    Login to Checkout
-                  </Button>
-                </Box>
-              )}
-            </Card>
-          </Grid>
-  )
+      <Typography variant="subtitle1">
+        {t("Total")}: {totalPrice} VND
+      </Typography>
+
+      {user?.isAuthenticated ? (
+        <>
+          <Button
+            fullWidth
+            variant="contained"
+            color="success"
+            startIcon={<AttachMoneyIcon />}
+            sx={{ mt: 2 }}
+            onClick={() => handleMakePayment("CASH")}
+          >
+            {t("Pay with Cash")}
+          </Button>
+          <Button
+            fullWidth
+            variant="contained"
+            color="primary"
+            sx={{ mt: 2 }}
+            onClick={() => handleMakePayment("VNPAY")}
+          >
+            <img
+              src="https://stcd02206177151.cloud.edgevnpay.vn/assets/images/logo-icon/logo-primary.svg"
+              alt="VNPay"
+              style={{ height: 24, marginRight: 8 }}
+            />
+            {t("Pay with VNPay")}
+          </Button>
+          <Button
+            fullWidth
+            variant="outlined"
+            sx={{ mt: 2 }}
+            onClick={generateVIETQRCODE}
+          >
+            {t("Generate QR Code")}
+          </Button>
+          <Button
+            fullWidth
+            variant="outlined"
+            sx={{ mt: 2 }}
+            onClick={() => handleMakePayment("PAYOS")}
+          >
+            {t("Pay with PayOs")}
+          </Button>
+          {qrDataURL && (
+            <Box mt={2} display="flex" justifyContent="center">
+              <img src={qrDataURL} alt="QR Code" width="500" height="auto" />
+            </Box>
+          )}
+        </>
+      ) : (
+        <Box mt={2}>
+          <Typography variant="body2" color="text.secondary">
+            {t("Please login to proceed to checkout.")}
+          </Typography>
+          <Button
+            fullWidth
+            variant="outlined"
+            color="secondary"
+            sx={{ mt: 1 }}
+            onClick={() => navigate('/login', { state: "/checkout" })}
+          >
+            {t("Login to Checkout")}
+          </Button>
+        </Box>
+      )}
+    </Card>
+  </Grid>
+);
+
 }
 export default CheckOut

@@ -4,6 +4,7 @@ import { PaymentDetails } from '../Interface/Payment'
 import { authApi, endpoints } from '../Config/APIs'
 import { Box, Button } from '@mui/material'
 import { ArrowBack } from '@mui/icons-material'
+import { useTranslation } from 'react-i18next'
 
 const PaymentInfomationDetails = () => {
   const { payment_id } = useParams()
@@ -11,6 +12,7 @@ const PaymentInfomationDetails = () => {
   const [loading, setLoading] = useState<boolean>(false)
   const location = useLocation()
   const navigate = useNavigate()
+  const {t} = useTranslation()
 
   // Keys you want to hide from the table
   const hiddenKeys = [
@@ -53,10 +55,10 @@ const PaymentInfomationDetails = () => {
     <div className="container mx-auto p-5">
   
 
-      <h1 className="text-xl font-bold mb-4">Payment Information</h1>
+      <h1 className="text-xl font-bold mb-4">{t("Payment Information")}</h1>
 
       {loading ? (
-        <p className="loading">🔄 Loading payment info...</p>
+        <p className="loading">{t("🔄 Loading payment info...")}</p>
       ) : filteredEntries.length > 0 ? (
         <table className="table-auto border border-gray-300 w-full">
                 <thead>
@@ -80,7 +82,7 @@ const PaymentInfomationDetails = () => {
         </table>
 
       ) : (
-        <p className="text-gray-500">No payment data available.</p>
+        <p className="text-gray-500">{t("No payment data available.")}</p>
       )}
     </div>
   )

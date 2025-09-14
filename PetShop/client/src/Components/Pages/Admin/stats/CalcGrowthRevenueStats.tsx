@@ -1,6 +1,7 @@
 import { Card, CircularProgress, Typography } from '@mui/material'
 import React from 'react'
 import { RevenueData, RevenueResponse } from '../Dashboard';
+import { useTranslation } from 'react-i18next';
 
 export const CalcGrowthRevenueStats = ({ stats, loading }: { stats?: RevenueResponse; loading: boolean }) => {
   // Tính tăng trưởng
@@ -16,10 +17,12 @@ export const CalcGrowthRevenueStats = ({ stats, loading }: { stats?: RevenueResp
     return Number((((last - prev) / prev) * 100).toFixed(1));
   };
 
+  const {t} = useTranslation()
+
   const revenueGrowth = calcGrowth("revenue");
     return (
     <Card sx={{ p: 2, textAlign: "center", borderRadius: 3, boxShadow: 4 }}>
-      <Typography variant="h6">Revenue</Typography>
+      <Typography variant="h6">{t("Revenue")}</Typography>
       <Typography variant="h5" color="primary" fontWeight={600}>
           {loading ? (
           <CircularProgress size={24} />
@@ -28,7 +31,7 @@ export const CalcGrowthRevenueStats = ({ stats, loading }: { stats?: RevenueResp
           )}
       </Typography>
       <Typography variant="body2" color={revenueGrowth >= 0 ? "green" : "red"}>
-          {revenueGrowth >= 0 ? `▲ ${revenueGrowth}%` : `▼ ${Math.abs(revenueGrowth)}%`} compared to last month
+          {revenueGrowth >= 0 ? `▲ ${revenueGrowth}%` : `▼ ${Math.abs(revenueGrowth)}%`} {t("compared to last month")}
       </Typography>
     </Card>
   )

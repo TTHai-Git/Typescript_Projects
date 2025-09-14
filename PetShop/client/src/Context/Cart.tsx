@@ -1,11 +1,9 @@
 import { createContext, ReactNode, useContext, useState } from "react";
-import { useNavigate } from "react-router";
 import Product from "../Interface/Product";
-import APIs, { endpoints } from "../Config/APIs";
 import { useNotification } from "./Notification";
 
 interface CartContextType {
-  cartItems: Product[];
+  cartItems: CartItem[];
   addToCart: (item: Product, quantity: number) => void;
   removeFromCart: (_id: string) => void;
   increaseQuantity: (_id: string, stock: number) => void;
@@ -17,6 +15,9 @@ interface CartContextType {
 interface CartProviderProps {
   children: ReactNode;
 }
+
+// Extend Product to include quantity for the cart
+type CartItem = Product & { quantity: number };
 
 const CartContext = createContext<CartContextType>({
   cartItems: [],
@@ -31,57 +32,71 @@ const CartContext = createContext<CartContextType>({
 export const useCart = () => useContext(CartContext);
 
 export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
-  const [cartItems, setCartItems] = useState<any[]>([]);
-  const navigate = useNavigate();
-  const { showNotification } = useNotification()
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const { showNotification } = useNotification();
 
-  const addToCart = async (item: Product, quantity:number) => {
+  // Helper for showing notifications
+  const notify = (message: string, type: "success" | "warning") => {
+    showNotification(message, type);
+  };
+
+  const addToCart = (item: Product, quantity: number) => {
     setCartItems((prevItems) => {
       const itemInCart = prevItems.find((i) => i._id === item._id);
+
       if (itemInCart) {
-          const isAvailableStock = itemInCart.quantity && itemInCart.quantity + quantity <= item.stock;
-          if (!isAvailableStock) {
-            showNotification(`Only ${item.stock} items available in stock.`, "warning");
-            return prevItems;
-          }
-          else {
-            showNotification(`${item.name} has been added to your cart with ${quantity} items!`, "warning")
-            return prevItems.map((i) => i._id === item._id ? { ...i, quantity: (i.quantity || 1) + quantity } : i);
-          }
+        const isAvailableStock = itemInCart.quantity + quantity <= item.stock;
+
+        if (!isAvailableStock) {
+          notify(`Only ${item.stock} items available in stock.`, "warning");
+          return prevItems;
+        }
+
+        notify(
+          `${item.name} has been added to your cart with ${quantity} items!`,
+          "success"
+        );
+
+        return prevItems.map((i) =>
+          i._id === item._id
+            ? { ...i, quantity: i.quantity + quantity }
+            : i
+        );
       }
-      const isAvailableStock = item.stock && quantity <= item.stock;
-      if (!isAvailableStock) {
-        showNotification(`Only ${item.stock} items available in stock.`, "warning");
+
+      if (quantity > item.stock) {
+        notify(`Only ${item.stock} items available in stock.`, "warning");
         return prevItems;
       }
-      else {
-        showNotification(`${item.name} has been added to your cart with ${quantity} items!`, "warning")
-        return [...prevItems, { ...item, quantity: quantity }];
-      }
-    })
+
+      notify(
+        `${item.name} has been added to your cart with ${quantity} items!`,
+        "success"
+      );
+
+      return [...prevItems, { ...item, quantity }];
+    });
   };
 
   const removeFromCart = (_id: string) => {
-    if (!window.confirm('Are you sure you want to remove this item from cart?')) return;
-    setCartItems(prev => prev.filter(item => item._id !== _id ));
+    if (!window.confirm("Are you sure you want to remove this item from cart?"))
+      return;
+    setCartItems((prev) => prev.filter((item) => item._id !== _id));
   };
 
   const increaseQuantity = (_id: string, stock: number) => {
     setCartItems((prevItems) => {
       const itemInCart = prevItems.find((i) => i._id === _id);
-      if (itemInCart) {
-        const isAvailableStock = itemInCart.quantity && itemInCart.quantity + 1 <= stock;
-        if (!isAvailableStock) {
-          showNotification(`Only ${stock} items available in stock.`, "warning");
-          return [...prevItems];
-        }
-        else {
-          return prevItems.map((i) =>
-            i._id === _id ? { ...i, quantity: (i.quantity || 1) + 1 } : i
-          );
-        }
+      if (!itemInCart) return prevItems;
+
+      if (itemInCart.quantity + 1 > stock) {
+        notify(`Only ${stock} items available in stock.`, "warning");
+        return prevItems;
       }
-      return [...prevItems];
+
+      return prevItems.map((i) =>
+        i._id === _id ? { ...i, quantity: i.quantity + 1 } : i
+      );
     });
   };
 
@@ -89,39 +104,51 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     setCartItems((prevItems) => {
       const itemInCart = prevItems.find((i) => i._id === _id);
       if (!itemInCart) return prevItems;
-  
-      // If quantity > 1, just decrease
-      if (itemInCart.quantity && itemInCart.quantity > 1) {
+
+      if (itemInCart.quantity > 1) {
         return prevItems.map((i) =>
-          i._id === _id ? { ...i, quantity: (i.quantity || 1) - 1 } : i
+          i._id === _id ? { ...i, quantity: i.quantity - 1 } : i
         );
       }
-  
-      // If quantity === 1, ask for confirmation before removing
+
       const confirmed = window.confirm(
         "Quantity will reach 0. Do you want to remove this item from the cart?"
       );
       if (confirmed) {
         return prevItems.filter((i) => i._id !== _id);
       }
-  
-      return prevItems; // Don't change anything if not confirmed
+
+      return prevItems;
     });
   };
-  
 
   const caculateTotalOfCart = () => {
-    const total:number = cartItems.reduce((sum:number, item) => sum + (Number(item.price) * Number(item.quantity)), 0);
-    return total
-  }
+    return cartItems.reduce(
+      (sum, item) => sum + Number(item.price) * item.quantity,
+      0
+    );
+  };
 
   const checkOutFromCart = () => {
-    showNotification(`Thank you for shopping with us! Total: $${Number(caculateTotalOfCart())}`, "success");
+    notify(
+      `Thank you for shopping with us! Total: $${caculateTotalOfCart()}`,
+      "success"
+    );
     setCartItems([]);
-  }
+  };
 
   return (
-    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, decreaseQuantity, increaseQuantity, checkOutFromCart, caculateTotalOfCart }}>
+    <CartContext.Provider
+      value={{
+        cartItems,
+        addToCart,
+        removeFromCart,
+        decreaseQuantity,
+        increaseQuantity,
+        checkOutFromCart,
+        caculateTotalOfCart,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );

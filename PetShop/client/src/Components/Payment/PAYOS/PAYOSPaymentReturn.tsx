@@ -17,6 +17,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '../../../store'
 import { login } from '../../../features/login/authSlice'
 import { useNotification } from '../../../Context/Notification'
+import { useTranslation } from 'react-i18next'
 
 const PAYOSPaymentReturn = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -34,6 +35,7 @@ const PAYOSPaymentReturn = () => {
   const [errorMessage, setErrorMessage] = useState<string>('')
   const [countdown, setCountdown] = useState<number>(4)
   const {showNotification} = useNotification()
+  const {t} = useTranslation()
 
   const createPayment = async () => {
   if (cancel === "true") {
@@ -169,7 +171,7 @@ const PAYOSPaymentReturn = () => {
       {loading ? (
         <>
           <CircularProgress />
-          <Typography mt={2}>Processing your payment...</Typography>
+          <Typography mt={2}>{t("Processing your payment...")}</Typography>
         </>
       ) : (
         <motion.div
@@ -182,26 +184,26 @@ const PAYOSPaymentReturn = () => {
               <>
                 <CheckCircleIcon color="success" sx={{ fontSize: 80 }} />
                 <Typography variant="h5" fontWeight="bold">
-                  Payment Successful!
+                  {t("Payment Successful!")}
                 </Typography>
                 <Typography color="text.secondary">
-                  Your transaction has been completed.
+                  {t("Your transaction has been completed.")}
                 </Typography>
                 <Typography variant="body2" color="text.secondary" mt={1}>
-                  Redirecting in {countdown} second{countdown !== 1 && 's'}...
+                  {t("Redirecting in")} {countdown} {t("second")} {countdown !== 1 && 's'}...
                 </Typography>
               </>
             ) : (
               <>
                 <ErrorIcon color="error" sx={{ fontSize: 80 }} />
                 <Typography variant="h5" fontWeight="bold">
-                  Payment Failed
+                  {t("Payment Failed")}
                 </Typography>
                 <Typography color="text.secondary">
-                  {errorMessage}
+                  {t(`${errorMessage}`)}
                 </Typography>
                 <Typography variant="body2" color="text.secondary" mt={1}>
-                  Redirecting in {countdown} second{countdown !== 1 && 's'}...
+                  {t("Redirecting in")} {countdown} {t("second")} {countdown !== 1 && 's'}...
                 </Typography>
               </>
             )}
@@ -212,14 +214,14 @@ const PAYOSPaymentReturn = () => {
       {/* Snackbar for success */}
       <Snackbar open={success} autoHideDuration={6000}>
         <Alert severity="success" variant="filled" sx={{ width: '100%' }}>
-          Payment was successful. Thank you!
+          {t("Payment was successful. Thank you!")}
         </Alert>
       </Snackbar>
 
       {/* Snackbar for error */}
       <Snackbar open={error} autoHideDuration={6000}>
         <Alert severity="error" variant="filled" sx={{ width: '100%' }}>
-          {errorMessage}
+          {t(`${errorMessage}`)}
         </Alert>
       </Snackbar>
     </Container>

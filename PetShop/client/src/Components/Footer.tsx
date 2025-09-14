@@ -7,18 +7,20 @@ import FacebookIcon from '@mui/icons-material/Facebook';
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import TikTokIcon from '@mui/icons-material/MusicNote';
 import GoogleIcon from '@mui/icons-material/Google';
+import { useTranslation } from 'react-i18next';
 
 export const Footer = () => {
+  const { t } = useTranslation();
   return (
     <Box sx={{ bgcolor: '#f8f8f8', color: '#333', mt: 6, pt: 6, fontSize: 14 }}>
       <Container maxWidth="lg">
         {/* Top Features */}
         <Grid container spacing={2} sx={{ textAlign: 'center', mb: 4 }}>
           {[
-            { icon: <LocalShippingIcon color="error" />, title: 'CHÍNH SÁCH GIAO HÀNG', desc: 'Nhận hàng và thanh toán tại nhà' },
-            { icon: <AutorenewIcon color="error" />, title: 'ĐỔI TRẢ DỄ DÀNG', desc: '1 đổi 1 trong 7 ngày' },
-            { icon: <AttachMoneyIcon color="error" />, title: 'GIÁ LUÔN LUÔN RẺ NHẤT', desc: 'Giá cả hợp lý, nhiều ưu đãi tốt' },
-            { icon: <SupportAgentIcon color="error" />, title: 'HỖ TRỢ NHIỆT TÌNH', desc: 'Tư vấn, giải đáp mọi thắc mắc' }
+            { icon: <LocalShippingIcon color="error" />, title: t("SHIPPING POLICY"), desc: t("Receive goods and pay at home") },
+            { icon: <AutorenewIcon color="error" />, title: t("EASY RETURNS"), desc: t("1 to 1 exchange within 7 days") },
+            { icon: <AttachMoneyIcon color="error" />, title: t("ALWAYS THE BEST PRICE"), desc: t("Reasonable price, many great deals") },
+            { icon: <SupportAgentIcon color="error" />, title: t("DEDICATED SUPPORT"), desc: t("Consulting and answering all questions") }
           ].map((item, idx) => (
             <Grid item xs={12} sm={6} md={3} key={idx}>
               <Box>
@@ -32,12 +34,12 @@ export const Footer = () => {
 
         {/* Main Footer Sections */}
         <Grid container spacing={4}>
-          {/* Giới Thiệu */}
+          {/* About */}
           <Grid item xs={12} sm={6} md={2.4}>
-            <Typography fontWeight="bold" sx={{ borderBottom: '2px solid red', mb: 1 }}>GIỚI THIỆU DOGSHOP</Typography>
-            <Link href="#" color="inherit" underline="hover" display="block">Về chúng tôi</Link>
-            <Link href="#" color="inherit" underline="hover" display="block">Tư vấn mua hàng</Link>
-            <Link href="#" color="inherit" underline="hover" display="block">Tuyển dụng</Link>
+            <Typography fontWeight="bold" sx={{ borderBottom: '2px solid red', mb: 1 }}>{t("ABOUT DOGSHOP")}</Typography>
+            <Link href="#" color="inherit" underline="hover" display="block">{t("About us")}</Link>
+            <Link href="#" color="inherit" underline="hover" display="block">{t("Shopping guide")}</Link>
+            <Link href="#" color="inherit" underline="hover" display="block">{t("Careers")}</Link>
             <Box sx={{ mt: 1 }}>
               <IconButton><FacebookIcon color="primary" /></IconButton>
               <IconButton><YouTubeIcon color="error" /></IconButton>
@@ -46,34 +48,34 @@ export const Footer = () => {
             </Box>
           </Grid>
 
-          {/* Chính Sách */}
+          {/* Policies */}
           <Grid item xs={12} sm={6} md={3}>
-            <Typography fontWeight="bold" sx={{ borderBottom: '2px solid red', mb: 1 }}>CHÍNH SÁCH CHUNG</Typography>
+            <Typography fontWeight="bold" sx={{ borderBottom: '2px solid red', mb: 1 }}>{t("GENERAL POLICIES")}</Typography>
             {[
-              'Chính sách bảo mật', 'Chính sách giao nhận, kiểm hàng', 'Chính sách trả góp',
-              'Chính sách thanh toán', 'Chính sách giải quyết khiếu nại', 'Chính sách bảo vệ thông tin cá nhân',
-              'Chính sách bảo hành', 'Chính sách đổi - trả hàng'
+              "Privacy Policy", "Delivery & Inspection Policy", "Installment Policy",
+              "Payment Policy", "Complaint Resolution Policy", "Personal Data Protection Policy",
+              "Warranty Policy", "Return & Exchange Policy"
             ].map((text, idx) => (
-              <Link href="#" color="inherit" underline="hover" display="block" key={idx}>{text}</Link>
+              <Link href="#" color="inherit" underline="hover" display="block" key={idx}>{t(text)}</Link>
             ))}
           </Grid>
 
-          {/* Thông tin khuyến mãi */}
+          {/* Promotions */}
           <Grid item xs={12} sm={6} md={2.4}>
-            <Typography fontWeight="bold" sx={{ borderBottom: '2px solid red', mb: 1 }}>THÔNG TIN KHUYẾN MÃI</Typography>
-            <Link href="#" color="inherit" underline="hover" display="block">Tổng hợp khuyến mãi</Link>
+            <Typography fontWeight="bold" sx={{ borderBottom: '2px solid red', mb: 1 }}>{t("PROMOTION INFO")}</Typography>
+            <Link href="#" color="inherit" underline="hover" display="block">{t("All promotions")}</Link>
           </Grid>
 
-          {/* Hỗ trợ khách hàng */}
+          {/* Customer Support */}
           <Grid item xs={12} sm={6} md={3}>
-            <Typography fontWeight="bold" sx={{ borderBottom: '2px solid red', mb: 1 }}>HỖ TRỢ KHÁCH HÀNG</Typography>
+            <Typography fontWeight="bold" sx={{ borderBottom: '2px solid red', mb: 1 }}>{t("CUSTOMER SUPPORT")}</Typography>
             {[
-              'Tổng hợp Hotline CSKH, phản ánh',
-              'Lắp đặt phòng PET',
-              'Thiết bị Toys House',
-              'Tra cứu bảo hành'
+              "Customer service hotline, feedback",
+              "PET room installation",
+              "Toys House equipment",
+              "Warranty lookup"
             ].map((text, idx) => (
-              <Link href="#" color="inherit" underline="hover" display="block" key={idx}>{text}</Link>
+              <Link href="#" color="inherit" underline="hover" display="block" key={idx}>{t(text)}</Link>
             ))}
           </Grid>
         </Grid>
@@ -81,12 +83,11 @@ export const Footer = () => {
         {/* Bottom Text */}
         <Box sx={{ mt: 4, pt: 2, borderTop: '1px solid #ddd', textAlign: 'center' }}>
           <Typography variant="caption" display="block" sx={{ color: '#888' }}>
-            © Công ty TNHH DOGSHOP | MST: 1234567890 - 30/04/2025 - Sở kế hoạch và đầu tư TP.HCM |
-            Trụ sở chính:  Quận Bình Thạnh, TP.HCM |
-            Hotline: 9876543210 | Email: 2151050112hai@ou.edu.vn
+            © {t("DOGSHOP Co., Ltd | Tax Code: 1234567890 - 30/04/2025 - Department of Planning and Investment HCMC | Headquarters: Binh Thanh District, HCMC | Hotline: 9876543210 | Email: 2151050112hai@ou.edu.vn")}
           </Typography>
         </Box>
       </Container>
     </Box>
+
   );
 };

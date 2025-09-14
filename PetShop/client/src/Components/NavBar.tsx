@@ -33,6 +33,7 @@ import { AdminPanelSettings } from '@mui/icons-material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import NotificationList from './NotificationList';
 import { useNotification } from '../Context/Notification';
+import { useTranslation } from 'react-i18next';
 
 const NavBar = () => {
   const { cartItems } = useCart();
@@ -82,6 +83,12 @@ const NavBar = () => {
     if (res.status === 200) navigate('/login');
   };
 
+  const { t, i18n } = useTranslation();
+
+  const changeLanguage = (lng: "en" | "vi") => {
+    i18n.changeLanguage(lng);
+  };
+
   return (
     <AppBar position="static" color="default" elevation={2}>
       <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', px: 2 }}>
@@ -89,7 +96,7 @@ const NavBar = () => {
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
             <img
-              src="https://res.cloudinary.com/dh5jcbzly/image/upload/v1747206698/DOGSHOP/p8fsrneompfetgd4h0qh.jpg"
+              src={`https://res.cloudinary.com/${process.env.REACT_APP_CLOUD_NAME}${process.env.REACT_APP_DIR_CLOUD}v1747206698/${process.env.REACT_APP_FOLDER_CLOUD}/p8fsrneompfetgd4h0qh.jpg`}
               alt="DOGSHOP"
               style={{ height: 48, borderRadius: 8 }}
             />
@@ -99,7 +106,7 @@ const NavBar = () => {
         {/* Main Links */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
           <Button component={Link} to="/" startIcon={<PetsIcon />} sx={{ textTransform: 'none' }}>
-            Introduction
+            {t("Introduction")}
           </Button>
           <Button
             component={Link}
@@ -107,7 +114,7 @@ const NavBar = () => {
             startIcon={<HomeIcon />}
             sx={{ textTransform: 'none' }}
           >
-            Home
+            {t("Home")}
           </Button>
         </Box>
 
@@ -118,8 +125,26 @@ const NavBar = () => {
             <Badge badgeContent={cartItems.length} color="secondary">
               <ShoppingCartIcon />
             </Badge>
-            Cart
+            {t("Cart")}
           </IconButton>
+
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <img
+              src={`https://res.cloudinary.com/${process.env.REACT_APP_CLOUD_NAME}${process.env.REACT_APP_DIR_CLOUD}v1757477860/${process.env.REACT_APP_FOLDER_CLOUD}/Flag_of_the_United_States.svg_pc3v3s.png`}
+              alt="English"
+              width={28}
+              style={{ cursor: "pointer", border: i18n.language === "en" ? "2px solid #1976d2" : "none" }}
+              onClick={() => changeLanguage("en")}
+            />
+            <img
+              src={`https://res.cloudinary.com/${process.env.REACT_APP_CLOUD_NAME}${process.env.REACT_APP_DIR_CLOUD}v1757477859/${process.env.REACT_APP_FOLDER_CLOUD}/Flag_of_Vietnam.svg_zgxhdt.png`}
+              alt="Vietnamese"
+              width={28}
+              style={{ cursor: "pointer", border: i18n.language === "vi" ? "2px solid #1976d2" : "none" }}
+              onClick={() => changeLanguage("vi")}
+            />
+          </Box>
+
 
           {user && user.isAuthenticated ? (
             <>
@@ -199,28 +224,28 @@ const NavBar = () => {
                     <ListItemIcon>
                       <PersonIcon fontSize="small" color="primary" />
                     </ListItemIcon>
-                    <ListItemText primary="User Info" />
+                    <ListItemText primary={t("User Info")} />
                   </MenuItem>
 
                   <MenuItem onClick={() => navigate(`/userinfo/${user?._id}/orders?page=1`)}>
                     <ListItemIcon>
                       <AssignmentIcon fontSize="small" color="info" />
                     </ListItemIcon>
-                    <ListItemText primary="Follow Orders" />
+                    <ListItemText primary={t("Follow Orders")} />
                   </MenuItem>
 
                   <MenuItem onClick={() => navigate(`/userinfo/${user?._id}/favoritelist?page=1`)}>
                     <ListItemIcon>
                       <FavoriteIcon fontSize="small" color="error" />
                     </ListItemIcon>
-                    <ListItemText primary="Favorites List" />
+                    <ListItemText primary={t("Favorites List")} />
                   </MenuItem>
 
                   <MenuItem onClick={() => navigate(`/admin-dashboard`)}>
                     <ListItemIcon>
                       <AdminPanelSettings fontSize="small" color="error" />
                     </ListItemIcon>
-                    <ListItemText primary="Dashboard Management" />
+                    <ListItemText primary={t("Dashboard Management")}/>
                   </MenuItem>
 
                   <Divider />
@@ -229,7 +254,7 @@ const NavBar = () => {
                     <ListItemIcon>
                       <LogoutIcon fontSize="small" color="action" />
                     </ListItemIcon>
-                    <ListItemText primary="Logout" />
+                    <ListItemText primary={t("Logout")}/>
                   </MenuItem>
                 </Menu>
               </Box>
@@ -242,7 +267,7 @@ const NavBar = () => {
                 startIcon={<LoginIcon />}
                 sx={{ textTransform: 'none' }}
               >
-                Login
+                {t("Login")}
               </Button>
               <Button
                 component={Link}
@@ -250,7 +275,7 @@ const NavBar = () => {
                 startIcon={<PersonAddIcon />}
                 sx={{ textTransform: 'none' }}
               >
-                Register
+                {t("Register")}
               </Button>
             </>
           )}

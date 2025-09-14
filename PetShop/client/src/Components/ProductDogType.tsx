@@ -35,6 +35,7 @@ import UserComment from './UserComment';
 import CommentsByProduct from './CommentsByProduct';
 import { useCart } from '../Context/Cart';
 import { useNotification } from '../Context/Notification';
+import { useTranslation } from 'react-i18next';
 
 const ProductDogType: React.FC = () => {
   const user = useSelector((state: RootState) => state.auth.user)
@@ -52,19 +53,21 @@ const ProductDogType: React.FC = () => {
   const [snackbarMessage, setSnackbarMessage] =React.useState('');
   const navigate = useNavigate()
   const { showNotification } = useNotification()
+  const {t} = useTranslation()
  
  
 
   const handleAddToCart = (dog: ProductDog, quantity: number) => {
-    if(!selectedSize){
-      showNotification("Please choose size for your dog!!", "warning")
+    if (!selectedSize) {
+    showNotification(t("Please choose size for your dog!!"), "warning");
+    return;
     }
-    else {
-      let note = `Size: ${selectedSize} - Age: ${new Date().getFullYear() - dog.age} years - Weight: ${dog.weight} Kg\n - Height: ${dog.height} cm - Breed: ${dog.breed.name} - Color: `
-      note += dog.color.join(", ");
-      dog.note = note
-      addToCart(dog, quantity);
-    }
+
+    let note = `${t("Size")}: ${selectedSize} - ${t("Age")}: ${new Date().getFullYear() - dog.age} ${t("years")} - ${t("Weight")}: ${dog.weight} Kg - ${t("Height")}: ${dog.height} cm - ${t("Breed")}: ${dog.breed.name} - ${t("Color")}: `;
+    note += dog.color.join(", ");
+    
+    dog.note = note;
+    addToCart(dog, quantity);
    
   };
 
@@ -145,126 +148,125 @@ const ProductDogType: React.FC = () => {
   }
 
   return (
-    
-    <Box sx={{ flexGrow: 1, p: { xs: 2, md: 5 }, backgroundColor: '#f9f9f9' }}>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={3000}
-        onClose={() => setSnackbarOpen(false)}
-        message={snackbarMessage}
-      />
-     
-      <Grid container spacing={4}>
-        <Grid item xs={12} md={5}>
-          <Card sx={{ borderRadius: 4, boxShadow: 3 }}>
-            <CardMedia
-              component="img"
-              image={dog.imageUrl}
-              alt={dog.name}
-              sx={{ height: "auto", objectFit: 'cover', borderRadius: 2 }}
-            />
-          </Card>
-        </Grid>
+  <Box sx={{ flexGrow: 1, p: { xs: 2, md: 5 }, backgroundColor: '#f9f9f9' }}>
+    <Snackbar
+      open={snackbarOpen}
+      autoHideDuration={3000}
+      onClose={() => setSnackbarOpen(false)}
+      message={snackbarMessage}
+    />
 
-        <Grid item xs={12} md={7}>
-          
-          <Card sx={{ p: 3, borderRadius: 4, boxShadow: 3 }}>
-            <CardContent>
-              <Typography variant="h4" fontWeight="bold" gutterBottom>
-                {dog.name}
-              </Typography>
-              <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                <Chip icon={<PetsIcon />} label={`Breed: ${dog.breed.name}`} color="primary" />
-                <Chip icon={<CakeIcon />} label={`Age: ${new Date().getFullYear() - dog.age} years`} color="secondary" />
-                <Chip icon={<HeightIcon />} label={`Height: ${dog.height} cm`} />
-                <Chip icon={<FitnessCenterIcon />} label={`Weight: ${dog.weight} kg`} />
-              </Stack>
-              <Typography variant="h6" gutterBottom color="primary">Size</Typography>
-                <Box display="flex" gap={1} mb={2}>
-                  {dog.size.map((size) => (
-                    <Chip
-                      key={size}
-                      label={size}
-                      clickable
-                      color={selectedSize === size ? 'primary' : 'default'}
-                      onClick={() => handleSizeClick(size)}
-                      style={{
-                        backgroundColor: selectedSize === size ? '#1976d2' : '#e0e0e0',
-                        color: selectedSize === size ? '#fff' : '#000',
-                        fontWeight: selectedSize === size ? 'bold' : 'normal',
-                        transition: '0.3s ease',
-                        
-                      }}
-                      icon={<FitnessCenter />}
-                    />
-                  ))}
-                </Box>
-              <Typography variant="h6" gutterBottom color="primary">Color</Typography>
-                <Box display="flex" gap={1} mb={2}>
-                  {dog.color.map((color) => (
-                      <Chip
-                        key={color}
-                        label={color}
-                        clickable
-                        color={selectedColor === color ? 'primary' : 'default'}
-                       
-                        icon={<ColorLens />}
-                        style={{
-                          backgroundColor: color,
-                          color: selectedColor === color ? '#fff' : '#000',
-                          fontWeight: selectedColor === color ? 'bold' : 'normal',
-                          transition: '0.3s ease',
-                          
-                        }}
-                      />
-                  ))}
-                </Box>
+    <Grid container spacing={4}>
+      {/* Dog Image */}
+      <Grid item xs={12} md={5}>
+        <Card sx={{ borderRadius: 4, boxShadow: 3 }}>
+          <CardMedia
+            component="img"
+            image={dog.imageUrl}
+            alt={dog.name}
+            sx={{ height: "auto", objectFit: 'cover', borderRadius: 2 }}
+          />
+        </Card>
+      </Grid>
 
-              <Divider sx={{ my: 2 }} />
+      {/* Dog Info */}
+      <Grid item xs={12} md={7}>
+        <Card sx={{ p: 3, borderRadius: 4, boxShadow: 3 }}>
+          <CardContent>
+            <Typography variant="h4" fontWeight="bold" gutterBottom>
+              {dog.name}
+            </Typography>
 
-              <Typography variant="h6" color="primary" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                <AttachMoneyIcon sx={{ mr: 1 }} />
-                Price: {dog.price.toLocaleString()} VND
-              </Typography>
-              <Typography variant="h6" gutterBottom>
-                <Inventory sx={{ mr: 1 }} /> Inventory: ${dog.stock} items
-              </Typography>
-              <Typography variant="subtitle2" fontWeight="bold" color="primary">
-                <AddShoppingCartIcon fontSize="small" /> {dog.totalOrder} Orders
-              </Typography>
+            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+              <Chip icon={<PetsIcon />} label={`${t("Breed")}: ${dog.breed.name}`} color="primary" />
+              <Chip icon={<CakeIcon />} label={`${t("Age")}: ${new Date().getFullYear() - dog.age} ${t("years")}`} color="secondary" />
+              <Chip icon={<HeightIcon />} label={`${t("Height")}: ${dog.height} cm`} />
+              <Chip icon={<FitnessCenterIcon />} label={`${t("Weight")}: ${dog.weight} kg`} />
+            </Stack>
 
-              <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-                {dog.description}
-              </Typography>
-
-              <Stack direction="row" spacing={2} alignItems="center" mb={2}>
-                <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center' }}>
-                  <CalendarTodayIcon sx={{ mr: 0.5 }} /> Born: {new Date(dog.createdAt).toLocaleDateString()}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center' }}>
-                  <CalendarTodayIcon sx={{ mr: 0.5 }} /> Listed: {new Date(dog.updatedAt).toLocaleDateString()}
-                </Typography>
-              </Stack>
-
-              <Box display="flex" alignItems="center" gap={2} mb={2}>
-                <NumberInput min={1} defaultValue={1} onChange={(value) => setSelectedQuantity(value)} />
-                <Button
-                  variant="contained"
-                  color="success"
-                  size="large"
-                  startIcon={<AddShoppingCartIcon />}
-                  onClick={() => handleAddToCart(dog, selectedQuantity)}
-                  sx={{
-                    borderRadius: 3,
-                    px: 4,
-                    textTransform: 'none',
-                    fontWeight: 'bold',
-                    boxShadow: 2,
+            {/* Size */}
+            <Typography variant="h6" gutterBottom color="primary">{t("Size")}</Typography>
+            <Box display="flex" gap={1} mb={2}>
+              {dog.size.map((size) => (
+                <Chip
+                  key={size}
+                  label={size}
+                  clickable
+                  color={selectedSize === size ? 'primary' : 'default'}
+                  onClick={() => handleSizeClick(size)}
+                  style={{
+                    backgroundColor: selectedSize === size ? '#1976d2' : '#e0e0e0',
+                    color: selectedSize === size ? '#fff' : '#000',
+                    fontWeight: selectedSize === size ? 'bold' : 'normal',
+                    transition: '0.3s ease',
                   }}
-                >
-                  Add to Cart
-                </Button>
-                {user?<Tooltip title={checkFavorite ? 'Remove To FavoriteList' : 'Add To FavoriteList'}>
+                  icon={<FitnessCenter />}
+                />
+              ))}
+            </Box>
+
+            {/* Color */}
+            <Typography variant="h6" gutterBottom color="primary">{t("Color")}</Typography>
+            <Box display="flex" gap={1} mb={2}>
+              {dog.color.map((color) => (
+                <Chip
+                  key={color}
+                  label={color}
+                  clickable
+                  color={selectedColor === color ? 'primary' : 'default'}
+                  icon={<ColorLens />}
+                  style={{
+                    backgroundColor: color,
+                    color: selectedColor === color ? '#fff' : '#000',
+                    fontWeight: selectedColor === color ? 'bold' : 'normal',
+                    transition: '0.3s ease',
+                  }}
+                />
+              ))}
+            </Box>
+
+            <Divider sx={{ my: 2 }} />
+
+            {/* Price & Inventory */}
+            <Typography variant="h6" color="primary" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+              <AttachMoneyIcon sx={{ mr: 1 }} />
+              {t("Price")}: {dog.price.toLocaleString()} VND
+            </Typography>
+            <Typography variant="h6" gutterBottom>
+              <Inventory sx={{ mr: 1 }} /> {t("Inventory")}: {dog.stock} {t("items")}
+            </Typography>
+            <Typography variant="subtitle2" fontWeight="bold" color="primary">
+              <AddShoppingCartIcon fontSize="small" /> {dog.totalOrder} {t("Orders")}
+            </Typography>
+
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+              {dog.description}
+            </Typography>
+
+            <Stack direction="row" spacing={2} alignItems="center" mb={2}>
+              <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center' }}>
+                <CalendarTodayIcon sx={{ mr: 0.5 }} /> {t("Born")}: {new Date(dog.createdAt).toLocaleDateString()}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center' }}>
+                <CalendarTodayIcon sx={{ mr: 0.5 }} /> {t("Listed")}: {new Date(dog.updatedAt).toLocaleDateString()}
+              </Typography>
+            </Stack>
+
+            {/* Actions */}
+            <Box display="flex" alignItems="center" gap={2} mb={2}>
+              <NumberInput min={1} defaultValue={1} onChange={(value) => setSelectedQuantity(value)} />
+              <Button
+                variant="contained"
+                color="success"
+                size="large"
+                startIcon={<AddShoppingCartIcon />}
+                onClick={() => handleAddToCart(dog, selectedQuantity)}
+                sx={{ borderRadius: 3, px: 4, textTransform: 'none', fontWeight: 'bold', boxShadow: 2 }}
+              >
+                {t("Add to Cart")}
+              </Button>
+              {user && (
+                <Tooltip title={checkFavorite ? t("Remove To FavoriteList") : t("Add To FavoriteList")}>
                   <IconButton
                     color={checkFavorite ? 'error' : 'default'}
                     onClick={() => handleAddToFavoriteList(user._id, dog._id)}
@@ -272,40 +274,17 @@ const ProductDogType: React.FC = () => {
                     <Favorite />
                   </IconButton>
                 </Tooltip>
-                : <></> }
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-        
+              )}
+            </Box>
+          </CardContent>
+        </Card>
       </Grid>
-      
-      {user?<>
-        <UserComment userId={user?._id || ""} productId={dog._id} loadInfoDetailsOfProduct={loadInfoDetailsOfProduct}/>
-      </> : <>
-        <Box sx={{
-                maxWidth: '100%',
-                margin: '5% 1%',
-                padding: 4,
-                border: '1px solid #ddd',
-                borderRadius: 3,
-                backgroundColor: '#f9f9f9',
-                boxShadow: 2,
-                textAlign: 'center',
-              }}>
-              <Typography variant="h6" color="text.secondary" align="center" mt={4}>Please log in to leave a comment.</Typography>
-                <Button
-                 
-                  variant="outlined"
-                  onClick={() => navigate('/login', { state: {
-                    from: location.pathname + location.search,
-                    type: type
-                  }})}
-                >
-                  Go To Login
-                </Button>
-              </Box>
-      </>}
+    </Grid>
+
+    {/* Comments Section */}
+    {user ? (
+      <UserComment userId={user._id} productId={dog._id} loadInfoDetailsOfProduct={loadInfoDetailsOfProduct}/>
+    ) : (
       <Box sx={{
         maxWidth: '100%',
         margin: '5% 1%',
@@ -314,12 +293,39 @@ const ProductDogType: React.FC = () => {
         borderRadius: 3,
         backgroundColor: '#f9f9f9',
         boxShadow: 2,
-       
+        textAlign: 'center',
       }}>
-        <CommentsByProduct productId= {dog._id} totalRating={dog.totalRating?? 0} beforeTotalRatingRounded = {dog.beforeTotalRatingRounded??0} loadInfoDetailsOfProduct={loadInfoDetailsOfProduct}/>
+        <Typography variant="h6" color="text.secondary" align="center" mt={4}>
+          {t("Please log in to leave a comment.")}
+        </Typography>
+        <Button
+          variant="outlined"
+          onClick={() => navigate('/login', { state: { from: location.pathname + location.search, type: type }})}
+        >
+          {t("Go To Login")}
+        </Button>
       </Box>
+    )}
+
+    <Box sx={{
+      maxWidth: '100%',
+      margin: '5% 1%',
+      padding: 4,
+      border: '1px solid #ddd',
+      borderRadius: 3,
+      backgroundColor: '#f9f9f9',
+      boxShadow: 2,
+    }}>
+      <CommentsByProduct
+        productId={dog._id}
+        totalRating={dog.totalRating ?? 0}
+        beforeTotalRatingRounded={dog.beforeTotalRatingRounded ?? 0}
+        loadInfoDetailsOfProduct={loadInfoDetailsOfProduct}
+      />
     </Box>
-  );
+  </Box>
+);
+
 };
 
 export default ProductDogType;

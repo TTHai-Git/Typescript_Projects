@@ -28,6 +28,7 @@ import {
   AreaChart,
   Area,
 } from "recharts";
+import { useTranslation } from "react-i18next";
 
 export interface BestSellingProduct {
   totalSold: number;
@@ -51,6 +52,7 @@ const COLORS = [
 const BestSellingStats = ({ data = [] }: { data?: BestSellingProduct[] }) => {
   const [chartType, setChartType] = useState("bar");
   const [valueKey, setValueKey] = useState<"totalRevenue" | "totalSold">("totalRevenue");
+  const {t} = useTranslation()
 
   const renderChart = () => {
     if (!data || data.length === 0) return <Typography color="text.secondary">No product data available</Typography>;
@@ -139,36 +141,41 @@ const BestSellingStats = ({ data = [] }: { data?: BestSellingProduct[] }) => {
   return (
     <Box sx={{ mt: 5 }}>
       <Typography variant="h5" fontWeight={555} gutterBottom>
-        📊 Best Selling Products
+        {t("📊 Best Selling Products")}
       </Typography>
 
       {/* Chart Controls */}
       <Box display="flex" gap={3} mb={3}>
         <FormControl size="small">
-          <InputLabel>Chart Type</InputLabel>
+          <InputLabel>{t("Chart Type")}</InputLabel>
           <Select
             value={chartType}
             label="Chart Type"
             onChange={(e) => setChartType(e.target.value)}
             sx={{ minWidth: 150 }}
           >
-            <MenuItem value="bar">Bar</MenuItem>
-            <MenuItem value="line">Line</MenuItem>
-            <MenuItem value="area">Area</MenuItem>
-            <MenuItem value="pie">Pie</MenuItem>
+            <MenuItem value="bar">{t("Bar")}</MenuItem>
+            <MenuItem value="line">{t("Line")}</MenuItem>
+            <MenuItem value="area">{t("Area")}</MenuItem>
+            <MenuItem value="pie">{t("Pie")}</MenuItem>
           </Select>
         </FormControl>
 
         <FormControl size="small">
-          <InputLabel>Value</InputLabel>
+          <InputLabel>{t("Value")}</InputLabel>
           <Select
             value={valueKey}
             label="Value"
             onChange={(e) => setValueKey(e.target.value as "totalRevenue" | "totalSold")}
             sx={{ minWidth: 150 }}
           >
-            <MenuItem value="totalRevenue">Revenue ($)</MenuItem>
-            <MenuItem value="totalSold">Sold (items)</MenuItem>
+            <MenuItem value="totalRevenue">
+              {t("Revenue")} ($)
+            </MenuItem>
+            <MenuItem value="totalSold">
+              {t("Sold")} ({t("items")})
+            </MenuItem>
+
           </Select>
         </FormControl>
       </Box>

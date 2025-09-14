@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useTransition } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 // import axios from 'axios';
 import {
@@ -41,6 +41,8 @@ import { RootState } from '../store';
 import UserComment from './UserComment';
 import CommentsByProduct from './CommentsByProduct';
 import { useCart } from '../Context/Cart';
+import { useTranslation } from 'react-i18next';
+
 
 const ProductFoodType = () => {
   const user = useSelector((state: RootState) => state.auth.user)
@@ -55,6 +57,7 @@ const ProductFoodType = () => {
   const [checkFavorite, setCheckFavorite] = useState<Boolean>(false)
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
+  const {t} = useTranslation()
   
 
   const loadInfoDetailsOfProduct = async () => {
@@ -75,24 +78,21 @@ const ProductFoodType = () => {
     }, [product_id]);
 
   const handleAddToCart = (ProductFood: ProductFood, quantity: number) => {
-    let note = "Ingredients: ";
-  
-    if (ProductFood.ingredients && ProductFood.ingredients.length > 0) {
+    let note = `${t("Ingredients")}: `;
+
+    if (ProductFood.ingredients?.length) {
       note += ProductFood.ingredients.join(", ");
     }
-  
-    note += " - RecommendedFor: ";
-  
-    if (ProductFood.recommendedFor && ProductFood.recommendedFor.length > 0) {
+
+    note += ` - ${t("RecommendedFor")}: `;
+    if (ProductFood.recommendedFor?.length) {
       note += ProductFood.recommendedFor.join(", ");
     }
-  
-    const formatted = formatDate(`${ProductFood.expirationDate}`)
-    
-    note += ` - ExpirationDate: ${formatted}`;
-  
+
+    const formatted = formatDate(`${ProductFood.expirationDate}`);
+    note += ` - ${t("ExpirationDate")}: ${formatted}`;
+
     ProductFood.note = note;
-  
     addToCart(ProductFood, quantity);
   };
 
@@ -151,142 +151,146 @@ const ProductFoodType = () => {
   }
 
   return (
-    <Box sx={{ p: 4 }}>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={3000}
-        onClose={() => setSnackbarOpen(false)}
-        message={snackbarMessage}
+  <Box sx={{ p: 4 }}>
+    <Snackbar
+      open={snackbarOpen}
+      autoHideDuration={3000}
+      onClose={() => setSnackbarOpen(false)}
+      message={snackbarMessage}
+    />
+
+    <Card sx={{ maxWidth: 1000, margin: '0 auto', boxShadow: 6, borderRadius: 4 }}>
+      <CardMedia
+        component="img"
+        height="300"
+        image={productFoods.imageUrl}
+        alt={productFoods.name}
+        sx={{ objectFit: 'contain', background: '#f9f9f9' }}
       />
-      
 
-      <Card sx={{ maxWidth: 1000, margin: '0 auto', boxShadow: 6, borderRadius: 4 }}>
-        <CardMedia
-          component="img"
-          height="300"
-          image={productFoods.imageUrl}
-          alt={productFoods.name}
-          sx={{ objectFit: 'contain', background: '#f9f9f9' }}
-        />
-        <CardContent>
-          <Box display="flex" justifyContent="space-between" alignItems="center" gap={2} mb={2}>
-            <Typography variant="h4" fontWeight="bold" gutterBottom>
-              {productFoods.name}
-            </Typography>
-            {user?<Tooltip title={checkFavorite ? 'Remove Product To FavoriteList' : 'Add Product To FavoriteList'}>
-                <IconButton
-                  color={checkFavorite ? 'error' : 'default'}
-                  onClick={() => handleAddToFavoriteList(user._id, productFoods._id)}
-                >
-                  <Favorite />
-                </IconButton>
-              </Tooltip>
-              : <></> }
-            <Button
-              startIcon={<ShoppingCart />}
-              variant="contained"
-              color="success"
-              onClick={() => handleAddToCart(productFoods, selectedQuantity)}
-            >
-              Add to Cart
-            </Button>
-            <NumberInput min={1} defaultValue={1} onChange={(value) => setSelectedQuantity(value)} />
-          </Box>
-
-          <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-            {productFoods.description}
+      <CardContent>
+        <Box display="flex" justifyContent="space-between" alignItems="center" gap={2} mb={2}>
+          <Typography variant="h4" fontWeight="bold" gutterBottom>
+            {productFoods.name}
           </Typography>
 
-          <Grid container spacing={2} mt={2}>
-            <Grid item xs={12} sm={6}>
-              <Typography variant="h6" gutterBottom>
-                <LocalOffer sx={{ mr: 1 }} /> Price: ${productFoods.price.toLocaleString()} VND
-              </Typography>
-              <Typography variant="h6" gutterBottom>
-                <Inventory sx={{ mr: 1 }} /> Inventory: ${productFoods.stock} items
-              </Typography>
-               <Typography variant="subtitle2" fontWeight="bold" color="primary">
-                <AddShoppingCartIcon fontSize="small" /> {productFoods.totalOrder} Orders
-              </Typography>
-              <Typography variant="h6" gutterBottom>
-                <Category sx={{ mr: 1 }} /> Category: {productFoods.category.name}
-              </Typography>
-              <Typography variant="h6" gutterBottom>
-                <Factory sx={{ mr: 1 }} /> Brand: {productFoods.brand.name}
-              </Typography>
-              <Typography variant="h6" gutterBottom>
-                <Store sx={{ mr: 1 }} /> Vendor: {productFoods.vendor.name}
-              </Typography>
-            </Grid>
+          {user && (
+            <Tooltip title={checkFavorite ? t("Remove Product To FavoriteList") : t("Add Product To FavoriteList")}>
+              <IconButton
+                color={checkFavorite ? 'error' : 'default'}
+                onClick={() => handleAddToFavoriteList(user._id, productFoods._id)}
+              >
+                <Favorite />
+              </IconButton>
+            </Tooltip>
+          )}
 
-            <Grid item xs={12} sm={6}>
-              <Typography variant="h6" gutterBottom>
-                <CalendarMonth sx={{ mr: 1 }} /> Expiration Date:{' '}
-                {formatDate(productFoods.expirationDate.toString())}
-              </Typography>
+          <Button
+            startIcon={<ShoppingCart />}
+            variant="contained"
+            color="success"
+            onClick={() => handleAddToCart(productFoods, selectedQuantity)}
+          >
+            {t("Add to Cart")}
+          </Button>
 
-              <Box mt={2}>
-                <Typography variant="subtitle1" fontWeight="bold">
-                  Ingredients:
-                </Typography>
-                <Box display="flex" gap={1} flexWrap="wrap" mt={1}>
-                  {productFoods.ingredients.map((ing, index) => (
-                    <Chip key={index} label={ing} color="success" />
-                  ))}
-                </Box>
-              </Box>
+          <NumberInput min={1} defaultValue={1} onChange={(value) => setSelectedQuantity(value)} />
+        </Box>
 
-              <Box mt={2}>
-                <Typography variant="subtitle1" fontWeight="bold">
-                  Recommended For:
-                </Typography>
-                <Box display="flex" gap={1} flexWrap="wrap" mt={1}>
-                  {productFoods.recommendedFor.map((target, index) => (
-                    <Chip
-                      key={index}
-                      icon={<Pets />}
-                      label={target}
-                      variant="outlined"
-                      color="secondary"
-                    />
-                  ))}
-                </Box>
-              </Box>
-            </Grid>
+        <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+          {productFoods.description}
+        </Typography>
+
+        <Grid container spacing={2} mt={2}>
+          <Grid item xs={12} sm={6}>
+            <Typography variant="h6" gutterBottom>
+              <LocalOffer sx={{ mr: 1 }} /> {t("Price")}: {productFoods.price.toLocaleString()} VND
+            </Typography>
+            <Typography variant="h6" gutterBottom>
+              <Inventory sx={{ mr: 1 }} /> {t("Inventory")}: {productFoods.stock} {t("items")}
+            </Typography>
+            <Typography variant="subtitle2" fontWeight="bold" color="primary">
+              <AddShoppingCartIcon fontSize="small" /> {productFoods.totalOrder} {t("Orders")}
+            </Typography>
+            <Typography variant="h6" gutterBottom>
+              <Category sx={{ mr: 1 }} /> {t("Category")}: {productFoods.category.name}
+            </Typography>
+            <Typography variant="h6" gutterBottom>
+              <Factory sx={{ mr: 1 }} /> {t("Brand")}: {productFoods.brand.name}
+            </Typography>
+            <Typography variant="h6" gutterBottom>
+              <Store sx={{ mr: 1 }} /> {t("Vendor")}: {productFoods.vendor.name}
+            </Typography>
           </Grid>
 
-          <Divider sx={{ my: 3 }} />
+          <Grid item xs={12} sm={6}>
+            <Typography variant="h6" gutterBottom>
+              <CalendarMonth sx={{ mr: 1 }} /> {t("Expiration Date")}: {formatDate(productFoods.expirationDate.toString())}
+            </Typography>
 
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
-              <Box display="flex" alignItems="center" gap={2}>
-                <Avatar src={productFoods.brand.logoUrl} />
-                <Box>
-                  <Typography variant="subtitle1" fontWeight="bold">
-                    Brand Info: {productFoods.brand.name}
-                  </Typography>
-                  <Typography variant="body2">{productFoods.brand.description}</Typography>
-                </Box>
+            <Box mt={2}>
+              <Typography variant="subtitle1" fontWeight="bold">
+                {t("Ingredients")}:
+              </Typography>
+              <Box display="flex" gap={1} flexWrap="wrap" mt={1}>
+                {productFoods.ingredients.map((ing, index) => (
+                  <Chip key={index} label={ing} color="success" />
+                ))}
               </Box>
-            </Grid>
+            </Box>
 
-            <Grid item xs={12} sm={6}>
+            <Box mt={2}>
+              <Typography variant="subtitle1" fontWeight="bold">
+                {t("Recommended For")}:
+              </Typography>
+              <Box display="flex" gap={1} flexWrap="wrap" mt={1}>
+                {productFoods.recommendedFor.map((target, index) => (
+                  <Chip
+                    key={index}
+                    icon={<Pets />}
+                    label={target}
+                    variant="outlined"
+                    color="secondary"
+                  />
+                ))}
+              </Box>
+            </Box>
+          </Grid>
+        </Grid>
+
+        <Divider sx={{ my: 3 }} />
+
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6}>
+            <Box display="flex" alignItems="center" gap={2}>
+              <Avatar src={productFoods.brand.logoUrl} />
               <Box>
                 <Typography variant="subtitle1" fontWeight="bold">
-                  Vendor Contact: {productFoods.vendor.name}
+                  {t("Brand Info")}: {productFoods.brand.name}
                 </Typography>
-                <Typography variant="body2">{productFoods.vendor.contactInfo}</Typography>
-                <Typography variant="body2">{productFoods.vendor.email}</Typography>
-                <Typography variant="body2">{productFoods.vendor.phone}</Typography>
-                <Typography variant="body2">{productFoods.vendor.address}</Typography>
+                <Typography variant="body2">{productFoods.brand.description}</Typography>
               </Box>
-            </Grid>
+            </Box>
           </Grid>
-        </CardContent>
-      </Card>
-      {user?<>
-        <UserComment userId={user?._id || ""} productId={productFoods._id} loadInfoDetailsOfProduct={loadInfoDetailsOfProduct}/>
-      </> : <>
+
+          <Grid item xs={12} sm={6}>
+            <Box>
+              <Typography variant="subtitle1" fontWeight="bold">
+                {t("Vendor Contact")}: {productFoods.vendor.name}
+              </Typography>
+              <Typography variant="body2">{productFoods.vendor.contactInfo}</Typography>
+              <Typography variant="body2">{productFoods.vendor.email}</Typography>
+              <Typography variant="body2">{productFoods.vendor.phone}</Typography>
+              <Typography variant="body2">{productFoods.vendor.address}</Typography>
+            </Box>
+          </Grid>
+        </Grid>
+      </CardContent>
+    </Card>
+
+    {user ? (
+      <UserComment userId={user._id} productId={productFoods._id} loadInfoDetailsOfProduct={loadInfoDetailsOfProduct}/>
+    ) : (
       <Box sx={{
         maxWidth: '100%',
         margin: '5% 1%',
@@ -297,39 +301,37 @@ const ProductFoodType = () => {
         boxShadow: 2,
         textAlign: 'center',
       }}>
-      <Typography variant="h6" color="text.secondary" align="center" mt={4}>Please log in to leave a comment.</Typography>
+        <Typography variant="h6" color="text.secondary" align="center" mt={4}>
+          {t("Please log in to leave a comment.")}
+        </Typography>
         <Button
-         
           variant="outlined"
-          onClick={() => navigate('/login', { state: {
-            from: location.pathname + location.search,
-            type: type
-          }})}
+          onClick={() => navigate('/login', { state: { from: location.pathname + location.search, type: type }})}
         >
-          Go To Login
+          {t("Go To Login")}
         </Button>
       </Box>
-      </>}
-      <Box sx={{
-        maxWidth: '100%',
-        margin: '5% 1%',
-        padding: 4,
-        border: '1px solid #ddd',
-        borderRadius: 3,
-        backgroundColor: '#f9f9f9',
-        boxShadow: 2,
-       
-      }}>
-        <CommentsByProduct productId= {productFoods._id} 
-        totalRating = {productFoods.totalRating??0} 
-        beforeTotalRatingRounded={productFoods.beforeTotalRatingRounded??0} loadInfoDetailsOfProduct={loadInfoDetailsOfProduct} />
-      </Box>
-      
+    )}
+
+    <Box sx={{
+      maxWidth: '100%',
+      margin: '5% 1%',
+      padding: 4,
+      border: '1px solid #ddd',
+      borderRadius: 3,
+      backgroundColor: '#f9f9f9',
+      boxShadow: 2,
+    }}>
+      <CommentsByProduct
+        productId={productFoods._id}
+        totalRating={productFoods.totalRating ?? 0}
+        beforeTotalRatingRounded={productFoods.beforeTotalRatingRounded ?? 0}
+        loadInfoDetailsOfProduct={loadInfoDetailsOfProduct}
+      />
     </Box>
-    
-    
-    
-  );
+  </Box>
+);
+
 };
 
 export default ProductFoodType;

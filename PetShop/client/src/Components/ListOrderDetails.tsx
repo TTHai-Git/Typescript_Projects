@@ -5,6 +5,7 @@ import '../Assets/CSS/ListOrderDetails.css';
 import OrderDetails from '../Interface/OrderDetails';
 import { authApi, endpoints } from '../Config/APIs';
 import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export const ListOrderDetails = () => {
 
@@ -17,6 +18,7 @@ export const ListOrderDetails = () => {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
+  const {t} = useTranslation()
 
 
   let [numericalOrder] = useState<number>(1)
@@ -54,84 +56,113 @@ export const ListOrderDetails = () => {
   };
 
   return (
-    <div className="container">
-      <h1 className="title">🐶 Detailed List Of Orders</h1>      
+  <div className="container">
+    <h1 className="title">🐶 {t("Detailed List Of Orders")}</h1>      
 
-      {loading ? (
-        <p className="loading">🔄 Loading order details...</p>
-      ) : orderDetails.length > 0 ? (
-        <div className="table-wrapper">
-          <table className="order-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Image</th>
-                <th>Product</th>
-                <th>Category</th>
-                <th>Brand</th>
-                <th>Vendor</th>
-      
-                <th>Description</th>
-                <th>Quantity</th>
-                <th>Price</th>
-                <th>Note</th>
-                <th>Total Price</th>
+    {loading ? (
+      <p className="loading">🔄 {t("Loading order details...")}</p>
+    ) : orderDetails.length > 0 ? (
+      <div className="table-wrapper">
+        <table className="order-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>{t("Image")}</th>
+              <th>{t("Product")}</th>
+              <th>{t("Category")}</th>
+              <th>{t("Brand")}</th>
+              <th>{t("Vendor")}</th>
+              <th>{t("Description")}</th>
+              <th>{t("Quantity")}</th>
+              <th>{t("Price")}</th>
+              <th>{t("Note")}</th>
+              <th>{t("Total Price")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {orderDetails.map((orderdetail) => (
+              <tr key={orderdetail.product._id}>
+                <td>{numericalOrder++}</td>
+                <td>
+                  <img
+                    src={orderdetail.product.imageUrl}
+                    alt={orderdetail.product.name}
+                    className="dog-image"
+                  />
+                </td>
+                <td>{orderdetail.product.name}</td>
+                <td>{t(`${orderdetail.product.category.name}`)}</td>
+                <td>{t(`${orderdetail.product.brand.name}`)}</td>
+                <td>{t(`${orderdetail.product.vendor.name}`)}</td>
+
+                <td>{orderdetail.product.description}</td>
+                <td>{orderdetail.quantity}</td>
+                <td>
+                  {orderdetail.product.price.toLocaleString()} VND
+                </td>
+                <td>
+                  {orderdetail.note?.split(" - ").map((line, index) => (
+                    <div key={index}>{line}</div>
+                  ))}
+                </td>
+                <td className="total-price">${orderdetail.totalPrice}</td>
               </tr>
-            </thead>
-            <tbody>
-              {orderDetails.map((orderdetail) => (
-                <tr key={orderdetail.product._id}>
-                  <td>{numericalOrder++}</td>
-                  <td>
-                    <img src={orderdetail.product.imageUrl} alt={orderdetail.product.name} className="dog-image" />
-                  </td>
-                  <td>{orderdetail.product.name}</td>
-                  <td>{orderdetail.product.category.name}</td>
-                  <td>{orderdetail.product.brand.name}</td>
-                  <td>{orderdetail.product.vendor.name}</td>
-                 
-                  <td>{orderdetail.product.description}</td>
-                  <td>{orderdetail.quantity}</td>
-                  <td>${orderdetail.product.price.toLocaleString()} VND</td>
-                  <td>
-                    {orderdetail.note?.split(' - ').map((line, index) => (
-                      <div key={index}>{line}</div>
-                    ))}
-                  </td>
-                  <td className="total-price">${orderdetail.totalPrice}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <p className="no-data">❌ No order details found.</p>
-      )}
-      <h2 className='count'>Total Number of Products on Page {currentPage} Currently in Order is {orderDetails.length}</h2>
-      <h2 className='count'>Total Number of Products in Order Is {total}</h2>
-      <div className="pagination">
-        <button className="page-btn" onClick={() => changePage(1)} disabled={currentPage === 1}>
-          First
-        </button>
-        <button className="page-btn" onClick={() => changePage(currentPage - 1)} disabled={currentPage === 1}>
-          Previous
-        </button>
-        <span className="current-page">
-          Page {currentPage} of {pages}
-        </span>
-        <button className="page-btn" onClick={() => changePage(currentPage + 1)} disabled={currentPage === pages}>
-          Next
-        </button>
-        <button className="page-btn" onClick={() => changePage(pages)} disabled={currentPage === pages}>
-          Last
-        </button>
+            ))}
+          </tbody>
+        </table>
       </div>
-      <h2 className='count'>Total Number of Pages Is {pages}</h2>
-      
+    ) : (
+      <p className="no-data">❌ {t("No order details found.")}</p>
+    )}
+
+    <h2 className="count">
+      {t("Total Number of Products on Page")} {currentPage}{" "}
+      {t("Currently in Order is")} {orderDetails.length}
+    </h2>
+    <h2 className="count">
+      {t("Total Number of Products in Order Is")} {total}
+    </h2>
+
+    <div className="pagination">
+      <button
+        className="page-btn"
+        onClick={() => changePage(1)}
+        disabled={currentPage === 1}
+      >
+        {t("First")}
+      </button>
+      <button
+        className="page-btn"
+        onClick={() => changePage(currentPage - 1)}
+        disabled={currentPage === 1}
+      >
+        {t("Previous")}
+      </button>
+      <span className="current-page">
+        {t("Page")} {currentPage} {t("of")} {pages}
+      </span>
+      <button
+        className="page-btn"
+        onClick={() => changePage(currentPage + 1)}
+        disabled={currentPage === pages}
+      >
+        {t("Next")}
+      </button>
+      <button
+        className="page-btn"
+        onClick={() => changePage(pages)}
+        disabled={currentPage === pages}
+      >
+        {t("Last")}
+      </button>
     </div>
-    
-    
-  );
+
+    <h2 className="count">
+      {t("Total Number of Pages Is")} {pages}
+    </h2>
+  </div>
+);
+
 };
 
 export default ListOrderDetails;
