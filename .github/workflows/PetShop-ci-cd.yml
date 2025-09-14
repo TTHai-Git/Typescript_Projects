@@ -20,7 +20,7 @@ jobs:
       # ======== CLIENT TEST ========
       - name: Install dependencies (Client)
         working-directory: PetShop/client
-        run: npm ci --legacy-peer-deps
+        run: npm ci
 
       - name: Run tests (Client)
         working-directory: PetShop/client
