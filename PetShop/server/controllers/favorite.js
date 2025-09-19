@@ -52,7 +52,7 @@ export const getFavoriteProductOfUser = async (req, res) => {
 export const getFavoriteProductsList = async (req, res) => {
   const { userId } = req.params;
   const perPage = parseInt(req.query.limit) || 5;
-  const page = parseInt(req.query.page) || 1;
+  const page = req.query.page || 1;
   const { category, search, sort } = req.query;
 
   if (!userId) {

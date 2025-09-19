@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { useCart } from '../Context/Cart';
 import { useLocation, useNavigate } from 'react-router';
-import { authApi, endpoints } from '../Config/APIs';
+import  { authApi, endpoints } from '../Config/APIs';
 import { Box, Button, Card, Divider, Grid, Typography } from '@mui/material';
 import { useNotification } from '../Context/Notification';
 import { useTranslation } from 'react-i18next';
@@ -27,7 +27,8 @@ const CheckOut = () => {
         try {
             setLoading(true);
             if (choice === "VNPAY") {
-            const response = await axios.post("/v1/vnpay/create-payment-url/", {
+            
+            const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/vnpay/create-payment-url/`, {
                 amount: totalPrice ,
                 orderId: orderId,
             });
@@ -46,7 +47,7 @@ const CheckOut = () => {
                     "quantity": item.quantity
                 })
                 }
-                const res_2 = await axios.post('/v1/payOS/create-payment-link/', {
+                const res_2 = await axios.post(`${process.env.REACT_APP_BASE_URL}/payOS/create-payment-link/`, {
                     orderId: orderId,
                     amount: totalPrice ,
                     items: items,

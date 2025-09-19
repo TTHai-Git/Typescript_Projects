@@ -62,7 +62,7 @@ const NotificationList = () => {
     switch (type) {
       case 'ORDER_UPDATE':
         return <NotificationsActiveIcon />;
-      case 'PROMOTION':
+      case 'VOUCHER':
         return <LocalOfferIcon />;
       case 'MESSAGE':
         return <MessageIcon />;

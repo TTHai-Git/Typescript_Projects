@@ -14,7 +14,7 @@ const authRoutes = Router();
 authRoutes.post("/register", register);
 authRoutes.post("/login", login);
 authRoutes.post("/logout", logout);
-authRoutes.get("/me", authMiddleware, csrfMiddleware, authMe);
+authRoutes.get("/me", authMiddleware, authMe);
 authRoutes.post("/refresh", authMiddleware, csrfMiddleware, refreshAccessToken);
 authRoutes.post("/verify-email", verifyEmail);
 

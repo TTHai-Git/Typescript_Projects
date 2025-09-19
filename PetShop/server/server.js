@@ -113,10 +113,10 @@ app.use("/v1/favorites", favoriteRoutes, limiter);
 app.use("/v1/comments", commentRoutes, limiter);
 app.use("/v1/commentDetails", commentDetailsRoutes, limiter);
 app.use("/v1/payments", paymentRoutes, limiter);
-app.use("/v1/vnpay", VNPayRouter, limiter);
-app.use("/v1/payOS", payOSRouter, limiter);
+app.use(VNPayRouter);
+app.use(payOSRouter);
 app.use("/v1/shipments", shipmentRoutes, limiter);
-app.use("/v1/vouchers", voucherRouter, limiter);
+app.use("/v1/vouchers", voucherRouter);
 app.use("/v1/chat-bot-faq", chatBotRoutes, limiter);
 app.use("/v1/notifications", notificationRoutes, limiter);
 // Admin CRUD routes

@@ -32,7 +32,7 @@ export const createOne = (Model, modelName) => async (req, res) => {
       for (const user of users) {
         const newNotification = await Notification.create({
           user: user._id,
-          type: "PROMOTION",
+          type: "VOUCHER",
           title: `New Voucher Has Been Released`,
           message: `A new voucher ${doc.code} has been released. Enjoy ${doc.discount}% off on your next purchase!`,
         });

@@ -10,39 +10,57 @@ import {
   Divider,
   Tooltip,
   CircularProgress,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import { Add, Remove, Delete } from '@mui/icons-material';
 import { useCart } from '../Context/Cart';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { useNavigate } from 'react-router';
-import {  useState } from 'react';
+import {  useEffect, useState } from 'react';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
-import { authApi, endpoints } from '../Config/APIs';
+import APIs, { authApi, endpoints } from '../Config/APIs';
 import { useNotification } from '../Context/Notification';
 import { useTranslation } from 'react-i18next';
+import { Voucher } from '../Interface/Voucher';
 
 
 const Cart = () => {
-  const { cartItems, removeFromCart, increaseQuantity, decreaseQuantity, caculateTotalOfCart } = useCart();
+  const { cartItems, removeFromCart, increaseQuantity, decreaseQuantity, caculateTotalOfCart, caculateDiscountPrice } = useCart();
   const { showNotification } = useNotification()
+  const [vouchers, setVouchers] = useState<Voucher[]>()
+  const [selectedVoucherId, setSelectedVoucherId] = useState<string>("")
+  const [selectedVoucher, setSelectedVoucher] = useState<Voucher>()
+  const [discount, setDiscount] = useState<number>(0)
   const user = useSelector((state: RootState) => state.auth.user);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { t } = useTranslation()
   
 
+  const handleUpdateVoucherUsageForUser = async (voucherId: string) => {
+    try {
+      const res = await authApi.patch(endpoints['updateVoucherUsageForUser'](voucherId))
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   const handleMakeOrder = async () => {
     setLoading(true);
     try {
       const orderRes = await authApi.post(endpoints.createOrder, {
         user: user?._id,
-        totalPrice: caculateTotalOfCart(),
+        totalPrice: caculateTotalOfCart(discount),
         status: "Pending",
       });
 
       if (orderRes.status === 201) {
         showNotification(orderRes.data.message, "success")
+        handleUpdateVoucherUsageForUser(selectedVoucherId)
         const orderDetails = cartItems.map(item => ({
           order: orderRes.data.doc._id,
           product: item._id,
@@ -68,6 +86,43 @@ const Cart = () => {
       setLoading(false);
     }
   };
+
+  const handleGetAvailableVouchersForOrders = async (totalOfCart: Number) => {
+    try {
+     
+      const res = await APIs.get(`${endpoints["getAvailableVouchersForOrders"]}?totalOfCart=${totalOfCart}`)
+      if (res.status === 200){
+        setVouchers(res.data)
+      }
+    } catch (error) {
+      console.log("Something Went Wrong", error)
+    } finally {
+      
+    }
+  }
+
+  const handleCaculateDiscountOfTotalOfCart = async(voucherId: string) => {
+    try {
+      const res = await APIs.get(endpoints["getVoucher"](voucherId))
+      setSelectedVoucher(res.data)
+      setDiscount(selectedVoucher?.discount? selectedVoucher.discount : 0)
+      caculateTotalOfCart(discount)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    handleGetAvailableVouchersForOrders(caculateTotalOfCart(0))
+  }, [cartItems])
+
+  useEffect(() => {
+    if (selectedVoucherId) {
+      handleCaculateDiscountOfTotalOfCart(selectedVoucherId);
+    } else {
+      setDiscount(0); // reset when "None"
+    }
+  }, [selectedVoucherId]);
 
   return (
     <Box p={4}>
@@ -118,7 +173,7 @@ const Cart = () => {
                         <Add />
                       </IconButton>
                     </Tooltip>
-                    <Tooltip title="Remove">
+                    <Tooltip title={t("Remove")}>
                       <IconButton onClick={() => removeFromCart(item._id)} color="error">
                         <Delete />
                       </IconButton>
@@ -134,8 +189,23 @@ const Cart = () => {
             <Card elevation={3} sx={{ p: 3 }}>
               <Typography variant="h6">{t("Order Summary")}</Typography>
               <Divider sx={{ my: 1 }} />
-              <Typography variant="subtitle1">{t("Temp Total")}: {caculateTotalOfCart().toLocaleString()} VND</Typography>
-
+              <Typography variant="subtitle1">{t("Total Amount Temporarily Calculated")}: {caculateTotalOfCart(0).toLocaleString()} VND</Typography>
+              <FormControl style={{ minWidth: 369 }}>
+                <InputLabel>{t("Search Vouchers")}</InputLabel>
+                <Select
+                  value={selectedVoucherId}
+                  onChange={(e) => setSelectedVoucherId(e.target.value as string)}
+                >
+                  {vouchers?.map((v) => (
+                    <MenuItem key={v._id} value={v._id}>
+                      {v.code} - {v.discount.toString()}% - {v.description}
+                    </MenuItem>
+                  ))}
+                  <MenuItem value="">{t("None")}</MenuItem>
+                </Select>
+              </FormControl>
+              <Typography variant="subtitle1">{t("Discount Price")}: - {caculateDiscountPrice(discount, caculateTotalOfCart(0)).toLocaleString()} VND</Typography>
+              <Typography variant="subtitle1">{t("Total Amount Temporarily Calculated After Using The Voucher")}: {caculateTotalOfCart(discount).toLocaleString()} VND</Typography>
               {user?.isAuthenticated ? (
                 <>
                   <Button

@@ -13,10 +13,11 @@ import {
   Paper,
 } from '@mui/material'
 import axios from 'axios'
-import { authApi, endpoints } from '../Config/APIs'
+import APIs, { authApi, endpoints } from '../Config/APIs'
 import { useLocation, useNavigate, useParams } from 'react-router'
 import { useNotification } from '../Context/Notification'
 import { useTranslation } from 'react-i18next'
+import { Voucher } from '../Interface/Voucher'
 
 
 
@@ -29,7 +30,7 @@ const Shipment = () => {
   const [buyerAddress, setBuyerAddress] = useState<string>('')
   const [fee, setFee] = useState<number>(0)
   const [method, setMethod] = useState<string>('')
-  const [distance, setDistance] = useState<string>('')
+  const [distance, setDistance] = useState<number>(0)
   const [cities, setCities] = useState<any[]>([])
   const [districts, setDistricts] = useState<any[]>([])
   const [wards, setWards] = useState<any[]>([])
@@ -43,6 +44,13 @@ const Shipment = () => {
     ward: "",
     
   });
+
+  const [vouchers, setVouchers] = useState<Voucher[]>()
+  const [selectedVoucherId, setSelectedVoucherId] = useState<string>("")
+  const [selectedVoucher, setSelectedVoucher] = useState<Voucher>()
+  const [discount, setDiscount] = useState<number>(0)
+  const [templeShipmentFee, setTempShipmentFee] = useState<number>(0)
+  
 
   const { showNotification } = useNotification()
   const {t} = useTranslation()
@@ -64,6 +72,7 @@ const Shipment = () => {
         })
         if(res.status === 201) {
           showNotification(res.data.message, "success")
+          handleUpdateVoucherUsageForUser(selectedVoucherId)
           navigate("/cart/shipment/checkout", {
             state: {
               orderId: orderId,
@@ -78,7 +87,13 @@ const Shipment = () => {
       }
   }  
   
-
+  const handleUpdateVoucherUsageForUser = async (voucherId: string) => {
+    try {
+      const res = await authApi.patch(endpoints['updateVoucherUsageForUser'](voucherId))
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   const navigate = useNavigate()
 
@@ -150,6 +165,7 @@ const Shipment = () => {
 
     const fullAddress = `${buyerAddress.trim()}, ${order.ward}, ${order.district}, ${order.city}, Việt Nam`;
     console.log("Full Address:", fullAddress)
+    setBuyerAddress(fullAddress)
     const destinationAddress = process.env.REACT_APP_DestinationAddress || '';
 
     if (!destinationAddress) {
@@ -194,21 +210,66 @@ const Shipment = () => {
       return;
     }
 
-    setDistance(distanceInKilometers.toFixed(2));
+    setDistance(distanceInKilometers);
     showNotification("Địa chỉ hợp lệ. Đã tính toán khoảng cách thành công!", "success");
-
-    const res = await authApi.post(endpoints.calculateShipmentFee, {
-      method,
-      distance: distanceInKilometers, // use raw float if backend expects number
-    });
-    setFee(Math.ceil(res.data.shippingFee));
-    setBuyerAddress(fullAddress)
+    handleCalculateTempleShipmentFee(method, distanceInKilometers, 0)
+    handleCalculateShipmentFee(method, distanceInKilometers, discount)
+    
+    
   } catch (error) {
     console.error("Error calculating distance:", error);
     showNotification("Có lỗi xảy ra khi tính khoảng cách.", "error");
   }
 };
 
+  const handleCalculateShipmentFee = async (method: string, distance: number, discount: number) => {
+    try {
+      const res = await authApi.post(endpoints.calculateShipmentFee, {
+      method,
+      distance: distance, // use raw float if backend expects number
+      discount: discount,
+    });
+    setFee(Math.ceil(res.data.shippingFee));
+    } catch (error)  {
+      console.log("Something Went Wrong", error)
+    }
+  }
+
+  const handleCalculateTempleShipmentFee = async (method: string, distance: number, discount: number) => {
+    try {
+      const res = await authApi.post(endpoints.calculateShipmentFee, {
+      method,
+      distance: distance, // use raw float if backend expects number
+      discount: discount,
+    });
+    setTempShipmentFee(Math.ceil(res.data.shippingFee));
+    } catch (error)  {
+      console.log("Something Went Wrong", error)
+    }
+  }
+  const handleGetAvailableVouchersForOrders = async (shipmentFee: Number) => {
+    try {
+      
+      const res = await APIs.get(`${endpoints["getAvailableVouchersForShipment"]}?shipmentFee=${shipmentFee}`)
+      if (res.status === 200){
+        setVouchers(res.data)
+      }
+    } catch (error) {
+      console.log("Something Went Wrong", error)
+    } finally {
+      
+    }
+  }
+
+  const handleGetDiscountOfVoucher= async(voucherId: string) => {
+    try {
+      const res = await APIs.get(endpoints["getVoucher"](voucherId))
+      setSelectedVoucher(res.data)
+      setDiscount(selectedVoucher?.discount ? selectedVoucher.discount : 0)
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   useEffect(() => {
     // Fetch cities on mount
@@ -219,6 +280,22 @@ const Shipment = () => {
     console.log("Order ID:", orderId)
     console.log("Total Price:", totalPrice)
   }, []);
+
+  useEffect(() => {
+    handleGetAvailableVouchersForOrders(fee)
+  }, [fee])
+
+  useEffect(() => {
+    if (selectedVoucherId) {
+      handleGetDiscountOfVoucher(selectedVoucherId)
+      // console.log("Shiment Fee", fee)
+      // console.log("Discount", discount)
+    }
+    else {
+      setDiscount(0)
+    }
+    handleCalculateShipmentFee(method, distance, discount)
+  }, [selectedVoucherId, discount])
 
   return (
   <Box sx={{ maxWidth: 800, mx: 'auto', mt: 4, p: 3 }}>
@@ -309,7 +386,7 @@ const Shipment = () => {
           />
         </Grid>
 
-        <Grid item xs={12} sm={4}>
+        <Grid item xs={12} sm={6}>
           <FormControl fullWidth>
             <InputLabel>{t("Shipping Method")}</InputLabel>
             <Select
@@ -321,8 +398,24 @@ const Shipment = () => {
               <MenuItem value="Delivery">{t("Delivery")}</MenuItem>
             </Select>
           </FormControl>
+          
         </Grid>
-
+        <Grid item xs={12} sm={6}>
+          <FormControl fullWidth>
+            <InputLabel>{t("Search Vouchers")}</InputLabel>
+            <Select
+              value={selectedVoucherId}
+              onChange={(e) => setSelectedVoucherId(e.target.value as string)}
+            >
+              {vouchers?.map((v) => (
+                <MenuItem key={v._id} value={v._id}>
+                  {v.code} - {v.discount.toString()}% - {v.description}
+                </MenuItem>
+              ))}
+              <MenuItem value="">{t("None")}</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
         <Grid item xs={12} sm={8}>
           <Button
             variant="outlined"
@@ -335,7 +428,12 @@ const Shipment = () => {
 
         <Grid item xs={12} sm={6}>
           <Typography>
-            {t("Distance")}: {distance ? `${distance} km` : t("Not determined")}
+            {t("Distance")}: {distance ? `${distance.toFixed(2).toString()} km` : t("Not determined")}
+          </Typography>
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <Typography>
+            {t("Temporary Shipping Fee")}: {templeShipmentFee > 0 ? `${templeShipmentFee.toLocaleString()} VND` : t("Not available")}
           </Typography>
         </Grid>
         <Grid item xs={12} sm={6}>

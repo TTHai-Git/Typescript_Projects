@@ -184,7 +184,7 @@ const UpdateCommentForm = () => {
       }}
     >
       <Typography variant="h5" fontWeight="bold" gutterBottom>
-        Leave a Comment
+        Leave A Comment
       </Typography>
 
       <Box mb={2}>

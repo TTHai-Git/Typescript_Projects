@@ -20,7 +20,7 @@ const Home = () => {
   const categories = [
     
     {
-      title: t(`Adopt a Dog`),
+      title: t(`Adopt A Dog`),
       description: t("Find your perfect furry companion from our certified breeders."),
       image: `${process.env.PUBLIC_URL}/images/DogsShop.jpg`,
       link: "/products?category=67f8b16808c00df1c417a843&page=1",

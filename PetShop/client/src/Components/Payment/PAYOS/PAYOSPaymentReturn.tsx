@@ -49,7 +49,7 @@ const PAYOSPaymentReturn = () => {
         return
       }
 
-      const res = await axios.get(`/v1/payOS/get-payment-link-info/${id}`)
+      const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/payOS/get-payment-link-info/${id}`)
       const extraData = res.data.transactions[0]
 
       if (res.status === 200) {
@@ -96,7 +96,7 @@ const PAYOSPaymentReturn = () => {
         return
       }
 
-      const res = await axios.get(`/v1/payOS/get-payment-link-info/${id}`)
+      const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/payOS/get-payment-link-info/${id}`)
       const extraData = res.data.transactions[0]
 
       if (res.status === 200) {

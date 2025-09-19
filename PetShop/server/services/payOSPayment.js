@@ -10,7 +10,7 @@ const payos = new PayOS(
   process.env.REACT_APP_PAYOS_checksum_key
 );
 const payOSRouter = Router();
-payOSRouter.post("/create-payment-link", async (req, res) => {
+payOSRouter.post("/v1/payOS/create-payment-link/", async (req, res) => {
   const {
     orderId,
     amount,
@@ -32,8 +32,8 @@ payOSRouter.post("/create-payment-link", async (req, res) => {
       amount: amount,
       description: "Thanh Toan Dog Shop",
       items: items,
-      returnUrl: `http://localhost:3000/PAYOS/payment-return?order=${orderId}`,
-      cancelUrl: `http://localhost:3000/PAYOS/payment-return?order=${orderId}`,
+      returnUrl: `${process.env.CLIENT_URL}/PAYOS/payment-return?order=${orderId}`,
+      cancelUrl: `${process.env.CLIENT_URL}/PAYOS/payment-return?order=${orderId}`,
       expiredAt: Math.floor(Date.now() / 1000) + 15 * 60,
     };
     const paymentLink = await payos.createPaymentLink(order);
@@ -43,7 +43,7 @@ payOSRouter.post("/create-payment-link", async (req, res) => {
     console.log(error);
   }
 });
-payOSRouter.get("/get-payment-link-info/:id", async (req, res) => {
+payOSRouter.get("/v1/payOS/get-payment-link-info/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const paymentLinkInfo = await payos.getPaymentLinkInformation(id);

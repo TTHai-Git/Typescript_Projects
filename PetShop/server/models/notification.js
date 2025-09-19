@@ -5,7 +5,14 @@ const notificationSchema = new Schema(
     user: { type: Schema.Types.ObjectId, ref: "User", required: true },
     type: {
       type: String,
-      enum: ["ORDER_UPDATE", "PROMOTION", "MESSAGE", "ALERT", "EVENT"],
+      enum: [
+        "ORDER_UPDATE",
+        "PROMOTION",
+        "VOUCHER",
+        "MESSAGE",
+        "ALERT",
+        "EVENT",
+      ],
       required: true,
     },
     title: { type: String, required: true },

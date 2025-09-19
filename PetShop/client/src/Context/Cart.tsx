@@ -9,7 +9,8 @@ interface CartContextType {
   increaseQuantity: (_id: string, stock: number) => void;
   decreaseQuantity: (_id: string) => void;
   checkOutFromCart: () => void;
-  caculateTotalOfCart: () => number;
+  caculateTotalOfCart: (discount: number) => number;
+  caculateDiscountPrice: (discount: number, totalOfCart: number) => number;
 }
 
 interface CartProviderProps {
@@ -27,6 +28,7 @@ const CartContext = createContext<CartContextType>({
   decreaseQuantity: () => {},
   checkOutFromCart: () => {},
   caculateTotalOfCart: () => 0,
+  caculateDiscountPrice: () => 0,
 });
 
 export const useCart = () => useContext(CartContext);
@@ -122,18 +124,23 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     });
   };
 
-  const caculateTotalOfCart = () => {
-    return cartItems.reduce(
-      (sum, item) => sum + Number(item.price) * item.quantity,
+  const caculateTotalOfCart = (discount: number) => {
+    const totalOfCart = cartItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
       0
     );
+    return totalOfCart - caculateDiscountPrice(discount, totalOfCart);
   };
+  
+  const caculateDiscountPrice = (discount: number, totalOfCart: number) => {
+    return Number(((totalOfCart * discount) / 100).toFixed(2));
+  }
 
   const checkOutFromCart = () => {
-    notify(
-      `Thank you for shopping with us! Total: $${caculateTotalOfCart()}`,
-      "success"
-    );
+    // notify(
+    //   `Thank you for shopping with us! Total: $${caculateTotalOfCart()}`,
+    //   "success"
+    // );
     setCartItems([]);
   };
 
@@ -147,6 +154,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         increaseQuantity,
         checkOutFromCart,
         caculateTotalOfCart,
+        caculateDiscountPrice,
       }}
     >
       {children}

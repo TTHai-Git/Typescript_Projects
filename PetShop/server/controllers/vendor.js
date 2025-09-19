@@ -92,3 +92,7 @@ export const deleteVendor = async (req, res) => {
     res.status(500).json({ message: "server error", error });
   }
 };
+export const calculateDiscountPrice = (price, discount) => {
+  // final price after discount, rounded if you like
+  return Math.ceil(price * (1 - discount / 100));
+};

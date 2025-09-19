@@ -1,4 +1,5 @@
 import Shipment from "../models/shipment.js";
+import { calculateDiscountPrice } from "./vendor.js";
 
 export const createShipment = async (req, res) => {
   try {
@@ -15,7 +16,7 @@ export const createShipment = async (req, res) => {
 };
 export const caculateShipmentFee = async (req, res) => {
   try {
-    const { distance, method } = req.body;
+    const { distance, method, discount } = req.body;
 
     if (method !== "Delivery") {
       return res.status(200).json({ shippingFee: 0 });
@@ -31,7 +32,11 @@ export const caculateShipmentFee = async (req, res) => {
     const rawFee = baseFee + ratePerKm * distance;
 
     // Round up to nearest thousand
-    const shippingFee = Math.ceil(rawFee / 1000) * 1000;
+    // Round base fee first
+    let shippingFee = Math.ceil(rawFee / 1000) * 1000;
+
+    // Apply discount to get final shipping fee
+    shippingFee = calculateDiscountPrice(shippingFee, discount);
 
     return res.status(200).json({ shippingFee });
   } catch (error) {

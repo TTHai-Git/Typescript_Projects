@@ -23,7 +23,7 @@ function sortObject(obj) {
   return sorted;
 }
 
-VNPayRouter.post("/create-payment-url", (req, res) => {
+VNPayRouter.post("/v1/vnpay/create-payment-url/", (req, res) => {
   const { amount, orderId, bankCode } = req.body;
   const ipAddr = req.headers["x-forwarded-for"]
     ? req.headers["x-forwarded-for"].split(",")[0].trim()

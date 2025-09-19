@@ -141,7 +141,7 @@ return (
     }}
   >
     <Typography variant="h5" fontWeight="bold" gutterBottom>
-      {t("Leave a Comment")}
+      {t("Leave A Comment")}
     </Typography>
 
     <Box mb={2}>

@@ -16,11 +16,14 @@ const voucherSchema = new Schema(
     expiryDate: {
       type: Date,
       required: true,
-      default: () => new Date(+new Date() + 30 * 24 * 60 * 60 * 1000), // Default to 30 days from now
     },
     isActive: {
       type: Boolean,
       default: true,
+    },
+    minimumPrice: {
+      type: Number,
+      require: true,
     },
     usageCount: {
       type: Number,
@@ -29,6 +32,15 @@ const voucherSchema = new Schema(
     maxUsage: {
       type: Number,
       default: 100,
+    },
+    type: {
+      type: String,
+      enum: ["Order", "Shipment"],
+      require: true,
+    },
+    description: {
+      type: String,
+      default: "None",
     },
   },
   {

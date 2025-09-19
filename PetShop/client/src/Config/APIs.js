@@ -46,6 +46,10 @@ export const endpoints = {
   getNotifications: "/notifications",
   markANotificationAsRead: (notificationId) =>
     `/notifications/${notificationId}/update`,
+  getAvailableVouchersForOrders: "/vouchers/available/for-orders",
+  getAvailableVouchersForShipment: "/vouchers/available/for-shipments",
+  getVoucher: (voucherId) => `/vouchers/${voucherId}`,
+  updateVoucherUsageForUser: (voucherId) => `/vouchers/${voucherId}/usage`,
 };
 
 export const adminEndpoints = {
