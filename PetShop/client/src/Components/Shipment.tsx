@@ -178,6 +178,7 @@ const calculateDistance = async (buyerAddress: string) => {
     }
 
     const mapboxToken = process.env.REACT_APP_MapToken;
+    console.log("mapboxToken", mapboxToken)
     if (!mapboxToken) {
       console.error("Mapbox token is missing.");
       showNotification("Token Mapbox không hợp lệ.", "error");
