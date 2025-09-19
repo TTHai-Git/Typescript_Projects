@@ -188,7 +188,7 @@ const calculateDistance = async (buyerAddress: string) => {
     // ✅ Force true CORS requests so the browser sends the Origin header.
     const axiosOptions = {
       params: { access_token: mapboxToken },
-      // withCredentials: true    // <─ important
+      withCredentials: false    // <─ important
     };
 
     const [originResponse, destinationResponse] = await Promise.all([
