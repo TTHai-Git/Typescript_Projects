@@ -178,46 +178,38 @@ const calculateDistance = async (buyerAddress: string) => {
     }
 
     const mapboxToken = process.env.REACT_APP_MapToken;
-    // console.log("mapboxToken", mapboxToken)
     if (!mapboxToken) {
       console.error("Mapbox token is missing.");
       showNotification("Token Mapbox không hợp lệ.", "error");
       return;
     }
 
-    // ✅ Force true CORS requests so the browser sends the Origin header.
-    const axiosOptions = {
-      params: { access_token: mapboxToken },
-      withCredentials: false    // <─ important
-    };
-
-    const [originResponse, destinationResponse] = await Promise.all([
-      axios.get(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(fullAddress)}.json`,
-        axiosOptions
-      ),
-      axios.get(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(destinationAddress)}.json`,
-        axiosOptions
-      ),
-    ]);
-
+    // Gọi API để lấy tọa độ của địa chỉ người mua
+    const originResponse = await axios.get(
+      `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(fullAddress)}.json?access_token=${mapboxToken}`
+    );
     const originCoordinates = originResponse.data.features[0]?.center;
-    const destinationCoordinates = destinationResponse.data.features[0]?.center;
 
-    if (!originCoordinates || !destinationCoordinates) {
-      showNotification("Lỗi: Không tìm thấy tọa độ cho địa chỉ.", "error");
+    if (!originCoordinates) {
+      showNotification("Lỗi: Không tìm thấy tọa độ cho địa chỉ người mua.", "error");
       return;
     }
 
-    const directionsResponse = await axios.get(
-      `https://api.mapbox.com/directions/v5/mapbox/driving/${originCoordinates.join(",")};${destinationCoordinates.join(",")}`,
-      {
-        params: { access_token: mapboxToken, geometries: "geojson" },
-        withCredentials: false   // <─ again, ensure CORS mode
-      }
+    // Gọi API để lấy tọa độ của địa chỉ cửa hàng
+    const destinationResponse = await axios.get(
+      `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(destinationAddress)}.json?access_token=${mapboxToken}`
     );
+    const destinationCoordinates = destinationResponse.data.features[0]?.center;
 
+    if (!destinationCoordinates) {
+      showNotification("Lỗi: Không tìm thấy tọa độ cho địa chỉ cửa hàng.", "error");
+      return;
+    }
+
+    // Gọi API để tính khoảng cách
+    const directionsResponse = await axios.get(
+      `https://api.mapbox.com/directions/v5/mapbox/driving/${originCoordinates.join(",")};${destinationCoordinates.join(",")}?access_token=${mapboxToken}&geometries=geojson`
+    );
     const distanceInKilometers = (directionsResponse.data.routes[0]?.distance || 0) / 1000;
 
     if (distanceInKilometers <= 0 && method === "Delivery") {
@@ -235,6 +227,7 @@ const calculateDistance = async (buyerAddress: string) => {
     showNotification("Có lỗi xảy ra khi tính khoảng cách.", "error");
   }
 };
+
 
 
   const handleCalculateShipmentFee = async (method: string, distance: number, discount: number) => {
