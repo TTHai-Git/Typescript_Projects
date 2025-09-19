@@ -101,16 +101,16 @@ const Cart = () => {
     }
   }
 
-  const handleCaculateDiscountOfTotalOfCart = async(voucherId: string) => {
-    try {
-      const res = await APIs.get(endpoints["getVoucher"](voucherId))
-      setSelectedVoucher(res.data)
-      setDiscount(selectedVoucher?.discount? selectedVoucher.discount : 0)
-      caculateTotalOfCart(discount)
-    } catch (error) {
-      console.log(error)
-    }
+  const handleCaculateDiscountOfTotalOfCart = async (voucherId: string) => {
+  try {
+    const res = await APIs.get(endpoints["getVoucher"](voucherId));
+    setSelectedVoucher(res.data);
+    setDiscount(res.data?.discount ?? 0); // ✅ use API result
+  } catch (error) {
+    console.error(error);
   }
+};
+
 
   useEffect(() => {
     handleGetAvailableVouchersForOrders(caculateTotalOfCart(0))

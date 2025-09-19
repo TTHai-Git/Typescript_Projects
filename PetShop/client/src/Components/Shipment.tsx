@@ -155,19 +155,22 @@ const Shipment = () => {
     });
   };
 
-  const calculateDistance = async (buyerAddress: string) => {
+const calculateDistance = async (buyerAddress: string) => {
   try {
     // Ensure all components are present
     if (!buyerAddress.trim() || !order.ward || !order.district || !order.city) {
-      showNotification("Vui lòng nhập đầy đủ địa chỉ và chọn phường/xã, quận/huyện, tỉnh/thành.", "warning");
+      showNotification(
+        "Vui lòng nhập đầy đủ địa chỉ và chọn phường/xã, quận/huyện, tỉnh/thành.",
+        "warning"
+      );
       return;
     }
 
     const fullAddress = `${buyerAddress.trim()}, ${order.ward}, ${order.district}, ${order.city}, Việt Nam`;
-    console.log("Full Address:", fullAddress)
-    setBuyerAddress(fullAddress)
-    const destinationAddress = process.env.REACT_APP_DestinationAddress || '';
+    console.log("Full Address:", fullAddress);
+    setBuyerAddress(fullAddress);
 
+    const destinationAddress = process.env.REACT_APP_DestinationAddress || "";
     if (!destinationAddress) {
       console.error("Environment variable 'REACT_APP_DestinationAddress' is not set.");
       showNotification("Không tìm thấy địa chỉ cửa hàng.", "warning");
@@ -181,13 +184,21 @@ const Shipment = () => {
       return;
     }
 
+    // ✅ Force true CORS requests so the browser sends the Origin header.
+    const axiosOptions = {
+      params: { access_token: mapboxToken },
+      withCredentials: false    // <─ important
+    };
+
     const [originResponse, destinationResponse] = await Promise.all([
-      axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(fullAddress)}.json`, {
-        params: { access_token: mapboxToken },
-      }),
-      axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(destinationAddress)}.json`, {
-        params: { access_token: mapboxToken },
-      }),
+      axios.get(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(fullAddress)}.json`,
+        axiosOptions
+      ),
+      axios.get(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(destinationAddress)}.json`,
+        axiosOptions
+      ),
     ]);
 
     const originCoordinates = originResponse.data.features[0]?.center;
@@ -199,8 +210,11 @@ const Shipment = () => {
     }
 
     const directionsResponse = await axios.get(
-      `https://api.mapbox.com/directions/v5/mapbox/driving/${originCoordinates.join(',')};${destinationCoordinates.join(',')}`,
-      { params: { access_token: mapboxToken, geometries: 'geojson' } }
+      `https://api.mapbox.com/directions/v5/mapbox/driving/${originCoordinates.join(",")};${destinationCoordinates.join(",")}`,
+      {
+        params: { access_token: mapboxToken, geometries: "geojson" },
+        withCredentials: false   // <─ again, ensure CORS mode
+      }
     );
 
     const distanceInKilometers = (directionsResponse.data.routes[0]?.distance || 0) / 1000;
@@ -212,15 +226,15 @@ const Shipment = () => {
 
     setDistance(distanceInKilometers);
     showNotification("Địa chỉ hợp lệ. Đã tính toán khoảng cách thành công!", "success");
-    handleCalculateTempleShipmentFee(method, distanceInKilometers, 0)
-    handleCalculateShipmentFee(method, distanceInKilometers, discount)
-    
-    
+
+    handleCalculateTempleShipmentFee(method, distanceInKilometers, 0);
+    handleCalculateShipmentFee(method, distanceInKilometers, discount);
   } catch (error) {
     console.error("Error calculating distance:", error);
     showNotification("Có lỗi xảy ra khi tính khoảng cách.", "error");
   }
 };
+
 
   const handleCalculateShipmentFee = async (method: string, distance: number, discount: number) => {
     try {
@@ -265,7 +279,7 @@ const Shipment = () => {
     try {
       const res = await APIs.get(endpoints["getVoucher"](voucherId))
       setSelectedVoucher(res.data)
-      setDiscount(selectedVoucher?.discount ? selectedVoucher.discount : 0)
+      setDiscount(res.data?.discount ?? 0)
     } catch (error) {
       console.log(error)
     }
