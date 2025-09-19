@@ -178,7 +178,7 @@ const calculateDistance = async (buyerAddress: string) => {
     }
 
     const mapboxToken = process.env.REACT_APP_MapToken;
-    console.log("mapboxToken", mapboxToken)
+    // console.log("mapboxToken", mapboxToken)
     if (!mapboxToken) {
       console.error("Mapbox token is missing.");
       showNotification("Token Mapbox không hợp lệ.", "error");
@@ -188,7 +188,7 @@ const calculateDistance = async (buyerAddress: string) => {
     // ✅ Force true CORS requests so the browser sends the Origin header.
     const axiosOptions = {
       params: { access_token: mapboxToken },
-      withCredentials: false    // <─ important
+      withCredentials: true    // <─ important
     };
 
     const [originResponse, destinationResponse] = await Promise.all([
