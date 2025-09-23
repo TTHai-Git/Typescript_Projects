@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   generateOTP,
   resetPassword,
+  updateAvatar,
   updateInfor,
 } from "../controllers/user.js";
 import { csrfMiddleware } from "../middleware/csrf.js";
@@ -14,6 +15,10 @@ userRoutes.put(
   authMiddleware,
   csrfMiddleware,
   updateInfor
+);
+userRoutes.put(
+  "/:user_id/update-avatar",
+  updateAvatar
 );
 userRoutes.post("/generate-otp", generateOTP);
 // userRoutes.post("/verify-otp", verifyOTP);

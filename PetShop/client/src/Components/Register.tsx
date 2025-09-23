@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from "react";
 import "../Assets/CSS/Register.css";
-// import axios from "axios";
 import { useNavigate } from "react-router";
-import APIs, { endpoints } from "../Config/APIs";
+import APIs, { authApi, endpoints } from "../Config/APIs";
 import axios from "axios";
-import { Alert, Snackbar } from "@mui/material";
+
 import { useTranslation } from "react-i18next";
+import { useNotification } from "../Context/Notification";
 
 const Register = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [previewAvatar, setPreviewAvatar] = useState<string | null>(null);
-  const [message, setMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
 
   const [userRegister, setUserRegister] = useState({
     username: "",
@@ -23,59 +22,156 @@ const Register = () => {
     address: "",
   });
 
-  const { t } = useTranslation()
+  const { t } = useTranslation();
+  const { showNotification } = useNotification();
 
+  /* ------------------- VALIDATORS ------------------- */
+
+  const handleValidatePhone = (phone: string) => {
+    const cleaned = phone.trim().replace(/[\s\-\.]/g, "");
+    const mobilePattern = /^(?:(?:\+84|84|0084)?(3[2-9]|5[2689]|7[06-9]|8[1-5]|9[0-46-9]))\d{7}$/;
+    const landlinePattern = /^(?:(?:\+84|84|0084)?0?)([2-9]\d{1,2})\d{7,8}$/;
+    return mobilePattern.test(cleaned) || landlinePattern.test(cleaned);
+  };
+
+  const handleValidatePassWord = (passWord: string) => {
+    // at least 8 chars, 1 upper, 1 lower, 1 number
+    return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(passWord);
+  };
+
+  const handleValidateFullName = (fullname: string) => {
+    // letters + space, apostrophe, dot, dash; length 2-50
+    return /^[\p{L}][\p{L}\s'.-]{1,49}$/u.test(fullname.trim());
+  };
+
+  const handleValidateEmail = (email: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  const handleValidateAddress = (address: string) =>
+    address.trim().length >= 5;
+
+  const handleValidateAvatar = (files: File[]) => {
+    const MAX_FILES = 1;
+    const MAX_CAPACITY = 2 * 1024 * 1024; // 2 MB
+    if (files.length > MAX_FILES) {
+      showNotification(t("You can only upload a maximum of one photo for avatar!"), "warning");
+      return false;
+    }
+    const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+    if (totalSize > MAX_CAPACITY) {
+      showNotification(t("The maximum capacity for uploading avatar is 2MB!"), "warning");
+      return false;
+    }
+    if (files.length === 0) {
+      showNotification(t("You have to upload at least one photo for avatar to register account!"), "warning");
+      return false;
+    }
+    const nonImages = files.find((file) => !file.type.startsWith("image/"));
+    if (nonImages) {
+      showNotification(t("Only image files are allowed!"), "warning");
+      return false;
+    }
+    return true; // ✅ Important
+  };
+
+  /* ------------------- EVENT HANDLERS ------------------- */
 
   const handleSetState = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, files } = e.target;
-    if (name === "avatar" && files && files.length > 0) {
-      const file = files[0];
-      setUserRegister((prev) => ({ ...prev, avatar: file }));
-      setPreviewAvatar(URL.createObjectURL(file));
-    } else {
+    if (name === "avatar" && files) {
+      const selectedFiles = Array.from(files) as File[];
+      if (handleValidateAvatar(selectedFiles)) {
+        const file = selectedFiles[0];
+        setUserRegister((prev) => ({ ...prev, avatar: file }));
+        setPreviewAvatar(URL.createObjectURL(file));
+      }
+      return;
+    }
+    else {
       setUserRegister((prev) => ({ ...prev, [name]: value }));
     }
-  };
+  }
+
+  const handleUploadAvatarOnToCloudinary = async (userId: string, avatar: File) => {
+    const data = new FormData();
+    data.append("file", avatar);
+    data.append("upload_preset", process.env.REACT_APP_UPLOAD_PRESET || "");
+    data.append("cloud_name", process.env.REACT_APP_CLOUD_NAME || "");
+    data.append("folder", process.env.REACT_APP_FOLDER_CLOUD || "");
+
+    // Upload to Cloudinary
+    const res = await axios.post(
+      `${endpoints["uploadAvatarToCloudinary"](
+        process.env.REACT_APP_BASE_CLOUD_URL,
+        process.env.REACT_APP_CLOUD_NAME,
+        process.env.REACT_APP_DIR_CLOUD
+      )}`,
+      data
+    );
+
+    // Handle Upload Avatar For User
+    if (res.status === 200) {
+        try {
+        await authApi.put(endpoints["updateAvatar"](userId), {
+          avatar: res.data.secure_url
+        })
+      } catch (error) {
+        console.log(error)
+      }
+    }
+  }
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
 
-    const data = new FormData();
-    if (userRegister.avatar) {
-      data.append("file", userRegister.avatar);
+    // ✅ Run all validations before uploading
+    if (!handleValidateFullName(userRegister.name)) {
+      showNotification(t("Full name must be 2–50 valid characters"), "warning");
+      return;
     }
-    data.append("upload_preset", process.env.REACT_APP_UPLOAD_PRESET || "");
-    data.append("cloud_name", process.env.REACT_APP_CLOUD_NAME || "");
-    data.append("folder", process.env.REACT_APP_FOLDER_CLOUD || "")
-
-    try {
-      // const res_1 = await axios.post(
-      //   `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUD_NAME}/image/upload`,
-      //   data
-      // );
-      const res_1 = await axios.post(
-        `${endpoints['uploadAvatarToCloudinary'](
-          process.env.REACT_APP_BASE_CLOUD_URL, 
-          process.env.REACT_APP_CLOUD_NAME,
-          process.env.REACT_APP_DIR_CLOUD
-        )}`,
-        data
+    if (!handleValidatePassWord(userRegister.password)) {
+      showNotification(
+        t("Password must be at least 8 characters and include uppercase, lowercase and a number"),
+        "warning"
       );
-      userRegister.avatar = res_1.data.secure_url;
+      return;
+    }
+    if (!handleValidateEmail(userRegister.email)) {
+      showNotification(t("Invalid email format"), "warning");
+      return;
+    }
+    if (!handleValidatePhone(userRegister.phone)) {
+      showNotification(t("Phone is not valid in Vietnam. Please try again"), "warning");
+      return;
+    }
+    if (!handleValidateAddress(userRegister.address)) {
+      showNotification(t("Address must be at least 5 characters"), "warning");
+      return;
+    }
+    if (!userRegister.avatar) {
+      showNotification(t("Please upload an avatar"), "warning");
+      return;
+    }
 
-      // const res_2 = await axios.post('/v1/auth/register', userRegister);
-      const res_2 = await APIs.post(endpoints.register, userRegister);
-      if (res_2.status === 201) {
-        showMessage("Register account successfully! Please check your email and phone number to verify account with OTP has sent to both", "success");
-        navigate('/verify-phone');
+    setLoading(true);
+    try {
+      const payload = {
+        ...userRegister,
+        avatar: "",
+      };
+
+      // Register account
+      const res = await APIs.post(endpoints.register, payload);
+      if (res.status === 201) {
+        showNotification(t("Register account successfully"), "success");
+        handleUploadAvatarOnToCloudinary(res.data.doc._id,userRegister.avatar)
+        navigate("/login");
+      } else {
+        showNotification(t(`Register account failed! ${res.data.message} `), "error");
       }
-      else {
-        showMessage("Register account failed! Please try again later", "error")
-      }
-    } catch (error:any) {
-      console.error("Error uploading image:", error);
-      // showMessage(error.response?.data?.message, "error")
+    } catch (error: any) {
+      console.error("Error uploading image or registering:", error);
+      showNotification(t("An error occurred. Please try again later"), "error");
     } finally {
       setLoading(false);
     }
@@ -83,19 +179,12 @@ const Register = () => {
 
   // Clean up memory when component unmounts or avatar changes
   useEffect(() => {
-    // console.log(process.env)
     return () => {
-      if (previewAvatar) {
-        URL.revokeObjectURL(previewAvatar);
-      }
+      if (previewAvatar) URL.revokeObjectURL(previewAvatar);
     };
   }, [previewAvatar]);
 
-  const showMessage = (text: string, type: "success" | "error") => {
-    setMessage({ text, type });
-    setTimeout(() => setMessage(null), 3000);
-  };
-
+  /* ------------------- JSX ------------------- */
   return (
     <div className="register-container">
       {loading && <div className="loading-spinner"></div>}
@@ -139,12 +228,17 @@ const Register = () => {
           accept="image/*"
           onChange={handleSetState}
         />
-        
         {previewAvatar && (
           <img
             src={previewAvatar}
             alt="Avatar Preview"
-            style={{ width: 120, height: 120, borderRadius: "50%", objectFit: "cover", marginTop: 10 }}
+            style={{
+              width: 120,
+              height: 120,
+              borderRadius: "50%",
+              objectFit: "cover",
+              marginTop: 10,
+            }}
           />
         )}
 
@@ -177,17 +271,21 @@ const Register = () => {
           value={userRegister.address}
           onChange={handleSetState}
         />
+
         <div className="form-group">
-          <button className="register-button" type="submit" disabled={loading}>{t("Register")}</button>
+          <button className="register-button" type="submit" disabled={loading}>
+            {t("Register")}
+          </button>
           <div className="line"></div>
-          <button className="back-button" onClick={() => navigate('/login')}>{t("Back To Login")}</button>
+          <button
+            type="button"
+            className="back-button"
+            onClick={() => navigate("/login")}
+          >
+            {t("Back To Login")}
+          </button>
         </div>
-        
       </form>
-      {/* Snackbar Message */}
-      <Snackbar open={!!message} anchorOrigin={{ vertical: "bottom", horizontal: "center" }}>
-        <Alert severity={message?.type}>{message?.text}</Alert>
-      </Snackbar>
     </div>
   );
 };

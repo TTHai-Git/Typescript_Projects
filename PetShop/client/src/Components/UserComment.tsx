@@ -13,7 +13,7 @@ import {
   CardActions
 } from '@mui/material';
 import { Delete } from '@mui/icons-material';
-import APIs, { authApi, endpoints } from '../Config/APIs';
+import  { authApi, endpoints } from '../Config/APIs';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
@@ -65,6 +65,47 @@ const UserComment = (props: Props) => {
     }));
   };
 
+  const handleValidateRating = (rating: number) => {
+    return rating > 0 && rating <= 5
+  }
+
+  const handleValidateContent = (content: string) => {
+    return content.length > 0 && content.length < 255
+  }
+
+  const handdleCheckUploadImages = (files: File[]) => {
+    const MAX_FILES = 5
+    const MINIMUM_FILES = 1
+    const MAX_TOTAL_SIZE = 10 * 1024 * 1024;
+
+
+    if (files.length > MAX_FILES) {
+      showNotification(t("You can only upload a maximum of five photos for comment"), "warning")
+      return false
+    }
+    
+    if (files.length < MINIMUM_FILES) {
+      showNotification(t("You have to upload at least one photos for comment"), "warning")
+      return false
+    }
+
+    const totalSize = files.reduce((sum, file) => sum + file.size, 0)
+    if (totalSize > MAX_TOTAL_SIZE)
+    {
+      showNotification(t("The maximum capacity for uploading photos is 10MB"), "warning")
+      return false
+    }
+
+    const nonImages = files.find((file) => !file.type.startsWith("image/"))
+    if (nonImages) {
+      showNotification(t("Only image files are allowed"), "warning")
+      return false
+    }
+   
+    return true
+    
+  }
+
   const addComment = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -73,6 +114,20 @@ const UserComment = (props: Props) => {
       const uploadedUrls: string[] = [];
       const public_ids : string[] = []
 
+      if (!handdleCheckUploadImages(comment.urls)) {
+        return
+      }
+
+      if(!handleValidateRating(comment.rating)) {
+        showNotification(t("You have to rating your comment from 1 to 5 stats to submit comment"))
+        return
+      }
+
+      if (!handleValidateContent(comment.content)) {
+        showNotification(t("You have to write content for your comment. Maximum length of comment is 255 characters"))
+        return
+      }
+        
       for (const file of comment.urls) {
         const formData = new FormData();
         formData.append("file", file);
@@ -93,16 +148,7 @@ const UserComment = (props: Props) => {
         uploadedUrls.push(res.data.secure_url);
         public_ids.push(res.data.public_id)
       }
-      // console.log('Uploaded URLs:', uploadedUrls);
-      // const res = await APIs.post(`${endpoints['addComment']}`, {
-      //   userId: props.userId,
-      //   productId: props.productId,
-      //   content: comment.content,
-      //   rating: comment.rating,
-      //   urls: uploadedUrls
-      // });
-
-        const res = await authApi.post(endpoints.addComment, {
+      const res = await authApi.post(endpoints.addComment, {
         userId: props.userId,
         productId: props.productId,
         content: comment.content,
@@ -117,7 +163,7 @@ const UserComment = (props: Props) => {
         showNotification(res.data.message, "success");
         props.loadInfoDetailsOfProduct();
       }
-      
+    
     } catch (err) {
       console.error('Error adding comment:', err);
       showNotification('Failed to add comment. Please try again.', "error");

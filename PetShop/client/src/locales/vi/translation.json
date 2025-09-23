@@ -58,6 +58,11 @@
   "Phone": "Số Điện Thoại",
   "Address": "Địa Chỉ",
   "Back To Login": "Quay Trở Về Để Đăng Nhập",
+  "You can only upload a maximum of one photo for avatar!": "Bạn chỉ có thể chọn tối đa 1 ảnh để tải lên cho ảnh đại diện thôi!",
+  "The maximum capacity for uploading avatar is 2MB!": "Dung lượng tối đa cho ảnh tải lên cho avatar là 1 MB",
+  "You have to upload at least one photo for avatar to register account!": "Bạn  phải tải lên tối thiểu một bức ảnh cho ảnh điện để đăng ký tài khoản!",
+  "Only image files are allowed!": "Bạn chỉ được tải lên tệp tin dạng ảnh!",
+
 
   "🛒 Your Cart": "🛒 Giỏ Hàng Hiện Tại Của Bạn",
   "Your cart is empty.": "Giỏ Hàng Của Bạn Đang Trống đó.",

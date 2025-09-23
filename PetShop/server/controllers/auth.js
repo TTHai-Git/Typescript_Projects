@@ -22,7 +22,19 @@ export const register = async (req, res) => {
     // Check if user exists
     const existingUser = await User.findOne({ username });
     if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
+      return res.status(200).json({ message: "User has already exists" });
+    }
+
+    // Check If phone of user is exists
+    const existingPhoneOfUser = await User.findOne({ phone })
+     if (existingPhoneOfUser) {
+      return res.status(200).json({ message: "This phone has already exists" });
+    }
+
+    // Check If email of user is exists
+    const existingEmailOfUser = await User.findOne({ email })
+    if (existingEmailOfUser) {
+      return res.status(200).json({ message: "This email has already exists" });
     }
 
     const role = await Role.findOne({ name: "User" });

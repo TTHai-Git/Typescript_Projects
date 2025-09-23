@@ -61,6 +61,20 @@ export const updateInfor = async (req, res) => {
   }
 };
 
+export const updateAvatar = async (req, res) => {
+  const { user_id } = req.params;
+  const avatar = req.body.avatar
+  try {
+    const updatedUser = await User.findByIdAndUpdate(user_id, avatar,
+    {
+      new: true,
+      runValidators: true,
+    })
+  } catch (error) {
+    return res.status(500).json({message: "Sever error! Please try again later"})
+  }
+}
+
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {

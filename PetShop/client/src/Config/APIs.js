@@ -21,6 +21,7 @@ export const endpoints = {
   register: "/auth/register",
   resetPassword: "/users/reset-password",
   updateInfor: (userId) => `/users/${userId}/update-infor`,
+  updateAvatar: (userId) => `/users/${userId}/update-avatar`,
   createOrUpdateFavorite: "/favorites",
   deleteFavorite: (favoriteId) => `/favorites/${favoriteId}`,
   getFavoriteProductOfUser: (productId, userId) =>
