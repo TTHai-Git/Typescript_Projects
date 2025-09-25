@@ -21,7 +21,7 @@ cd Typescript_Projects/PetShop
 cd server  
 npm install
 
-3️⃣ Install Frontend (Client) Dependencies
+# 3️⃣ Install Frontend (Client) Dependencies
 cd ../client  
 npm install
 
