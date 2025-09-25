@@ -5,8 +5,12 @@ A full-stack **Pet Shop** web application built with:
 - **Frontend:** React + TypeScript  
 - **Backend:** Node.js + Express + TypeScript  
 - **Database:** MongoDB  
+- **CI/CD:** GitHub Actions  
+- **Deloyment:** DOCKER + RENDER (SERVER) + VERCEL (CLIENT) + VMWARE (LINUX OS) LOCAL  
+- **Serverices:** CLOUDINARY + MAPBOX + PAYOS + VNPAY SANDBOX + VietQG + SMTP GMAIL  
+- **Tools:** DOCKERHUB + POSTMAN  
 
-This project demonstrates a complete e-commerce workflow for a pet shop, including product listing, cart, and checkout.
+This project demonstrates a complete e-commerce workflow for a pet shop
 
 ---
 
