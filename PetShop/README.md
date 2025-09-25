@@ -14,28 +14,27 @@ This project demonstrates a complete e-commerce workflow for a pet shop, includi
 
 Follow the steps below to set up and run the project locally.
 # 1️⃣ Clone the Repository
-git clone https://github.com/TTHai-Git/Typescript_Projects.git
+git clone https://github.com/TTHai-Git/Typescript_Projects.git  
 cd Typescript_Projects/PetShop
 
 # 2️⃣ Install Backend (Server) Dependencies
-cd server
+cd server  
 npm install
 
 3️⃣ Install Frontend (Client) Dependencies
-cd ../client
+cd ../client  
 npm install
 
 # ⚙️ Environment Variables
 # Initialize the environment variable file for client and server according to the example environment variable file (.env.example) attached in the source
-type nul > .env (For Windows OS)
-touch .env (For Linux OS)
+type nul > .env (For Windows OS) / touch .env (For Linux OS)
 
 # Start and enjoy project for server
-cd server
+cd server  
 npm run dev
 
 # Start and enjoy project for server
-cd client
+cd client  
 npm start
 
 ---
