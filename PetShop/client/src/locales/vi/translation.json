@@ -101,6 +101,9 @@
   "Follow Favoritelist": "Theo Dõi Danh Sách Yêu Thích",
 
   "List Orders": "Danh sách đơn hàng",
+  "Search By Order ID": "Tìm kiếm theo mã đơn đặt hàng",
+  "Clear search": "Xóa tìm kiếm",
+  "Filter By Status Orders": "Lọc theo trạng thái đơn đặt hàng",
   "Loading order details": "🔄 Đang tải chi tiết đơn hàng...",
   "Order ID": "Mã đơn hàng",
   "Total Price": "Tổng giá",

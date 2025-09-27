@@ -141,6 +141,9 @@ export const getAllProducts = async (req, res) => {
       case "za": // Z-A by name
         sortOption.name = -1;
         break;
+      case "none":
+        sortOption = {};
+        break;
       default:
         sortOption.createdAt = -1;
     }

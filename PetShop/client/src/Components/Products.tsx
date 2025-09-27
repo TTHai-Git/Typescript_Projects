@@ -15,6 +15,7 @@ import {
   TextField,
   InputAdornment,
   Tooltip,
+  IconButton,
 } from '@mui/material';
 import {
   Info as InfoIcon,
@@ -30,6 +31,7 @@ import {
 } from '@mui/icons-material';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import SearchIcon from '@mui/icons-material/Search';
+import ClearIcon from '@mui/icons-material/Clear';
 import SortIcon from '@mui/icons-material/Sort';
 import StarIcon from '@mui/icons-material/Star';
 import StarHalfIcon from '@mui/icons-material/StarHalf';
@@ -50,7 +52,7 @@ const Products = () => {
   const [pages, setPages] = useState<number>(0);
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const categoryId = searchParams.get('category') || '';
+  const [categoryId, setCategoryId] = useState<string>("")
   const currentPage = parseInt(searchParams.get('page') || '1');
 
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -99,19 +101,26 @@ const Products = () => {
   useEffect(() => {
     const newSearchTerm = searchParams.get('search') || '';
     const newSortBy = searchParams.get('sort') || '';
+    const newCategoryId = searchParams.get("category") || ""
     setSearchTerm(newSearchTerm);
     setSortBy(newSortBy);
-    loadProducts();
-  }, [searchParams.toString()]);
+    setCategoryId(newCategoryId)
+  }, [searchParams]);
 
   useEffect(() => {
     loadCategories();
   }, []);
 
+  useEffect(() => {
+     loadProducts();
+  }, [searchTerm, sortBy, categoryId, currentPage])
+
   const changePage = (newPage: number) => {
     if (newPage >= 1 && newPage <= pages) {
       const params: any = { page: newPage.toString() };
-      if (categoryId) params.category = categoryId;
+      if (sortBy) params.sort = sortBy.toString()
+      if (categoryId) params.category = categoryId.toString();
+      if (searchTerm) params.search = searchTerm.toString()
       setSearchParams(params);
     }
   };
@@ -123,6 +132,7 @@ const Products = () => {
     { label: t('Oldest'), id: 'oldest' },
     { label: 'A-Z', id: 'az' },
     { label: 'Z-A', id: 'za' },
+    { label: t("None"), id: 'none'}
   ];
   
   const handleAddToRecentLyViewedProducts = (product: Product) => {
@@ -161,20 +171,44 @@ const Products = () => {
           onChange={(e) => setSearchTerm((e.target as HTMLInputElement).value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
-              setSearchParams({
-                page: '1',
-                category: categoryId,
-                sort: sortBy,
-                search: searchTerm,
-              });
+              const params = new URLSearchParams(searchParams);
+              params.set('page', '1');
+              params.set('search', searchTerm.trim());
+              setSearchParams(params);
             }
           }}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
+                <IconButton onClick={() => {
+                  const params = new URLSearchParams(searchParams);
+                  params.set("page", "1");
+                  if (searchTerm.trim()) params.set("search", searchTerm.trim());
+                  else params.delete("search");
+                  setSearchParams(params);
+                }}>
+                  
                 <SearchIcon color="primary" />
+                </IconButton>
+                
               </InputAdornment>
             ),
+            endAdornment: searchTerm && (
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label={t("Clear search")}
+                  onClick={() => {
+                    setSearchTerm("");                         // ✅ clear the input
+                    const params = new URLSearchParams(searchParams);
+                    params.delete("search");                   // ✅ remove query param
+                    params.set("page", "1");                   // optional: reset page
+                    setSearchParams(params);
+                  }}
+                >
+                <ClearIcon />
+                </IconButton>
+              </InputAdornment>
+            )
           }}
           sx={{
             width: '100%',
@@ -207,9 +241,14 @@ const Products = () => {
             {categories.map((cat) => (
               <Chip
                 key={cat._id}
-                label={t(`${cat.name}`)}
+                label={t(cat.name)}
                 icon={<CategoryIcon />}
-                onClick={() => setSearchParams({ category: cat._id, page: '1' })}
+                onClick={() => {
+                  const params = new URLSearchParams(searchParams);
+                  params.set('page', '1');             // ✅ reset to first page
+                  params.set('category', cat._id);     // ✅ use the clicked category
+                  setSearchParams(params);             // ✅ merge, don't overwrite
+                }}
                 sx={{
                   cursor: 'pointer',
                   backgroundColor: categoryId === cat._id ? 'primary.main' : 'grey.300',
@@ -221,44 +260,45 @@ const Products = () => {
                 }}
               />
             ))}
+
           </Box>
   
           {/* ⬇️ Sort Dropdown */}
           <Autocomplete
-            disablePortal
-            options={options}
-            value={options.find((opt) => opt.id.toString() === sortBy) || null}
-            onChange={(event, newValue) => {
-              const selectedSort = newValue?.id.toString() || '';
-              setSortBy(selectedSort);
-              setSearchParams({
-                page: '1',
-                category: categoryId,
-                search: searchTerm,
-                sort: selectedSort,
-              });
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label={t("Sort By")}
-                InputProps={{
-                  ...params.InputProps,
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SortIcon color="secondary" />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            )}
-            sx={{
-              width: 300,
-              bgcolor: 'white',
-              borderRadius: 2,
-              boxShadow: 2,
-            }}
-          />
+              disablePortal
+              options={options}
+              value={options.find((opt) => opt.id.toString() === sortBy) || null}
+              onChange={(event, newValue) => {
+                const selectedSort = newValue?.id.toString() || "";
+
+                const params = new URLSearchParams(searchParams);
+                params.set("page", "1");
+                if (selectedSort) params.set("sort", selectedSort);
+                else params.delete("sort");
+
+                setSearchParams(params);
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label={t("Sort By")}
+                  InputProps={{
+                    ...params.InputProps,
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SortIcon color="secondary" />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              )}
+              sx={{
+                width: 300,
+                bgcolor: "white",
+                borderRadius: 2,
+                boxShadow: 2,
+              }}
+            />
         </Box>
       </Box>
   

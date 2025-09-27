@@ -21,7 +21,8 @@ export const createOrder = async (req, res) => {
 export const getOrdersOfCustomer = async (req, res) => {
   const perPage = parseInt(req.query.limt) || 5;
   const page = parseInt(req.query.page) || 1;
-  const { sort } = req.query;
+  const { sort, status, search } = req.query;
+
   try {
     const { user_id } = req.params;
     let sortOption = {};
@@ -30,40 +31,48 @@ export const getOrdersOfCustomer = async (req, res) => {
         sortOption.totalPrice = 1;
         break;
       case "price_desc":
-        sortOption.totalPrice = 2;
+        sortOption.totalPrice = -1;
         break;
-      case "lastest":
+      case "latest":
         sortOption.createdAt = -1;
         break;
       case "oldest":
         sortOption.createdAt = 1;
         break;
+      case "none":
+        sortOption = {};
+        break;
       default:
         break;
     }
+    const filter = { user: user_id };
+    if (status && status !== "" && status !== "all") filter.status = status;
 
-    const orders = await Order.find({ user: user_id })
+    // console.log("filter", filter);
+
+    if (search) filter._id = { _id: search }; // case-insensitive
+
+    // console.log("filter", filter);
+
+    const orders = await Order.find(filter)
       .sort(sortOption)
       .skip(perPage * (page - 1))
       .limit(perPage);
     // console.log(orders);
-    const count = await Order.find({ user: user_id }).countDocuments();
+    const count = await Order.countDocuments(filter);
 
     if (!orders || orders.length === 0) {
       return res.status(404).json({ message: "No orders found" });
     }
 
-    const data = [];
-    for (const order of orders) {
-      data.push({
-        orderId: order._id,
-        userId: order.user,
-        totalPrice: order.totalPrice,
-        status: order.status,
-        createdAt: order.createdAt,
-        updatedAt: order.updatedAt,
-      });
-    }
+    const data = orders.map((order) => ({
+      orderId: order._id,
+      userId: order.user,
+      totalPrice: order.totalPrice,
+      status: order.status,
+      createdAt: order.createdAt,
+      updatedAt: order.updatedAt,
+    }));
 
     res.status(200).json({
       orders: data,
