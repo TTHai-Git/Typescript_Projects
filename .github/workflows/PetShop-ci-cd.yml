@@ -7,52 +7,10 @@ on:
 
 jobs:
   # ================================================================
-  # 1️⃣ BUILD JOB
-  # ================================================================
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v3
-
-      # Build production and dev images but do NOT push yet
-      - name: Build Client Image (Prod)
-        run: |
-          docker build \
-            -f ./PetShop/client/Dockerfile \
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/petshop-client:latest \
-            ./PetShop/client
-
-      - name: Build Server Image (Prod)
-        run: |
-          docker build \
-            -f ./PetShop/server/Dockerfile \
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/petshop-server:latest \
-            ./PetShop/server
-
-      - name: Build Client Image (Dev)
-        run: |
-          docker build \
-            -f ./PetShop/client/Dockerfile.dev \
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/petshop-client:dev \
-            ./PetShop/client
-
-      - name: Build Server Image (Dev)
-        run: |
-          docker build \
-            -f ./PetShop/server/Dockerfile.dev \
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/petshop-server:dev \
-            ./PetShop/server
-
-  # ================================================================
-  # 2️⃣ TEST JOB
+  # 1️⃣ TEST JOB (run first)
   # ================================================================
   test:
     runs-on: ubuntu-latest
-    needs: build   # <-- Run tests only after images build successfully
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -74,36 +32,66 @@ jobs:
         run: npm test -- --watchAll=false --passWithNoTests
 
   # ================================================================
-  # 3️⃣ PUSH JOB
+  # 2️⃣ BUILD & PUSH JOB
   # ================================================================
-  push:
+  build-and-push:
     runs-on: ubuntu-latest
-    needs: [build, test]  # <-- Only push if build & tests succeed
+    needs: test            # ✅ Only build & push if tests pass
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Push Client Image (Prod)
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/petshop-client:latest
+      # --- Build & Push Client (Prod) ---
+      - name: Build & Push Client Image (Prod)
+        uses: docker/build-push-action@v5
+        with:
+          context: ./PetShop/client
+          file: ./PetShop/client/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/petshop-client:latest
 
-      - name: Push Server Image (Prod)
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/petshop-server:latest
+      # --- Build & Push Server (Prod) ---
+      - name: Build & Push Server Image (Prod)
+        uses: docker/build-push-action@v5
+        with:
+          context: ./PetShop/server
+          file: ./PetShop/server/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/petshop-server:latest
 
-      - name: Push Client Image (Dev)
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/petshop-client:dev
+      # --- Build & Push Client (Dev) ---
+      - name: Build & Push Client Image (Dev)
+        uses: docker/build-push-action@v5
+        with:
+          context: ./PetShop/client
+          file: ./PetShop/client/Dockerfile.dev
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/petshop-client:dev
 
-      - name: Push Server Image (Dev)
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/petshop-server:dev
+      # --- Build & Push Server (Dev) ---
+      - name: Build & Push Server Image (Dev)
+        uses: docker/build-push-action@v5
+        with:
+          context: ./PetShop/server
+          file: ./PetShop/server/Dockerfile.dev
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/petshop-server:dev
 
   # ================================================================
-  # 4️⃣ DEPLOY JOB (optional)
+  # 3️⃣ DEPLOY JOB (optional)
   # ================================================================
   # deploy:
   #   runs-on: ubuntu-latest
-  #   needs: push      # <-- Deploy only if images are pushed successfully
+  #   needs: build-and-push     # <-- Deploy only after images are pushed
   #   steps:
   #     - name: SSH to VM & deploy
   #       uses: appleboy/ssh-action@v1.1.0
@@ -113,25 +101,18 @@ jobs:
   #         key: ${{ secrets.VM_SSH_KEY }}
   #         script: |
   #           cd /home/${{ secrets.VM_USER }}
-
-  #           # Clone or update repo
   #           if [ ! -d "Typescript_Projects" ]; then
   #             git clone https://github.com/TTHai-Git/Typescript_Projects
   #           fi
-
   #           cd Typescript_Projects/PetShop
   #           git reset --hard
   #           git pull origin main
-
   #           echo "${{ secrets.CLIENT_ENV }}" > client/.env
   #           echo "${{ secrets.SERVER_ENV }}" > server/.env
-
   #           docker compose -f PetShop-docker-compose.yml --profile dev down
   #           docker rmi -f ${{ secrets.DOCKERHUB_USERNAME }}/petshop-client:dev || true
   #           docker rmi -f ${{ secrets.DOCKERHUB_USERNAME }}/petshop-server:dev || true
-
   #           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/petshop-client:dev
   #           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/petshop-server:dev
-
   #           docker compose -f PetShop-docker-compose.yml --profile dev up -d
   #           docker image prune -f
