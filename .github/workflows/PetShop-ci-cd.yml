@@ -1,14 +1,15 @@
-name: CI/CD PetShop (Client + Server with Docker + Test)
+name: CI/CD Pipeline
 
 on:
   push:
     branches:
       - main
-    paths:
-      - 'PetShop/**'
 
 jobs:
-  build-test-push:
+  # ================================================================
+  # 1️⃣ BUILD JOB
+  # ================================================================
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -17,25 +18,7 @@ jobs:
       - name: Set up Docker
         uses: docker/setup-buildx-action@v3
 
-      # ======== CLIENT TEST ========
-      - name: Install dependencies (Client)
-        working-directory: PetShop/client
-        run: npm ci
-
-      - name: Run tests (Client)
-        working-directory: PetShop/client
-        run: npm test -- --watchAll=false --passWithNoTests
-
-      # ======== SERVER TEST ========
-      - name: Install dependencies (Server)
-        working-directory: PetShop/server
-        run: npm ci
-
-      - name: Run tests (Server)
-        working-directory: PetShop/server
-        run: npm test -- --watchAll=false --passWithNoTests
-
-      # ======== BUILD DOCKER IMAGES (PROD) ========
+      # Build production and dev images but do NOT push yet
       - name: Build Client Image (Prod)
         run: |
           docker build \
@@ -50,7 +33,6 @@ jobs:
             -t ${{ secrets.DOCKERHUB_USERNAME }}/petshop-server:latest \
             ./PetShop/server
 
-      # ======== BUILD DOCKER IMAGES (DEV) ========
       - name: Build Client Image (Dev)
         run: |
           docker build \
@@ -65,7 +47,39 @@ jobs:
             -t ${{ secrets.DOCKERHUB_USERNAME }}/petshop-server:dev \
             ./PetShop/server
 
-      # ======== PUSH DOCKER IMAGES ========
+  # ================================================================
+  # 2️⃣ TEST JOB
+  # ================================================================
+  test:
+    runs-on: ubuntu-latest
+    needs: build   # <-- Run tests only after images build successfully
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies (Client)
+        working-directory: PetShop/client
+        run: npm ci
+
+      - name: Run tests (Client)
+        working-directory: PetShop/client
+        run: npm test -- --watchAll=false --passWithNoTests
+
+      - name: Install dependencies (Server)
+        working-directory: PetShop/server
+        run: npm ci
+
+      - name: Run tests (Server)
+        working-directory: PetShop/server
+        run: npm test -- --watchAll=false --passWithNoTests
+
+  # ================================================================
+  # 3️⃣ PUSH JOB
+  # ================================================================
+  push:
+    runs-on: ubuntu-latest
+    needs: [build, test]  # <-- Only push if build & tests succeed
+    steps:
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
@@ -84,9 +98,12 @@ jobs:
       - name: Push Server Image (Dev)
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/petshop-server:dev
 
-  # deploy-dev: (Tắt vì lười mở máy ảo lên để deploy mỗi lần push code nữa :v, dùng DockerHub + Docker Compose trên máy local luôn cho nó lẹ kkk @_@)
+  # ================================================================
+  # 4️⃣ DEPLOY JOB (optional)
+  # ================================================================
+  # deploy:
   #   runs-on: ubuntu-latest
-  #   needs: build-test-push
+  #   needs: push      # <-- Deploy only if images are pushed successfully
   #   steps:
   #     - name: SSH to VM & deploy
   #       uses: appleboy/ssh-action@v1.1.0
@@ -95,49 +112,26 @@ jobs:
   #         username: ${{ secrets.VM_USER }}
   #         key: ${{ secrets.VM_SSH_KEY }}
   #         script: |
-  #           echo "=== Current dir after login ==="
-  #           pwd
-  #           ls -la
-
   #           cd /home/${{ secrets.VM_USER }}
-  #           echo "=== After cd to /home/${{ secrets.VM_USER }} ==="
-  #           pwd
-  #           ls -la
 
-  #           # Clone hoặc update repo
+  #           # Clone or update repo
   #           if [ ! -d "Typescript_Projects" ]; then
   #             git clone https://github.com/TTHai-Git/Typescript_Projects
   #           fi
 
   #           cd Typescript_Projects/PetShop
-  #           echo "=== After cd to PetShop ==="
-  #           pwd
-  #           ls -la
-
   #           git reset --hard
   #           git pull origin main
-          
-  #           # Copy .env cho client và server
+
   #           echo "${{ secrets.CLIENT_ENV }}" > client/.env
   #           echo "${{ secrets.SERVER_ENV }}" > server/.env
 
-  #           # Debug: xem toàn bộ cấu trúc thư mục
-  #           echo "=== Folder structure ==="
-  #           ls -R .
-
-  #           # 1. Dừng và xóa tất cả container trong file compose
   #           docker compose -f PetShop-docker-compose.yml --profile dev down
-
-  #           # 2. Xóa images cũ của dự án
   #           docker rmi -f ${{ secrets.DOCKERHUB_USERNAME }}/petshop-client:dev || true
   #           docker rmi -f ${{ secrets.DOCKERHUB_USERNAME }}/petshop-server:dev || true
 
-  #           # 3. Pull images mới nhất từ registry
   #           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/petshop-client:dev
   #           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/petshop-server:dev
-          
-  #           # 4. Khởi chạy lại container từ images mới pull về
+
   #           docker compose -f PetShop-docker-compose.yml --profile dev up -d
-          
-  #           # 5. (Tuỳ chọn) Dọn dẹp images rác không dùng đến
   #           docker image prune -f
