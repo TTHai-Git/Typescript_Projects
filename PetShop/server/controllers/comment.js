@@ -1,8 +1,11 @@
 import Comment from "../models/comment.js";
 import CommentDetails from "../models/commentdetails.js";
 import User from "../models/user.js";
+import Order from "../models/order.js";
+import OrderDetails from "../models/orderdetails.js"
 import cloudinary from "cloudinary";
 import { deleteImageOnCloudinary } from "./commentdetails.js";
+import Payment from "../models/payment.js";
 cloudinary.config({
   cloud_name: process.env.REACT_APP_CLOUD_NAME,
   api_key: process.env.REACT_APP_CLOUDINARY_API_KEY,
@@ -111,7 +114,9 @@ export const getCommentsByProduct = async (req, res) => {
 export const addComment = async (req, res) => {
   try {
     const { userId, productId, content, rating, urls, public_ids } = req.body;
-    const newComment = await Comment.create({
+  
+  
+      const newComment = await Comment.create({
       user: userId,
       product: productId,
       content,
@@ -142,6 +147,7 @@ export const addComment = async (req, res) => {
       urls: createdUrls,
       message: "Create comment successfully",
     });
+
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
@@ -196,7 +202,7 @@ export const updateComment = async (req, res) => {
       { new: true }
     );
     if (!comment) {
-      return res.status(404).json({ message: "Comment not found to delete" });
+      return res.status(404).json({ message: "Comment not found to update" });
     }
     const createdUrls = [];
     if (urls.length > 0) {
@@ -209,7 +215,7 @@ export const updateComment = async (req, res) => {
         createdUrls.push(newCommentDetails.url);
       }
     }
-    return res.status(201).json({
+    return res.status(200).json({
       _id: comment._id,
       userId: comment.user,
       productId: comment.product,
@@ -224,3 +230,17 @@ export const updateComment = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
+export const checkIsOrderAndIsPayment = async (req, res) => {
+ const {userId, productId} = req.query
+ const orders = await Order.find({user: userId})
+ for(const order of orders) {
+  const hasProduct = await OrderDetails.exists({order: order._id, product: productId})
+  
+  if (!hasProduct) continue
+  
+  const paid = await Payment.exists({order: order._id, status:"PAID" })
+  if (paid) return res.status(200).json(true)
+ }
+ return res.status(200).json(true)
+}

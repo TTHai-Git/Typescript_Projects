@@ -221,7 +221,7 @@ const Shipment: React.FC = () => {
       });
 
       if (res.status === 201) {
-        showNotification(res.data.message, 'success');
+        showNotification(t(`${res.data.message}`), 'success');
         if (selectedVoucherId)
           await authApi.patch(endpoints.updateVoucherUsageForUser(selectedVoucherId));
 

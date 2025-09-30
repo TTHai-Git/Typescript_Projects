@@ -93,6 +93,8 @@ const Register = () => {
   }
 
   const handleUploadAvatarOnToCloudinary = async (userId: string, avatar: File) => {
+    // console.log("userId", userId)
+    // console.log("Avatar", avatar)
     const data = new FormData();
     data.append("file", avatar);
     data.append("upload_preset", process.env.REACT_APP_UPLOAD_PRESET || "");
@@ -109,8 +111,12 @@ const Register = () => {
       data
     );
 
+    // console.log("res data of Cloudinary: ", res.data)
+    // console.log("res status of Cloudinary: ", res.status)
+    // console.log("secure_url of Cloudinary: ", res.data.secure_url)
     // Handle Upload Avatar For User
     if (res.status === 200) {
+        // console.log("In update avatar")
         try {
         await authApi.put(endpoints["updateAvatar"](userId), {
           avatar: res.data.secure_url
@@ -164,6 +170,7 @@ const Register = () => {
       const res = await APIs.post(endpoints.register, payload);
       if (res.status === 201) {
         showNotification(t("Register account successfully"), "success");
+        // console.log("userRegister Avatar: ", userRegister.avatar)
         handleUploadAvatarOnToCloudinary(res.data.doc._id,userRegister.avatar)
         navigate("/login");
       } else {

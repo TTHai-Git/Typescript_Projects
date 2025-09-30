@@ -59,7 +59,7 @@ const Cart = () => {
       });
 
       if (orderRes.status === 201) {
-        showNotification(orderRes.data.message, "success")
+        showNotification(t(`${orderRes.data.message}`), "success")
         handleUpdateVoucherUsageForUser(selectedVoucherId)
         const orderDetails = cartItems.map(item => ({
           order: orderRes.data.doc._id,

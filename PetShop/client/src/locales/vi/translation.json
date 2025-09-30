@@ -65,6 +65,7 @@
 
 
   "🛒 Your Cart": "🛒 Giỏ Hàng Hiện Tại Của Bạn",
+  "Order created successfully": "Tạo đơn đặt hàng thành công",
   "Your cart is empty.": "Giỏ Hàng Của Bạn Đang Trống đó.",
   "Price": "Đơn Giá",
   "Stock": "Tồn Kho",
@@ -99,6 +100,7 @@
   "Not Verified": "Chưa Xác Thực",
   "Name": "Họ Và Tên",
   "Follow Favoritelist": "Theo Dõi Danh Sách Yêu Thích",
+  "User information updated successfully": "Cập nhật thông tin người dùng thành công",
 
   "List Orders": "Danh sách đơn hàng",
   "Search By Order ID": "Tìm kiếm theo mã đơn đặt hàng",
@@ -157,6 +159,7 @@
   "Shipment Information": "Thông tin vận chuyển",
   "Loading shipment info...": "🔄 Đang tải thông tin vận chuyển...",
   "Failed to load shipment information.": "⚠️ Không thể tải thông tin vận chuyển.",
+  "Shipment not found for Order": "Không tìm thấy thông tin giao hàng cho đơn đặt hàng này",
   "Shipment ID": "Mã vận chuyển",
   "Buyer Name": "Tên người mua",
   "Buyer Phone": "Số điện thoại người mua",
@@ -184,8 +187,11 @@
   "Expires in": "Hết hạn sau",
   "OTP Expired": "OTP đã hết hạn",
   "Reset Password Button": "Đặt lại mật khẩu",
+  "OTP sent successfully.": "Gửi mã OTP thành công",
+  "Password reset successfully": "Thay đổi mật khẩu thành công",
 
   "Your Favorite Products": "Danh Sách Sản Phẩm Yêu Thích Của Bạn",
+  "Favorite deleted successfully": "Xóa đối tượng yêu thích thành công",
   
   "Admin Dashboard": "Bảng điều khiển quản trị",
   "Stats": "Thống kê",
@@ -271,7 +277,9 @@
   "No notifications": "Không có thông báo",
   "View more notifications": "Xem thêm thông báo",
   "Collapse notifications": "Thu gọn thông báo",
-
+  "Notification already marked as read": "Thông báo đã được đánh dấu là đã đọc",
+  "Notification marked as read": "Thông báo được đánh dấu là đã đọc",
+  "Notificaiton not found": "Không tìm thấy thông báo",
   
   "Total": "Tổng cộng",
   "Pay with Cash": "Thanh toán bằng tiền mặt",
@@ -293,6 +301,13 @@
   "Upload Images": "Tải ảnh lên",
   "Submitting...": "Đang gửi...",
   "Submit Comment": "Gửi bình luận",
+  "You must place an order for this product and pay for the order before leaving the review below": "Bạn phải đặt hàng cho sản phẩm này và thanh toán hóa đơn hàng trước khi để lại đánh giá bên dưới",
+  "Comment deleted successfully": "Xóa bình luận thành công",
+  "Something went wrong. Please try again later.": "Có lỗi xảy ra. Hãy thử lại sau",
+  "Create comment successfully": "Tạo bình luận thành công",
+  "Update comment successfully": "Cập nhật bình luận thành công",
+  "Image was deleted successfully": "Xóa ảnh thành công",
+  "Comment not found to update": "Không tìm thấy comment để cập nhật",
 
   
   "Shipping Information": "Thông tin giao hàng",
@@ -313,6 +328,7 @@
   "Shipping Fee": "Phí giao hàng",
   "Not available": "Chưa có",
   "Confirm Shipping Information": "Xác nhận thông tin giao hàng",
+  "Delivery information has been successfully created! Proceed to payment.": "Thông tin giao hàng đã được tạo thành công! Tiến hành thanh toán.",
 
   "Customer Reviews": "Đánh giá khách hàng",
   "Reviews": "Đánh giá",
@@ -428,10 +444,20 @@
   "Redirecting in": "Chuyển Hướng Trong",
   "second": "Giây",
   "Payment was successful. Thank you!": "Thanh Toán Thành Công. Cảm Ơn Bạn!",
+  "Payment created successfully": "Tạo thông tin thanh toán thành công",
   "This payment has already been processed.": "Thanh toán này đã được xử lý.",
   "Updating order status failed": "Cập nhật trạng thái đơn hàng không thành công",
   "Payment failed or invalid transaction.": "Thanh toán không thành công hoặc giao dịch không hợp lệ.",
   "Something went wrong!": "Đã xảy ra lỗi!",
+  "Order status updated successfully": "Cập nhật thông tin trạng thái đơn đặt hàng thành công",
+
+  "Update item failed": "Cập nhật đối tượng thất bại",
+  "Item was created successfully": "Tạo đối tượng thành công",
+  "Item was updated successfully": "Cập nhật đối tượng thành công",
+  "Create item failed": "Tạo đối tượng thất bại",
+  "Are you sure you want to delete this item": "Bạn có chắc chắn muốn xóa đối tượng này không",
+  "Item was deleted successfully": "Xóa đối tượng thành công",
+  "Item wasn't deleted successfully": "Xóa đối tượng không thành công",
 
   "Welcome To Dog Shop 🐾": "Chào mừng bạn đến với của hàng thú cưng của chúng tôi 🐾",
   "Adopt, care, and shop for everything your furry best friend needs.": "Nhận nuôi, chăm sóc và mua sắm mọi thứ mà người bạn thân nhất của bạn cần.",

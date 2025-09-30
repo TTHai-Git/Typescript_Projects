@@ -133,17 +133,17 @@ const ratingOptions = [
       const res = await authApi.delete(endpoints.deleteComment(commentId))
       if (res.status === 204) {
         // console.log(res)
-        showNotification("Comment deleted successfully", "success")
+        showNotification(t("Comment deleted successfully"), "success")
         loadInfoDetailsOfProduct()
         getCommentsByProduct()
       }
       else {
-        showNotification(res.data.message, "error")
+        showNotification(t(`${res.data.message}`), "error")
       }
     } catch (error) {
       console.error("Error deleting comment:", error)
       setError(true)
-      setErrorMessage('Something went wrong. Please try again later.')
+      setErrorMessage(t('Something went wrong. Please try again later.'))
       
     } finally {
       setLoading(false)

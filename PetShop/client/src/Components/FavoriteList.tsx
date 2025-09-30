@@ -94,12 +94,12 @@ const FavoriteList = () => {
     if (!window.confirm('Are you sure you want to remove this item from favorites?')) return;
     try {
       const res = await authApi.delete(endpoints.deleteFavorite(favoriteId));
-      if (res.status === 200) {
-        showNotification(res.data.message, "success")
+      if (res.status === 204) {
+        showNotification(t("Favorite deleted successfully"), "success")
         setFavoriteList((prev) => prev.filter((fav) => fav._id !== favoriteId));
       }
      else {
-        showNotification(res.data.message, "error")
+        showNotification(t(`${res.data.message}`), "error")
       }
     } catch (error) {
       console.log(error);

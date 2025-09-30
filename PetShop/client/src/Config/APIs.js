@@ -28,6 +28,7 @@ export const endpoints = {
     `/favorites/product/${productId}/user/${userId}`,
   getFavoriteProductsList: (userId) => `/favorites/user/${userId}`,
   addComment: "/comments/",
+  checkIsOrderAndIsPayment: "/comments/check/is-make-orders-and-paid",
   getCommentsByProduct: (productId) => `/comments/product/${productId}`,
   deleteComment: (commentId) => `/comments/${commentId}`,
   updateComment: (commentId) => `/comments/${commentId}`,

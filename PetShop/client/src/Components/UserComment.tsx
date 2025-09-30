@@ -15,8 +15,8 @@ import {
 import { Delete } from '@mui/icons-material';
 import  { authApi, endpoints } from '../Config/APIs';
 import axios from 'axios';
-import { useSelector } from 'react-redux';
-import { RootState } from '../store';
+// import { useSelector } from 'react-redux';
+// import { RootState } from '../store';
 import { useNotification } from '../Context/Notification';
 import { useTranslation } from 'react-i18next';
 
@@ -28,7 +28,7 @@ export interface Props {
 }
 
 const UserComment = (props: Props) => {
-  const user = useSelector((state: RootState) => state.auth.user)
+  // const user = useSelector((state: RootState) => state.auth.user)
   const { showNotification } = useNotification()
   const [comment, setComment] = useState({
     content: '',
@@ -105,6 +105,14 @@ const UserComment = (props: Props) => {
     return true
     
   }
+  const handleCheckIsMakeOrdersAndPaid = async (userId: string, productId: string) => {
+    try {
+      const res = await authApi.get(`${endpoints['checkIsOrderAndIsPayment']}?userId=${userId}&productId=${productId}`)
+      return res.data
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   const addComment = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -127,6 +135,15 @@ const UserComment = (props: Props) => {
         showNotification(t("You have to write content for your comment. Maximum length of comment is 255 characters"))
         return
       }
+
+  
+      
+
+      if (await(handleCheckIsMakeOrdersAndPaid(props.userId, props.productId))) {
+        showNotification(t("You must place an order for this product and pay for the order before leaving the review below"), "warning")
+        return
+      }
+
         
       for (const file of comment.urls) {
         const formData = new FormData();
@@ -160,8 +177,11 @@ const UserComment = (props: Props) => {
       // console.log('Comment added successfully:', res.data);
       if(res.status === 201) {
         setComment({ content: '', rating: 0, urls: [] });
-        showNotification(res.data.message, "success");
+        showNotification(t(`${res.data.message}`), "success");
         props.loadInfoDetailsOfProduct();
+      }
+      else {
+        showNotification(t(`${res.data.message}`), "warning")
       }
     
     } catch (err) {

@@ -196,10 +196,10 @@ const childModelFields: Record<string, string[]> = {
         // console.log("formData", formData)
         const res =  await authApi.put(adminEndpoints.updateOne(model,editing._id), formData);
         if (res.status === 200) {
-          showNotification(res.data.message, "success")
+          showNotification(t(`${res.data.message}`), "success")
         }
         else {
-          showNotification("Update item failed", "error")
+          showNotification(t("Update item failed"), "error")
         }
       } else {
         console.log("formData", formData)
@@ -230,10 +230,10 @@ const childModelFields: Record<string, string[]> = {
         }
         const res = await authApi.post(adminEndpoints.createOne(model), formData);
         if (res.status === 201) {
-          showNotification(res.data.message, "success")
+          showNotification(t(`${res.data.message}`), "success")
         }
         else {
-          showNotification("Create item failed", "error")
+          showNotification(t("Create item failed"), "error")
         }
       }
       setOpen(false);
@@ -247,16 +247,16 @@ const childModelFields: Record<string, string[]> = {
 
   const handleDelete = async (id: string) => {
     // console.log("handleDelete", id)
-    if (!window.confirm("Are you sure you want to delete this item?")) return;
+    if (!window.confirm(t("Are you sure you want to delete this item?"))) return;
     try {
       // await axios.delete(`/api/admin/${model}/${id}`);
       const res = await authApi.delete(adminEndpoints.deleteOne(model,id))
       console.log("res", res)
       if (res.status === 204) {
-        showNotification("Item was deleted successfully", "success")
+        showNotification(t("Item was deleted successfully"), "success")
       }
       else {
-        showNotification("Item wasn't deleted successfully", "error")
+        showNotification(t("Item wasn't deleted successfully"), "error")
       }
       fetchData();
     } catch (error) {

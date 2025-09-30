@@ -86,7 +86,7 @@ const UserInfo = () => {
       });
 
       if (res.status === 200) {
-        showNotification(res.data.message, "success");
+        showNotification(t(`${res.data.message}`), "success");
         setIsEditing(false);
         handleLogOut();
       }

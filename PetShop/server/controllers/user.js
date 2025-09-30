@@ -64,12 +64,17 @@ export const updateInfor = async (req, res) => {
 export const updateAvatar = async (req, res) => {
   const { user_id } = req.params;
   const avatar = req.body.avatar
+  // console.log("avatar", avatar)
+  // console.log("user_id", user_id)
   try {
-    const updatedUser = await User.findByIdAndUpdate(user_id, avatar,
+    const updatedUser = await User.findByIdAndUpdate(user_id, {
+      avatar: avatar
+    },
     {
       new: true,
       runValidators: true,
     })
+    // console.log("updatedUser",updatedUser )
   } catch (error) {
     return res.status(500).json({message: "Sever error! Please try again later"})
   }

@@ -45,7 +45,7 @@ const PAYOSPaymentReturn = () => {
       const checkStatus = await APIs.get(endpoints.getOrder(orderId))
       if (checkStatus.data.status !== "Pending") {
         setError(true)
-        setErrorMessage("This payment has already been processed.")
+        setErrorMessage(t("This payment has already been processed."))
         return
       }
 
@@ -61,10 +61,10 @@ const PAYOSPaymentReturn = () => {
           extraData: extraData,
         })
         if (res.status === 201) {
-          showNotification(res.data.message, "success")
+          showNotification(t(`${res.data.message}`), "success")
         }
         else {
-          showNotification("Payment Failed", "error")
+          showNotification(t("Payment Failed"), "error")
         }
 
         const res_1 = await authApi.put(endpoints.updateStatusOfOrder(orderId), {
@@ -72,12 +72,12 @@ const PAYOSPaymentReturn = () => {
         })
 
         if (res_1.status === 200) {
-          showNotification(res_1.data.message, "success")
+          showNotification(t(`${res_1.data.message}`), "success")
         }
         else {
-          showNotification("Updating order status failed", "error")
+          showNotification(t("Updating order status failed"), "error")
           setError(true)
-          setErrorMessage('Payment failed or invalid transaction.')
+          setErrorMessage(t('Payment failed or invalid transaction.'))
         } 
       }
     } catch (error: any) {
@@ -92,7 +92,7 @@ const PAYOSPaymentReturn = () => {
       const checkStatus = await APIs.get(endpoints.getOrder(orderId))
       if (checkStatus.data.status !== "Pending") {
         setError(true)
-        setErrorMessage("This payment has already been processed.")
+        setErrorMessage(t("This payment has already been processed."))
         return
       }
 
@@ -108,10 +108,10 @@ const PAYOSPaymentReturn = () => {
           extraData: extraData,
         })
         if (res.status === 201) {
-          showNotification(res.data.message, "success")
+          showNotification(t(`${res.data.message}`), "success")
         }
         else {
-          showNotification("Payment Failed", "error")
+          showNotification(t("Payment Failed"), "error")
         }
 
         await authApi.put(endpoints.updateStatusOfOrder(orderId), {

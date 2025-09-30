@@ -178,7 +178,7 @@ export const deleteFavorite = async (req, res) => {
         .json({ message: "You are not authorized to delete this favorite" });
     }
     await favorite.deleteOne();
-    res.status(200).json({ message: "Favorite deleted successfully" });
+    res.status(204).send()
   } catch (error) {
     console.error("Error delete Favorite:", error);
     res.status(500).json({ message: "server error", error });

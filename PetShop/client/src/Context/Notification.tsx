@@ -5,6 +5,7 @@ import APIs, { endpoints } from "../Config/APIs";
 import { useSelector } from "react-redux";
 import { RootState } from "../store";
 import { Notification } from "../Interface/Notification";
+import { useTranslation } from "react-i18next";
 
 interface NotificationContextType {
   currentPage: number;
@@ -38,6 +39,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
   const [total, setTotal] = useState<number>(0)
 
   const user = useSelector((state: RootState) => state.auth.user);
+  const {t}= useTranslation()
 
   // ✅ Show popup
   const showNotification = (message: string, type: AlertColor = "info") => {
@@ -74,9 +76,9 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
       const res = await APIs.patch(endpoints.markANotificationAsRead(notificationId));
       console.log(res)
       if (res.status === 200) {
-        showNotification(res.data.message, "success");
+        showNotification(t(`${res.data.message}`), "success");
       } else {
-        showNotification(res.data.message, "error");
+        showNotification(t(`${res.data.message}`), "error");
       }
       getNotifications(currentPage);
     } catch (error) {

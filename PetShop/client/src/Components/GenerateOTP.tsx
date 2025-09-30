@@ -26,7 +26,7 @@ const GenerateOTP = () => {
            })
             // console.log(res)
             if (res.status === 200) {
-                showNotification(res.data.message, "success")
+                showNotification(t(`${res.data.message}`), "success")
                 navigate('/reset-password', {state: email})
             }
             

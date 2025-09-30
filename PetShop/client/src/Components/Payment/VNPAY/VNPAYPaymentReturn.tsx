@@ -70,21 +70,21 @@ const PaymentReturn = () => {
         })
 
         if (res.status === 201) {
-          showNotification(res.data.message, "success")
+          showNotification(t(`${res.data.message}`), "success")
         }
         else {
-          showNotification("Payment Failed", "error")
+          showNotification(t("Payment Failed"), "error")
         }
 
         const res_1 = await authApi.put(endpoints.updateStatusOfOrder(vnp_TxnRef), {
           status: "Confirmed"
         })
         if (res_1.status === 200) {
-          showNotification(res_1.data.message, "success")
+          showNotification(t(`${res_1.data.message}`), "success")
           setSuccess(true)
         }
         else {
-          showNotification("Updating order status failed", "error")
+          showNotification(t("Updating order status failed"), "error")
         }
       } catch (error: any) {
         setError(true)
@@ -98,7 +98,7 @@ const PaymentReturn = () => {
         const checkStatus = await APIs.get(endpoints.getOrder(vnp_TxnRef))
         if (checkStatus.data.status !== "Pending") {
           setError(true)
-          setErrorMessage("This payment has already been processed.")
+          setErrorMessage(t("This payment has already been processed."))
           return
         }
         const res = await authApi.post(endpoints.createPaymentForOrder, {
@@ -109,21 +109,21 @@ const PaymentReturn = () => {
           extraData: extraData
         })
         if (res.status === 201) {
-          showNotification(res.data.message, "success")
+          showNotification(t(`${res.data.message}`), "success")
         }
         else {
-          showNotification("Payment Failed", "error")
+          showNotification(t("Payment Failed"), "error")
         }
         const res_1 = await authApi.put(endpoints.updateStatusOfOrder(vnp_TxnRef), {
           status: "FAILED"
         })
         if (res_1.status === 200) {
-          showNotification(res_1.data.message, "success")
+          showNotification(t(`${res_1.data.message}`), "success")
         }
         else {
-          showNotification("Updating order status failed", "error")
+          showNotification(t("Updating order status failed"), "error")
           setError(true)
-          setErrorMessage('Payment failed or invalid transaction.')
+          setErrorMessage(t('Payment failed or invalid transaction.'))
         }
         
       } catch (error: any) {

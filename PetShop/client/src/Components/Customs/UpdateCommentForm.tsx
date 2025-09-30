@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useTransition } from 'react'
 import { authApi, endpoints } from '../../Config/APIs'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store'
@@ -7,6 +7,7 @@ import { Delete } from '@mui/icons-material'
 import { useLocation, useNavigate, useParams } from 'react-router'
 import axios from 'axios'
 import { useNotification } from '../../Context/Notification'
+import { useTranslation } from 'react-i18next'
 
 const UpdateCommentForm = () => {
     const user = useSelector((state: RootState) => state.auth.user)
@@ -15,6 +16,7 @@ const UpdateCommentForm = () => {
     const type = location.state.type || null
     const { commentId } = useParams(); // from URL
     const { showNotification } = useNotification()
+    const {t} = useTranslation()
 
     const [comment, setComment] = useState<{
         content: string;
@@ -98,8 +100,8 @@ const UpdateCommentForm = () => {
       }
     );
 
-    if (res.status === 201) {
-      showNotification(res.data.message, "success");
+    if (res.status === 200) {
+      showNotification(t(`${res.data.message}`), "success");
       navigate(`${from}`, {state: {
         from: from,
         type: type
@@ -143,7 +145,7 @@ const UpdateCommentForm = () => {
           const res = await authApi.delete(endpoints.deleteCommentDetails(commentDetails_id))
           if (res.status === 204) {
             setError(false)
-            showNotification("Image was deleted successfully", "success")
+            showNotification(t("Image was deleted successfully"), "success")
             setComment(prev => ({
             ...prev,
             urls: prev.urls.filter((_: any, i: number) => i !== index)
@@ -151,7 +153,7 @@ const UpdateCommentForm = () => {
           } 
           else {
             setError(true)
-            setErrorMessage(res.data.message)
+            setErrorMessage(t(`${res.data.message}`))
             showNotification(errorMessage, "error")
           }
         }

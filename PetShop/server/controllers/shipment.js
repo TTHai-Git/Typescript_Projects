@@ -7,7 +7,7 @@ export const createShipment = async (req, res) => {
     const shipment = await Shipment.create(req.body);
     return res.status(201).json({
       message:
-        "Thông tin giao hàng đã được tạo thành công! Tiến hành thanh toán.",
+        "Delivery information has been successfully created! Proceed to payment.",
       doc: shipment,
     });
   } catch (error) {

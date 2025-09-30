@@ -24,12 +24,12 @@ import { useTranslation } from 'react-i18next';
       }
       else {
         setError(true)
-        setErrorMessage(res.data.message)
+        setErrorMessage(t(`${res.data.message}`))
       }
       
     } catch (error: any) {
       setError(true)
-      setErrorMessage(error.response.data.message)
+      setErrorMessage(t(error.response.data.message))
     } finally {
       setLoading(false)
     }

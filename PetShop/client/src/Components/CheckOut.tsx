@@ -75,7 +75,7 @@ const CheckOut = () => {
                 order: orderId,
             });
             if  (res.status === 201) {
-              showNotification(res.data.message, "success")
+              showNotification(t(`${res.data.message}`), "success")
             }
             else {
               showNotification("Payment Failed", "error")
