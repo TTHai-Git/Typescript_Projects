@@ -44,7 +44,6 @@ const ListOfRecentlyViewedProducts = () => {
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const location = useLocation()
   const {t} = useTranslation()
   
 
@@ -203,12 +202,7 @@ const ListOfRecentlyViewedProducts = () => {
                     color="info"
                     startIcon={<InfoIcon />}
                     onClick={() =>
-                      navigate(`/products/${item.type}/${item._id}`, {
-                        state: {
-                          type: item.type,
-                          from: location.pathname + location.search,
-                        },
-                      })
+                      navigate(`/products/${item._id}/${item.type}`)
                     }
                   >
                     {t("Details")}

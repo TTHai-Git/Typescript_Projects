@@ -33,7 +33,6 @@ const UserInfo = () => {
   const { showNotification } = useNotification()
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const location = useLocation()
 
   const [isEditing, setIsEditing] = useState(false);
   const [editedUser, setEditedUser] = useState({
@@ -95,7 +94,6 @@ const UserInfo = () => {
       showNotification((err.response?.data?.message || err.message), "error");
     }
   };
-
   return (
     <Box
       display="flex"
@@ -244,9 +242,7 @@ const UserInfo = () => {
               startIcon={<ReceiptIcon />}
               fullWidth
               onClick={() =>
-                navigate(`${user?._id}/orders?page=1`, {
-                  state: { from: location.pathname + location.search },
-                })
+               navigate(`${user?._id}/orders?page=1`)
               }
             >
               {t("Follow Orders")}
@@ -257,9 +253,7 @@ const UserInfo = () => {
               startIcon={<Favorite />}
               fullWidth
               onClick={() =>
-                navigate(`${user?._id}/favoritelist?page=1`, {
-                  state: { from: location.pathname + location.search },
-                })
+                navigate(`${user?._id}/favoritelist?page=1`)
               }
             >
               {t("Follow Favoritelist")}
@@ -271,10 +265,9 @@ const UserInfo = () => {
                 startIcon={<AdminPanelSettings />}
                 fullWidth
                 onClick={() =>
-                  navigate(`/admin-dashboard`, {
-                    state: { from: location.pathname + location.search },
-                  })
+                  navigate(`/admin-dashboard`)
                 }
+                
               >
                 {t("Dashboard Management")}
               </Button>

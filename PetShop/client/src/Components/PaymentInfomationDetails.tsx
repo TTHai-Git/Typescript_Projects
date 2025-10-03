@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from 'react'
-import { useLocation, useNavigate, useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 import { PaymentDetails } from '../Interface/Payment'
 import { authApi, endpoints } from '../Config/APIs'
-import { Box, Button } from '@mui/material'
+import { Button } from '@mui/material'
 import { ArrowBack } from '@mui/icons-material'
 import { useTranslation } from 'react-i18next'
 
 const PaymentInfomationDetails = () => {
-  const { payment_id } = useParams()
+  const {payment_id } = useParams()
   const [paymentDetails, setPaymentDetails] = useState<PaymentDetails>()
   const [loading, setLoading] = useState<boolean>(false)
-  const location = useLocation()
   const navigate = useNavigate()
   const {t} = useTranslation()
 
@@ -49,10 +48,19 @@ const PaymentInfomationDetails = () => {
     ([key]) => !hiddenKeys.includes(key)
   )
 
-  
 
   return (
     <div className="container mx-auto p-5">
+      <Button
+        variant="contained"
+        color="inherit"
+        size="large"
+        startIcon={<ArrowBack />}
+        onClick={() => navigate(-1)}
+        sx={{ borderRadius: 3, px: 4, textTransform: 'none', fontWeight: 'bold', boxShadow: 2 }}
+      >
+        {t("Go Back")}
+      </Button>
   
 
       <h1 className="text-xl font-bold mb-4">{t("Payment Information")}</h1>

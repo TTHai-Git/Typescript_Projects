@@ -112,12 +112,9 @@ export const getAllProducts = async (req, res) => {
       filter.category = category;
     }
 
-    // 🔍 Search by name or description (case-insensitive)
+    // 🔍 Search by name
     if (search) {
-      filter.$or = [
-        { name: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } },
-      ];
+      filter.$or = [{ name: { $regex: search, $options: "i" } }];
     }
 
     // ⬆️⬇️ Sort logic
@@ -188,9 +185,9 @@ export const getAllProducts = async (req, res) => {
 
     const count = await Product.countDocuments(filter);
 
-    if (products.length === 0) {
-      return res.status(404).json({ message: "No products found" });
-    }
+    // if (products.length === 0) {
+    //   return res.status(404).json({ message: "No products found" });
+    // }
 
     return res.status(200).json({
       products,

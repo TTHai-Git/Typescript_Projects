@@ -66,7 +66,7 @@ export const getOrdersOfCustomer = async (req, res) => {
     }
 
     const data = orders.map((order) => ({
-      orderId: order._id,
+      _id: order._id,
       userId: order.user,
       totalPrice: order.totalPrice,
       status: order.status,

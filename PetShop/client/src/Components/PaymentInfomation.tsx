@@ -9,6 +9,7 @@ import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye'
 import { useSelector } from 'react-redux'
 import { RootState } from '../store'
 import { useTranslation } from 'react-i18next'
+import { useSearchParams } from 'react-router-dom'
 
 const PaymentInfomation = () => {
   const [paymentInfo, setPaymentInfo] = useState<Payment>()
@@ -17,9 +18,9 @@ const PaymentInfomation = () => {
   const [errorMessage, setErrorMessage] = useState<string>('')
 
   const user = useSelector((state: RootState) => state.auth.user)
-  const { order_id } = useParams()
+  const { user_id, order_id } = useParams();
   const navigate = useNavigate()
-  const location = useLocation()
+  const [searchParams, setSearchParams] = useSearchParams()
   const {t} = useTranslation()
 
   const getPaymentDetails = async () => {
@@ -44,12 +45,23 @@ const PaymentInfomation = () => {
     }
   }
 
+ 
   useEffect(() => {
     getPaymentDetails()
   }, [])
 
   return (
   <div className="container mx-auto p-4">
+    <Button
+      variant="contained"
+      color="inherit"
+      size="large"
+      startIcon={<ArrowBack />}
+      onClick={() => navigate(-1)}
+      sx={{ borderRadius: 3, px: 4, textTransform: 'none', fontWeight: 'bold', boxShadow: 2 }}
+    >
+      {t("Go Back")}
+    </Button>
     <h1 className="text-xl font-bold mb-4">{t("Payment Information")}</h1>
 
     {loading ? (
@@ -89,10 +101,7 @@ const PaymentInfomation = () => {
               <button
                 className="btn btn-primary"
                 onClick={() =>
-                  navigate(
-                    `/userinfo/${user?._id}/orders/${order_id}/paymentInfo/${paymentInfo?._id}/details`,
-                    { state: { from: location.pathname + location.search } }
-                  )
+                  navigate(`/userinfo/${user_id}/orders/${order_id}/paymentInfo/:payment_id/details`)
                 }
               >
                 <RemoveRedEyeIcon /> {t("View")}

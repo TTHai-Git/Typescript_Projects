@@ -54,32 +54,21 @@ const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [categoryId, setCategoryId] = useState<string>("")
   const currentPage = parseInt(searchParams.get('page') || '1');
-
-  const [searchTerm, setSearchTerm] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('');
-  const location = useLocation()
-
+  const [searchTerm, setSearchTerm] = useState<string>('');
   const { addToRecentlyViewedProducts} = useRecentlyViewedProducts()
   const {t} = useTranslation()
-
-
   const navigate = useNavigate();
 
   const loadProducts = async () => {
     try {
       setLoading(true);
-      const query = new URLSearchParams();
-      if (categoryId) query.append('category', categoryId);
-      if (searchTerm) query.append('search', searchTerm);
-      if (sortBy) query.append('sort', sortBy);
-      query.append('page', currentPage.toString());
-  
-      // const res = await axios.get(`/v1/products?${query.toString()}`);
-      const res = await APIs.get(`${endpoints['getAllProducts']}?${query.toString()}`)
+      const query = new URLSearchParams(searchParams);
+
+      const res = await APIs.get(`${endpoints['getAllProducts']}?${query.toString()}`);
       setProducts(res.data.products || []);
       setTotal(res.data.total || 0);
       setPages(res.data.pages || 1);
-      
     } catch (err) {
       console.error(err);
       setProducts([]);
@@ -87,6 +76,7 @@ const Products = () => {
       setLoading(false);
     }
   };
+
 
   const loadCategories = async () => {
     try {
@@ -102,18 +92,21 @@ const Products = () => {
     const newSearchTerm = searchParams.get('search') || '';
     const newSortBy = searchParams.get('sort') || '';
     const newCategoryId = searchParams.get("category") || ""
+
     setSearchTerm(newSearchTerm);
     setSortBy(newSortBy);
     setCategoryId(newCategoryId)
   }, [searchParams]);
+
 
   useEffect(() => {
     loadCategories();
   }, []);
 
   useEffect(() => {
-     loadProducts();
-  }, [searchTerm, sortBy, categoryId, currentPage])
+    loadProducts();
+  }, [searchParams]);
+
 
   const changePage = (newPage: number) => {
     if (newPage >= 1 && newPage <= pages) {
@@ -137,30 +130,14 @@ const Products = () => {
   
   const handleAddToRecentLyViewedProducts = (product: Product) => {
     addToRecentlyViewedProducts(product)
-    navigate(`/products/${product.type}/${product._id}`, 
-    { state: {
-      type: product.type,
-      from: location.pathname + location.search, 
-      } 
-    })
+    navigate(`/products/${product._id}/${product.type}`)
   }
-
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" mt={5}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
   return (
     <Box p={4}>
       <Typography variant="h4" mb={4} fontWeight="bold" color="primary">
         {t("Product List")}: {total} {t("Products")}
       </Typography>
       
-      
-  
       {/* Search and Filter Section */}
       <Box sx={{ mb: 4, display: 'flex', flexDirection: 'column', gap: 3 }}>
         {/* 🔍 Search Bar */}
@@ -168,7 +145,12 @@ const Products = () => {
           label={t("Search")}
           variant="outlined"
           value={searchTerm}
-          onChange={(e) => setSearchTerm((e.target as HTMLInputElement).value)}
+          onChange={(e) => {
+            const params = new URLSearchParams(searchParams);
+            params.set('page', '1');
+            params.set('search', e.target.value.trim());
+            setSearchParams(params);
+          }}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               const params = new URLSearchParams(searchParams);
@@ -227,7 +209,13 @@ const Products = () => {
             <Chip
               label={t("All")}
               icon={<CategoryIcon />}
-              onClick={() => setSearchParams({ page: '1' })}
+              onClick={() => {
+                setCategoryId("")
+                const params = new URLSearchParams(searchParams)
+                params.delete("category")
+                params.set("page", "1")
+                setSearchParams(params);
+              }}
               sx={{
                 cursor: 'pointer',
                 backgroundColor: !categoryId ? 'primary.main' : 'grey.300',
@@ -302,7 +290,12 @@ const Products = () => {
         </Box>
       </Box>
   
-      {/* Main Content with Advertisements */}
+      {loading ? (
+        <p className="loading">🔄 {t("Loading Products...")}</p>
+      ) : (
+        <>
+        
+        {/* Main Content with Advertisements */}
       <Grid container spacing={2}>
         
         {/* Left Advertisement */}
@@ -325,7 +318,23 @@ const Products = () => {
   
         {/* Product List */}
         <Grid item xs={12} md={8}>
-          <Grid container spacing={3}>
+          {products.length === 0 ? (
+            <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  minHeight: "200px",
+                  textAlign: "center",
+                }}
+              >
+                <Typography variant="h6" color="text.secondary">
+                  {t("Product not found")}
+                </Typography>
+            </Box>
+          ): (
+            <Grid container spacing={3}>
             {products.map((item) => (
               <Grid item xs={12} sm={6} md={6} key={item._id}>
 
@@ -420,6 +429,8 @@ const Products = () => {
               </Grid>
             ))}
           </Grid>
+          )}
+          
         </Grid>
   
         {/* Right Advertisement */}
@@ -448,11 +459,10 @@ const Products = () => {
         <Button onClick={() => changePage(currentPage + 1)} disabled={currentPage === pages}>{t("Next")}</Button>
         <Button onClick={() => changePage(pages)} disabled={currentPage === pages}>{t("Last")}</Button>
       </Stack>
-      
+        </>
+      )}
     </Box>
   );
-  
-  
 };
 
 export default Products;

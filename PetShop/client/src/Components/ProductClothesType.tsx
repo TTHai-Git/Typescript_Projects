@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 // import axios from 'axios';
 import Product, { ProductClothes } from '../Interface/Product';
 import {
@@ -30,13 +30,13 @@ import UserComment from './UserComment';
 import CommentsByProduct from './CommentsByProduct';
 import { useCart } from '../Context/Cart';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 
 const ProductClothesType = () => {
   const user = useSelector((state: RootState) => state.auth.user)
   const { addToCart } = useCart()
   const { product_id } = useParams();
-  const location = useLocation();
-  const type = "clothes";
+  const type ="clothes";
   const [loading, setLoading] = useState<boolean>(false);
   const [productClothes, setProductClothes] = useState<ProductClothes>();
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
@@ -47,6 +47,7 @@ const ProductClothesType = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams();
   const {t} = useTranslation()
 
   const loadInfoDetailsOfProduct = async () => {
@@ -62,9 +63,11 @@ const ProductClothesType = () => {
     }
   };
 
-  const handleBack = () => {
-    navigate(`${location.pathname + location.search}`);
-  };
+    const handleNavigateToLogin = () => {
+    const href = window.location.pathname + window.location.search
+    navigate(`/login?ref=${href}`)
+
+  }
 
   useEffect(() => {
     loadInfoDetailsOfProduct();
@@ -139,7 +142,16 @@ const ProductClothesType = () => {
       onClose={() => setSnackbarOpen(false)}
       message={snackbarMessage}
     />
-
+    <Button
+      variant="contained"
+      color="inherit"
+      size="large"
+      startIcon={<ArrowBack />}
+      onClick={() => navigate(-1)}
+      sx={{ borderRadius: 3, px: 4, textTransform: 'none', fontWeight: 'bold', boxShadow: 2 }}
+    >
+      {t("Go Back")}
+    </Button>
     <Grid container spacing={4}>
       {/* Product Image */}
       <Grid item xs={12} sm={6}>
@@ -311,7 +323,7 @@ const ProductClothesType = () => {
         </Typography>
         <Button
           variant="outlined"
-          onClick={() => navigate('/login', { state: { from: location.pathname, type: type }})}
+          onClick={() => handleNavigateToLogin()}
         >
           {t("Go To Login")}
         </Button>

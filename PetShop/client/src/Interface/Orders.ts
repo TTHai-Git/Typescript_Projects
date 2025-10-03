@@ -1,7 +1,7 @@
 import Payment from "./Payment"
 
 interface Order {
-    orderId: string,
+    _id: string,
     userId: string,
     payment: Payment
     totalPrice:number,

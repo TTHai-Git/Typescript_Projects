@@ -40,12 +40,12 @@ import UserComment from './UserComment';
 import CommentsByProduct from './CommentsByProduct';
 import { useCart } from '../Context/Cart';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 
 const ProductAccessoryType = () => {
   const user = useSelector((state: RootState) => state.auth.user)
   const {addToCart} = useCart();
   const { product_id } = useParams();
-  const location = useLocation();
   const type = "accessory";
   const [loading, setLoading] = useState<boolean>(false);
   const [productAccessory, setProductAccessory] = useState<ProductAccessories>();
@@ -53,6 +53,7 @@ const ProductAccessoryType = () => {
   const [checkFavorite, setCheckFavorite] = useState<boolean>(false)
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [searchParams] = useSearchParams();
 
   const navigate = useNavigate()
   const {t} = useTranslation()
@@ -114,11 +115,12 @@ const ProductAccessoryType = () => {
       setLoading(false)
     }
   };
-  
 
-  const handleBack = () => {
-    navigate(`${location.pathname + location.search}`);
-  };
+  const handleNavigateToLogin = () => {
+    const href = window.location.pathname + window.location.search
+    navigate(`/login?ref=${href}`)
+
+  }
 
   useEffect(() => {
     loadInfoDetailsOfProduct();
@@ -146,7 +148,16 @@ const ProductAccessoryType = () => {
       onClose={() => setSnackbarOpen(false)}
       message={snackbarMessage}
     />
-
+    <Button
+      variant="contained"
+      color="inherit"
+      size="large"
+      startIcon={<ArrowBack />}
+      onClick={() => navigate(-1)}
+      sx={{ borderRadius: 3, px: 4, textTransform: 'none', fontWeight: 'bold', boxShadow: 2 }}
+    >
+      {t("Go Back")}
+    </Button>
     <Grid container spacing={4}>
       {/* Image */}
       <Grid item xs={12} md={6}>
@@ -269,9 +280,7 @@ const ProductAccessoryType = () => {
         <Button
           variant="outlined"
           onClick={() =>
-            navigate('/login', {
-              state: { from: location.pathname + location.search, type: type },
-            })
+            handleNavigateToLogin()
           }
         >
           {t("Go To Login")}

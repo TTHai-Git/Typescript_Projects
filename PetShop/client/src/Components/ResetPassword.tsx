@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Box,
   Button,
@@ -19,6 +19,7 @@ const ResetPassword = () => {
   const location = useLocation();
   const email = location.state || null;
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams()
 
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
@@ -85,7 +86,8 @@ const ResetPassword = () => {
 
       if (res.status === 200) {
         showNotification(t(`${res.data.message}`), 'success');
-        navigate('/login');
+        handleRedirectToLogin()
+        
       }
     } catch (error: any) {
       setIsError(true);
@@ -100,6 +102,11 @@ const ResetPassword = () => {
     const sec = (seconds % 60).toString().padStart(2, '0');
     return `${min}:${sec}`;
   };
+  
+  const handleRedirectToLogin = () => {
+    const ref = searchParams.get('ref')
+    navigate(`${ref}`);
+  }
 
   return (
   <Container maxWidth="sm">

@@ -10,6 +10,7 @@ import { Alert } from '@mui/material';
 import APIs, { endpoints, fetchCsrfToken } from '../Config/APIs';
 import { useNotification } from '../Context/Notification';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 
 const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -21,6 +22,7 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
   const { showNotification} = useNotification()
   const { t } = useTranslation()
+  const [searchParams] = useSearchParams()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,7 +42,15 @@ const Login: React.FC = () => {
           isAuthenticated: true,
         }));
         fetchCsrfToken()
-        navigate("/products")
+        const ref = searchParams.get("ref")
+        if (ref) 
+        {
+          navigate(`${ref}`)
+        } 
+        else {
+          navigate("/products")
+        }
+       
         
       } else {
         showNotification("Username or password is incorect", "error")
@@ -52,6 +62,15 @@ const Login: React.FC = () => {
       setLoading(false)
     }
   };
+  const handleNavigateToRegister = () => {
+    const ref = window.location.pathname
+    navigate(`/register?ref=${ref}`)
+  }
+
+  const handleNavigateToGenerateOTPForForgotPassword = () => {
+    const ref = window.location.pathname
+    navigate(`/generate-otp?ref=${ref}`)
+  }
 
   useEffect(() => {
     // console.log(from)
@@ -96,7 +115,7 @@ const Login: React.FC = () => {
               )}  
           </div>
           <div className="form-group">
-          <a className="forgotpassword-subtitle" href='/generate-otp' onClick={() => navigate("/generate-otp")}>{t("Do you forgot your password?")}</a>
+          <a className="forgotpassword-subtitle"  onClick={() =>handleNavigateToGenerateOTPForForgotPassword() }>{t("Do you forgot your password?")}</a>
           </div>
           <div className="form-group">
           <button type="submit" className="login-button">
@@ -107,7 +126,7 @@ const Login: React.FC = () => {
           </div>
           <button
             className="register-button"
-            onClick={() => navigate('/register', { state: { from: '/login' } })}
+            onClick={() => handleNavigateToRegister()}
           >
            {t("Register")}
           </button>

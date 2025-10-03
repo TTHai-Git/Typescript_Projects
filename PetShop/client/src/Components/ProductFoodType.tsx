@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useTransition } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 // import axios from 'axios';
 import {
   Box,
@@ -48,7 +48,7 @@ const ProductFoodType = () => {
   const user = useSelector((state: RootState) => state.auth.user)
   const {addToCart} = useCart()
   const {product_id } = useParams();
-  const location = useLocation();
+
   const type = "food";
   const navigate = useNavigate();
   const [productFoods, setProductFoods] = useState<ProductFood>();
@@ -57,6 +57,7 @@ const ProductFoodType = () => {
   const [checkFavorite, setCheckFavorite] = useState<Boolean>(false)
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [searchParams] = useSearchParams();
   const {t} = useTranslation()
   
 
@@ -71,6 +72,12 @@ const ProductFoodType = () => {
       setLoading(false);
     }
   };
+
+    const handleNavigateToLogin = () => {
+      const href = window.location.pathname + window.location.search
+      navigate(`/login?ref=${href}`)
+    }
+
 
    useEffect(() => {
       loadInfoDetailsOfProduct();
@@ -132,12 +139,6 @@ const ProductFoodType = () => {
         setLoading(false)
       }
     };
-  
-
-  const handleBack = () => {
-    navigate(`${location.pathname + location.search}`);
-  };
-
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" mt={5}>
@@ -158,6 +159,17 @@ const ProductFoodType = () => {
       onClose={() => setSnackbarOpen(false)}
       message={snackbarMessage}
     />
+
+    <Button
+      variant="contained"
+      color="inherit"
+      size="large"
+      startIcon={<ArrowBack />}
+      onClick={() => navigate(-1)}
+      sx={{ borderRadius: 3, px: 4, textTransform: 'none', fontWeight: 'bold', boxShadow: 2 }}
+    >
+      {t("Go Back")}
+    </Button>
 
     <Card sx={{ maxWidth: 1000, margin: '0 auto', boxShadow: 6, borderRadius: 4 }}>
       <CardMedia
@@ -306,7 +318,7 @@ const ProductFoodType = () => {
         </Typography>
         <Button
           variant="outlined"
-          onClick={() => navigate('/login', { state: { from: location.pathname + location.search, type: type }})}
+          onClick={() => handleNavigateToLogin()}
         >
           {t("Go To Login")}
         </Button>

@@ -11,9 +11,6 @@ import { useTranslation } from 'react-i18next'
 
 const UpdateCommentForm = () => {
     const user = useSelector((state: RootState) => state.auth.user)
-    const location = useLocation();
-    const from = location.state.from || null
-    const type = location.state.type || null
     const { commentId } = useParams(); // from URL
     const { showNotification } = useNotification()
     const {t} = useTranslation()
@@ -102,10 +99,7 @@ const UpdateCommentForm = () => {
 
     if (res.status === 200) {
       showNotification(t(`${res.data.message}`), "success");
-      navigate(`${from}`, {state: {
-        from: from,
-        type: type
-      }})
+      navigate(-1)
       
     } else {
       console.error("Error updating comment:", res.data.message);

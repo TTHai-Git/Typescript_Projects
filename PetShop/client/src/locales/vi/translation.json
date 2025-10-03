@@ -23,6 +23,8 @@
   "Pet": "Thú Cưng",
   "Sort By": "Sắp Xếp Theo",
   "Advertisement": "Quảng Cáo",
+  "Loading Products...": "Đang tải các sản phẩm...",
+  "Product not found":"Không tìm thấy sản phẩm",
   "Increasing By Price": "Tăng Dần Theo Giá",
   "Decrease By Price": "Giảm Dần Theo Giá",
   "Latest": "Mới nhất",
@@ -191,6 +193,8 @@
   "Password reset successfully": "Thay đổi mật khẩu thành công",
 
   "Your Favorite Products": "Danh Sách Sản Phẩm Yêu Thích Của Bạn",
+  "🔄 Loading your favorite product list...": "🔄 Đang tải danh sách sản phẩm yêu thích của bạn...",
+  "Favorite Products not found": "Không tìm thấy sản phẩm yêu thích nào",
   "Favorite deleted successfully": "Xóa đối tượng yêu thích thành công",
   
   "Admin Dashboard": "Bảng điều khiển quản trị",

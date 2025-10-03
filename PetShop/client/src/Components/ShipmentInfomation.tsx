@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import Shipment from '../Interface/Shipment';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import { authApi, endpoints } from '../Config/APIs';
 import formatDate from '../Convert/formatDate ';
 import { useTranslation } from 'react-i18next';
+import { Button } from '@mui/material';
+import { ArrowBack } from '@mui/icons-material';
 
  const ShipmentInfomation = () => {
-  const {order_id} = useParams()
+  const { order_id } = useParams();
+  const navigate = useNavigate()
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false)
   const [errorMessage, setErrorMessage] = useState<string>('')
@@ -41,6 +44,16 @@ import { useTranslation } from 'react-i18next';
 
   return (
   <div className="container mx-auto p-4">
+    <Button
+      variant="contained"
+      color="inherit"
+      size="large"
+      startIcon={<ArrowBack />}
+      onClick={() => navigate(-1)}
+      sx={{ borderRadius: 3, px: 4, textTransform: 'none', fontWeight: 'bold', boxShadow: 2 }}
+    >
+      {t("Go Back")}
+    </Button>
     <h1 className="text-xl font-bold mb-4">{t("Shipment Information")}</h1>
 
     {loading ? (

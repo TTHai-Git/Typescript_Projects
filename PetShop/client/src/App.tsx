@@ -81,10 +81,10 @@ function App() {
               <Route path='/userinfo/:user_id/orders/:order_id/paymentInfo/:payment_id/details' element={<PaymentInfomationDetails/>}/> 
               <Route path="/userinfo/:user_id/favoritelist" element={<FavoriteList/>}/>
               <Route path="/products" element={<Products />} />
-              <Route path="/products/food/:product_id" element={<ProductFoodType/>}/>
-              <Route path="/products/clothes/:product_id" element={<ProductClothesType/>}/>
-              <Route path="/products/accessory/:product_id" element={<ProductAccessoryType/>}/>
-              <Route path="/products/dog/:product_id/" element={<ProductDogType/>}/>
+              <Route path="/products/:product_id/food" element={<ProductFoodType/>}/>
+              <Route path="/products/:product_id/clothes" element={<ProductClothesType/>}/>
+              <Route path="/products/:product_id/accessory" element={<ProductAccessoryType/>}/>
+              <Route path="/products/:product_id/dog" element={<ProductDogType/>}/>
               <Route path="/comments/:commentId/updateCommentForm" element={<UpdateCommentForm/>}/>
               <Route path='/VNPAY/payment-return' element={<PaymentReturn/>}/>
               <Route path='/PAYOS/payment-return' element={<PAYOSPaymentReturn/>}/>

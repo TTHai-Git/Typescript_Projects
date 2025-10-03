@@ -6,11 +6,13 @@ import axios from "axios";
 
 import { useTranslation } from "react-i18next";
 import { useNotification } from "../Context/Notification";
+import { useSearchParams } from "react-router-dom";
 
 const Register = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [previewAvatar, setPreviewAvatar] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams()
 
   const [userRegister, setUserRegister] = useState({
     username: "",
@@ -116,7 +118,7 @@ const Register = () => {
     // console.log("secure_url of Cloudinary: ", res.data.secure_url)
     // Handle Upload Avatar For User
     if (res.status === 200) {
-        // console.log("In update avatar")
+        console.log("In update avatar")
         try {
         await authApi.put(endpoints["updateAvatar"](userId), {
           avatar: res.data.secure_url
@@ -172,7 +174,7 @@ const Register = () => {
         showNotification(t("Register account successfully"), "success");
         // console.log("userRegister Avatar: ", userRegister.avatar)
         handleUploadAvatarOnToCloudinary(res.data.doc._id,userRegister.avatar)
-        navigate("/login");
+        handleRedirectToLogin()
       } else {
         showNotification(t(`Register account failed! ${res.data.message} `), "error");
       }
@@ -183,6 +185,11 @@ const Register = () => {
       setLoading(false);
     }
   };
+
+  const handleRedirectToLogin = () => {
+    const ref = searchParams.get("ref")
+    navigate(`${ref}`)
+  }
 
   // Clean up memory when component unmounts or avatar changes
   useEffect(() => {
@@ -287,7 +294,7 @@ const Register = () => {
           <button
             type="button"
             className="back-button"
-            onClick={() => navigate("/login")}
+            onClick={() => handleRedirectToLogin()}
           >
             {t("Back To Login")}
           </button>

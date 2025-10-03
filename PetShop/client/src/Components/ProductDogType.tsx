@@ -15,7 +15,7 @@ import {
   IconButton,
   Snackbar,
 } from '@mui/material';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 // import axios from 'axios';
 import PetsIcon from '@mui/icons-material/Pets';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
@@ -41,8 +41,7 @@ const ProductDogType: React.FC = () => {
   const user = useSelector((state: RootState) => state.auth.user)
   const { addToCart } = useCart();
   const { product_id } = useParams();
-  const location = useLocation();
-  const type = "dog";
+  const type ="dog";
   const [dog, setDog] = React.useState<ProductDog | null>(null);
   const [loading, setLoading] = React.useState<boolean>(true);
   const [selectedQuantity, setSelectedQuantity] = React.useState<number>(1)
@@ -54,8 +53,7 @@ const ProductDogType: React.FC = () => {
   const navigate = useNavigate()
   const { showNotification } = useNotification()
   const {t} = useTranslation()
- 
- 
+  const [searchParams] = useSearchParams();
 
   const handleAddToCart = (dog: ProductDog, quantity: number) => {
     if (!selectedSize) {
@@ -128,7 +126,12 @@ const ProductDogType: React.FC = () => {
   const handleSizeClick = (size: string) => {
     setSelectedSize(size)
   }
-  
+
+  const handleNavigateToLogin = () => {
+    const href = window.location.pathname + window.location.search
+    navigate(`/login?ref=${href}`)
+
+  }
 
   if (loading) {
     return (
@@ -149,6 +152,16 @@ const ProductDogType: React.FC = () => {
 
   return (
   <Box sx={{ flexGrow: 1, p: { xs: 2, md: 5 }, backgroundColor: '#f9f9f9' }}>
+    <Button
+      variant="contained"
+      color="inherit"
+      size="large"
+      startIcon={<ArrowBack />}
+      onClick={() => navigate(-1)}
+      sx={{ borderRadius: 3, px: 4, textTransform: 'none', fontWeight: 'bold', boxShadow: 2 }}
+    >
+      {t("Go Back")}
+    </Button>
     <Snackbar
       open={snackbarOpen}
       autoHideDuration={3000}
@@ -300,7 +313,7 @@ const ProductDogType: React.FC = () => {
         </Typography>
         <Button
           variant="outlined"
-          onClick={() => navigate('/login', { state: { from: location.pathname + location.search, type: type }})}
+          onClick={() =>handleNavigateToLogin() }
         >
           {t("Go To Login")}
         </Button>

@@ -6,10 +6,12 @@ import OrderDetails from '../Interface/OrderDetails';
 import { authApi, endpoints } from '../Config/APIs';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { Button } from '@mui/material';
+import { ArrowBack } from '@mui/icons-material';
 
 export const ListOrderDetails = () => {
 
-  const { order_id } = useParams();
+  const { user_id, order_id } = useParams();
   const [orderDetails, setOrderDetails] = useState<OrderDetails[]>([]);
   const [searchParams, setSearchParams] = useSearchParams()
   const currentPage = parseInt(searchParams.get('page') || '1')
@@ -17,7 +19,6 @@ export const ListOrderDetails = () => {
   const [total, setTotal] = useState<number>(0);
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
-  const location = useLocation()
   const {t} = useTranslation()
 
 
@@ -57,6 +58,16 @@ export const ListOrderDetails = () => {
 
   return (
   <div className="container">
+    <Button
+      variant="contained"
+      color="inherit"
+      size="large"
+      startIcon={<ArrowBack />}
+      onClick={() => navigate(-1)}
+      sx={{ borderRadius: 3, px: 4, textTransform: 'none', fontWeight: 'bold', boxShadow: 2 }}
+    >
+      {t("Go Back")}
+    </Button>
     <h1 className="title">🐶 {t("Detailed List Of Orders")}</h1>      
 
     {loading ? (

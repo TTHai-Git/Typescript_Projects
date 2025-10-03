@@ -36,33 +36,30 @@ import { ArrowBack, SportsCricketOutlined } from '@mui/icons-material';
 import { Category } from '../Interface/Category';
 import { useNotification } from '../Context/Notification';
 import { useTranslation } from 'react-i18next';
+import ClearIcon from '@mui/icons-material/Clear';
+import SortIcon from '@mui/icons-material/Sort';
 
 const FavoriteList = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   const [favoriteList, setFavoriteList] = useState<Favorite[]>([]);
-   const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [total, setTotal] = useState<number>(0);
   const [pages, setPages] = useState<number>(0);
   const [searchParams, setSearchParams] = useSearchParams();
-  const categoryId = searchParams.get('category') || '';
+  const [categoryId, setCategoryId] = useState<string>("")
   const currentPage = parseInt(searchParams.get('page') || '1');
   const [searchTerm, setSearchTerm] = useState<string>('')
   const [sortBy, setSortBy] = useState<string>('')
   const navigate = useNavigate();
-  const location = useLocation()
-  const { showNotification} = useNotification()
+  const {showNotification} = useNotification()
   const {t} = useTranslation()
   
 
   const getFavoriteProductsList = async () => {
     try {
       setLoading(true);
-      const query = new URLSearchParams();
-      if (categoryId) query.append('category', categoryId);
-      if(searchTerm) query.append('search', searchTerm);
-      if(sortBy) query.append('sort', sortBy)
-      query.append('page', currentPage.toString());
+      const query = new URLSearchParams(searchParams);
       const res = await authApi.get(
         `${endpoints['getFavoriteProductsList'](user?._id)}?${query.toString()}`
       );
@@ -107,16 +104,15 @@ const FavoriteList = () => {
   };
 
   const viewProductDetails = (productId: string, type: string) => {
-    console.log(type)
-    navigate(`/products/${type}/${productId}`, { state: {
-      type: type,
-      from: location.pathname + location.search
-    } });
+    navigate(`/products/${productId}/${type}`)
   };
 
   const changePage = (newPage: number) => {
     if (newPage >= 1 && newPage <= pages) {
       const params: any = { page: newPage.toString() };
+      if (sortBy) params.sort = sortBy.toString()
+      if (categoryId) params.category = categoryId.toString();
+      if (searchTerm) params.search = searchTerm.toString()
       setSearchParams(params);
     }
   };
@@ -128,30 +124,40 @@ const FavoriteList = () => {
     { label: t('Oldest'), id: 'oldest' },
     { label: 'A-Z', id: 'az' },
     { label: 'Z-A', id: 'za' },
+    { label: t("None"), id: 'none'}
   ];
 
 
   useEffect(() => {
     loadCategories()
   }, [])
-  useEffect(() => {
-    const newSearchTerm = searchParams.get('search') || '';
-    const newSortBy = searchParams.get('sort') || ''
-    setSearchTerm(newSearchTerm)
-    setSortBy(newSortBy)
-    getFavoriteProductsList();
-  }, [searchParams.toString()]);
 
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" height="70vh">
-        <CircularProgress />
-      </Box>
-    );
-  }
+  useEffect(() => {
+    getFavoriteProductsList()
+  }, [searchParams])
+
+  useEffect(() => {
+      const newSearchTerm = searchParams.get('search') || '';
+      const newSortBy = searchParams.get('sort') || '';
+      const newCategoryId = searchParams.get("category") || ""
+  
+      setSearchTerm(newSearchTerm);
+      setSortBy(newSortBy);
+      setCategoryId(newCategoryId)
+    }, [searchParams]);
+
   return (
-    
     <Box p={4}>
+      <Button
+        variant="contained"
+        color="inherit"
+        size="large"
+        startIcon={<ArrowBack />}
+        onClick={() => navigate(-1)}
+        sx={{ borderRadius: 3, px: 4, textTransform: 'none', fontWeight: 'bold', boxShadow: 2 }}
+      >
+        {t("Go Back")}
+      </Button>
       <Typography variant="h4" mb={4} fontWeight="bold" color="primary">
         {t("Your Favorite Products")}
       </Typography>
@@ -161,23 +167,52 @@ const FavoriteList = () => {
           label={t("Search")}
           variant="outlined"
           value={searchTerm}
-          onChange={(e) => setSearchTerm((e.target as HTMLInputElement).value)}
+          onChange={(e) => {
+            const params = new URLSearchParams(searchParams);
+            params.set('page', '1');
+            params.set('search', e.target.value.trim());
+            setSearchParams(params);
+          }}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
-              setSearchParams({
-                page: '1',
-                category: categoryId,
-                sort: sortBy,
-                search: searchTerm,
-              });
+              const params = new URLSearchParams(searchParams);
+              params.set('page', '1');
+              params.set('search', searchTerm.trim());
+              setSearchParams(params);
             }
           }}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
+                <IconButton onClick={() => {
+                  const params = new URLSearchParams(searchParams);
+                  params.set("page", "1");
+                  if (searchTerm.trim()) params.set("search", searchTerm.trim());
+                  else params.delete("search");
+                  setSearchParams(params);
+                }}>
+                  
                 <SearchIcon color="primary" />
+                </IconButton>
+                
               </InputAdornment>
             ),
+            endAdornment: searchTerm && (
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label={t("Clear search")}
+                  onClick={() => {
+                    setSearchTerm("");                         // ✅ clear the input
+                    const params = new URLSearchParams(searchParams);
+                    params.delete("search");                   // ✅ remove query param
+                    params.set("page", "1");                   // optional: reset page
+                    setSearchParams(params);
+                  }}
+                >
+                <ClearIcon />
+                </IconButton>
+              </InputAdornment>
+            )
           }}
           sx={{
             width: '100%',
@@ -196,7 +231,13 @@ const FavoriteList = () => {
             <Chip
              label={t("All")}
               icon={<CategoryIcon />}
-              onClick={() => setSearchParams({ page: '1' })}
+              onClick={() => {
+                setCategoryId("")
+                const params = new URLSearchParams(searchParams)
+                params.delete("category")
+                params.set("page", "1")
+                setSearchParams(params);
+              }}
               sx={{
                 cursor: 'pointer',
                 backgroundColor: !categoryId ? 'primary.main' : 'grey.300',
@@ -212,7 +253,12 @@ const FavoriteList = () => {
                 key={cat._id}
                 label={t(`${cat.name}`)}
                 icon={<CategoryIcon />}
-                onClick={() => setSearchParams({ category: cat._id, page: '1' })}
+                onClick={() => {
+                  const params = new URLSearchParams(searchParams);
+                  params.set('page', '1');             // ✅ reset to first page
+                  params.set('category', cat._id);     // ✅ use the clicked category
+                  setSearchParams(params);             // ✅ merge, don't overwrite
+                }}
                 sx={{
                   cursor: 'pointer',
                   backgroundColor: categoryId === cat._id ? 'primary.main' : 'grey.300',
@@ -232,14 +278,14 @@ const FavoriteList = () => {
             options={options}
             value={options.find((opt) => opt.id.toString() === sortBy) || null}
             onChange={(event, newValue) => {
-              const selectedSort = newValue?.id.toString() || '';
-              setSortBy(selectedSort);
-              setSearchParams({
-                page: '1',
-                category: categoryId,
-                search: searchTerm,
-                sort: selectedSort,
-              });
+              const selectedSort = newValue?.id.toString() || "";
+
+              const params = new URLSearchParams(searchParams);
+              params.set("page", "1");
+              if (selectedSort) params.set("sort", selectedSort);
+              else params.delete("sort");
+
+              setSearchParams(params);
             }}
             renderInput={(params) => (
               <TextField
@@ -249,7 +295,7 @@ const FavoriteList = () => {
                   ...params.InputProps,
                   startAdornment: (
                     <InputAdornment position="start">
-                      <SportsCricketOutlined color="secondary" />
+                       <SortIcon color="secondary" />
                     </InputAdornment>
                   ),
                 }}
@@ -264,163 +310,187 @@ const FavoriteList = () => {
           />
         </Box>
       </Box>
-  
-      <Grid container spacing={2}>
-        {/* Left Advertisement */}
-        <Grid item xs={12} md={2}>
-          <Box
-            sx={{
-              backgroundColor: '#f0f0f0',
-              height: '300px',
-              p: 2,
-              textAlign: 'center',
-              borderRadius: 2,
-              position: 'sticky',
-              top: '100px',
-            }}
-          >
-             <Typography variant="h6" color="secondary">{t("Advertisement")}</Typography>
-          </Box>
-        </Grid>
-        {favoriteList ? <>
-          {/* Center Favorite Products */}
-          <Grid item xs={12} md={8}>
-          <Grid container spacing={4}>
-            {favoriteList.map((fav) => (
-              <Grid item xs={12} sm={6} md={6} key={fav._id}>
-                <Card
-                  sx={{
-                    borderRadius: 3,
-                    boxShadow: 5,
-                    position: 'relative',
-                    backgroundColor: '#fafafa',
-                    transition: '0.3s',
-                    height: '100%',
-                    '&:hover': {
-                      transform: 'scale(1.03)',
-                      boxShadow: 10,
-                    },
-                  }}
-                >
-                  <CardMedia
-                    component="img"
-                    height="200"
-                    image={fav.product.imageUrl}
-                    alt={fav.product.name}
-                    sx={{ objectFit: 'cover' }}
-                  />
-                  <CardContent sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-                    <Box display="flex" justifyContent="space-between" alignItems="center">
-                      <Typography variant="h6" component="div" noWrap>
-                        {fav.product.name}
-                      </Typography>
-                      <Tooltip title="Favorite" arrow>
-                        <FavoriteIcon sx={{ color: pink[500] }} />
-                      </Tooltip>
-                    </Box>
-  
-                    <Stack spacing={1} mt={2}>
-                      <Box display="flex" alignItems="center" gap={1}>
-                        <DescriptionIcon sx={{ color: deepPurple[400] }} />
-                        <Typography variant="body2" color="text.secondary">
-                          {fav.product.description}
-                        </Typography>
-                      </Box>
-  
-                      <Box display="flex" alignItems="center" gap={1}>
-                        <AttachMoneyIcon sx={{ color: green[600] }} />
-                        <Typography variant="body2" fontWeight="bold" color="secondary">
-                          ${fav.product.price}
-                        </Typography>
-                      </Box>
-  
-                     <Box display="flex" alignItems="center" gap={1}>
-                      <CategoryIcon sx={{ color: blue[600] }} />
-                      <Typography variant="body2" color="text.secondary">
-                        {t("Category")}: {fav.product.category?.name}
-                      </Typography>
-                    </Box>
 
-                    <Box display="flex" alignItems="center" gap={1}>
-                      <StoreIcon sx={{ color: blue[800] }} />
-                      <Typography variant="body2" color="text.secondary">
-                        {t("Vendor")}: {fav.product.vendor?.name}
-                      </Typography>
-                    </Box>
-
-                    <Box display="flex" alignItems="center" gap={1}>
-                      <BrandingWatermarkIcon sx={{ color: pink[600] }} />
-                      <Typography variant="body2" color="text.secondary">
-                        {t("Brand")}: {fav.product.brand?.name}
-                      </Typography>
-                    </Box>
-
-                    </Stack>
-  
-                    <Box display="flex" justifyContent="space-between" alignItems="center" mt={3}>
-                      <Tooltip title="View Details" arrow>
-                        <Button
-                          variant="outlined"
-                          size="small"
-                          startIcon={<VisibilityIcon />}
-                          onClick={() => viewProductDetails(fav.product._id, fav.product.type)}
-                        >
-                          {t("View")}
-                        </Button>
-                      </Tooltip>
-  
-                      <Tooltip title="Remove Favorite" arrow>
-                        <IconButton onClick={() => removeFavorite(fav._id)}>
-                          <DeleteIcon sx={{ color: red[500] }} />
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        </Grid>
-        </> : <>
-          <Grid xs={12} md={8}>
-            <Grid container spacing={4}>
-              <Grid item xs={12} sm={6} md={6} key={'none'}>
-                <Box textAlign="center" mt={4}>
-                  <Typography variant="h5" color="text.secondary">
-                    You haven't added any favorites yet!
-                  </Typography>
-                </Box>
-              </Grid>
+      {loading ? (
+        <p className="loading">{t("🔄 Loading your favorite product list...")}</p>
+      ) : (
+        <>
+          <Grid container spacing={2}>
+            {/* Left Advertisement */}
+            <Grid item xs={12} md={2}>
+              <Box
+                sx={{
+                  backgroundColor: '#f0f0f0',
+                  height: '300px',
+                  p: 2,
+                  textAlign: 'center',
+                  borderRadius: 2,
+                  position: 'sticky',
+                  top: '100px',
+                }}
+              >
+                <Typography variant="h6" color="secondary">{t("Advertisement")}</Typography>
+              </Box>
             </Grid>
-          </Grid> 
+            {favoriteList ? <>
+              {/* Center Favorite Products */}
+              <Grid item xs={12} md={8}>
+                {favoriteList.length === 0 ? (
+                  <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        minHeight: "200px",
+                        textAlign: "center",
+                      }}
+                    >
+                      <Typography variant="h6" color="text.secondary">
+                        {t("Favorite Products not found")}
+                      </Typography>
+                  </Box>
+                ) : (
+                <Grid container spacing={4}>
+                {favoriteList.map((fav) => (
+                  <Grid item xs={12} sm={6} md={6} key={fav._id}>
+                    <Card
+                      sx={{
+                        borderRadius: 3,
+                        boxShadow: 5,
+                        position: 'relative',
+                        backgroundColor: '#fafafa',
+                        transition: '0.3s',
+                        height: '100%',
+                        '&:hover': {
+                          transform: 'scale(1.03)',
+                          boxShadow: 10,
+                        },
+                      }}
+                    >
+                      <CardMedia
+                        component="img"
+                        height="200"
+                        image={fav.product.imageUrl}
+                        alt={fav.product.name}
+                        sx={{ objectFit: 'cover' }}
+                      />
+                      <CardContent sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                        <Box display="flex" justifyContent="space-between" alignItems="center">
+                          <Typography variant="h6" component="div" noWrap>
+                            {fav.product.name}
+                          </Typography>
+                          <Tooltip title="Favorite" arrow>
+                            <FavoriteIcon sx={{ color: pink[500] }} />
+                          </Tooltip>
+                        </Box>
+      
+                        <Stack spacing={1} mt={2}>
+                          <Box display="flex" alignItems="center" gap={1}>
+                            <DescriptionIcon sx={{ color: deepPurple[400] }} />
+                            <Typography variant="body2" color="text.secondary">
+                              {fav.product.description}
+                            </Typography>
+                          </Box>
+      
+                          <Box display="flex" alignItems="center" gap={1}>
+                            <AttachMoneyIcon sx={{ color: green[600] }} />
+                            <Typography variant="body2" fontWeight="bold" color="secondary">
+                              ${fav.product.price}
+                            </Typography>
+                          </Box>
+      
+                        <Box display="flex" alignItems="center" gap={1}>
+                          <CategoryIcon sx={{ color: blue[600] }} />
+                          <Typography variant="body2" color="text.secondary">
+                            {t("Category")}: {fav.product.category?.name}
+                          </Typography>
+                        </Box>
+
+                        <Box display="flex" alignItems="center" gap={1}>
+                          <StoreIcon sx={{ color: blue[800] }} />
+                          <Typography variant="body2" color="text.secondary">
+                            {t("Vendor")}: {fav.product.vendor?.name}
+                          </Typography>
+                        </Box>
+
+                        <Box display="flex" alignItems="center" gap={1}>
+                          <BrandingWatermarkIcon sx={{ color: pink[600] }} />
+                          <Typography variant="body2" color="text.secondary">
+                            {t("Brand")}: {fav.product.brand?.name}
+                          </Typography>
+                        </Box>
+
+                        </Stack>
+      
+                        <Box display="flex" justifyContent="space-between" alignItems="center" mt={3}>
+                          <Tooltip title="View Details" arrow>
+                            <Button
+                              variant="outlined"
+                              size="small"
+                              startIcon={<VisibilityIcon />}
+                              onClick={() => viewProductDetails(fav.product._id, fav.product.type)}
+                            >
+                              {t("View")}
+                            </Button>
+                          </Tooltip>
+      
+                          <Tooltip title="Remove Favorite" arrow>
+                            <IconButton onClick={() => removeFavorite(fav._id)}>
+                              <DeleteIcon sx={{ color: red[500] }} />
+                            </IconButton>
+                          </Tooltip>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+                )}
+              
+            </Grid>
+            </> : <>
+              <Grid xs={12} md={8}>
+                <Grid container spacing={4}>
+                  <Grid item xs={12} sm={6} md={6} key={'none'}>
+                    <Box textAlign="center" mt={4}>
+                      <Typography variant="h5" color="text.secondary">
+                        You haven't added any favorites yet!
+                      </Typography>
+                    </Box>
+                  </Grid>
+                </Grid>
+              </Grid> 
+            </>
+            }
+            {/* Right Advertisement */}
+            <Grid item xs={12} md={2}>
+              <Box
+                sx={{
+                  backgroundColor: '#f0f0f0',
+                  height: '300px',
+                  p: 2,
+                  textAlign: 'center',
+                  borderRadius: 2,
+                  position: 'sticky',
+                  top: '100px',
+                }}
+              >
+                <Typography variant="h6" color="secondary">{t("Advertisement")}</Typography>
+              </Box>
+            </Grid>
+          </Grid>
+    
+          {/* Pagination */}
+          <Stack direction="row" spacing={2} justifyContent="center" mt={4}>
+            <Button onClick={() => changePage(1)} disabled={currentPage === 1}>{t("First")}</Button>
+            <Button onClick={() => changePage(currentPage - 1)} disabled={currentPage === 1}>{t("Previous")}</Button>
+            <Typography variant="body1">Page {currentPage} of {pages}</Typography>
+            <Button onClick={() => changePage(currentPage + 1)} disabled={currentPage === pages}>{t("Next")}</Button>
+            <Button onClick={() => changePage(pages)} disabled={currentPage === pages}>{t("Last")}</Button>
+          </Stack>
         </>
-        }
-        {/* Right Advertisement */}
-        <Grid item xs={12} md={2}>
-          <Box
-            sx={{
-              backgroundColor: '#f0f0f0',
-              height: '300px',
-              p: 2,
-              textAlign: 'center',
-              borderRadius: 2,
-              position: 'sticky',
-              top: '100px',
-            }}
-          >
-            <Typography variant="h6" color="secondary">{t("Advertisement")}</Typography>
-          </Box>
-        </Grid>
-      </Grid>
-  
-      {/* Pagination */}
-      <Stack direction="row" spacing={2} justifyContent="center" mt={4}>
-        <Button onClick={() => changePage(1)} disabled={currentPage === 1}>{t("First")}</Button>
-        <Button onClick={() => changePage(currentPage - 1)} disabled={currentPage === 1}>{t("Previous")}</Button>
-        <Typography variant="body1">Page {currentPage} of {pages}</Typography>
-        <Button onClick={() => changePage(currentPage + 1)} disabled={currentPage === pages}>{t("Next")}</Button>
-        <Button onClick={() => changePage(pages)} disabled={currentPage === pages}>{t("Last")}</Button>
-      </Stack>
+      )}
     </Box>
   );
   

@@ -22,6 +22,7 @@ const ListOrders = () => {
   const { page } = useParams<{ page?: string }>(); // Get page number from URL
   const [orders, setOrders] = useState<Order[]>([])
   const [searchParams, setSearchParams] = useSearchParams()
+ 
   const [statusOrders, setStatusOrders] = useState<string>()
   const currentPage = parseInt(searchParams.get('page') || '1')
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -31,7 +32,7 @@ const ListOrders = () => {
   const [loading, setLoading] = useState(false)
   let [count] = useState<number>(1)
   const navigate = useNavigate()
-  const location = useLocation()
+  
   const {t} = useTranslation()
 
   const options = [
@@ -61,11 +62,7 @@ const ListOrders = () => {
     setLoading(true)
     try {
       // const response = await axios.get(`/v1/orders/${user_id}/${current}`)
-      const query = new URLSearchParams()
-      if (sortBy) query.append('sort', sortBy)
-      if (statusOrders) query.append("status", statusOrders)
-      if (searchTerm) query.append('search', searchTerm);
-      query.append('page', currentPage.toString())
+      const query = new URLSearchParams(searchParams)
       const response = await authApi.get(`${endpoints['getOrdersOfCustomer'](user_id)}?${query.toString()}`)
       // console.log(response.data)
       if (response.status === 200) {
@@ -88,6 +85,7 @@ const ListOrders = () => {
   }
 
   useEffect(() => {
+    
     const newSearch = searchParams.get('search') || '';
     const newSort   = searchParams.get('sort')   || '';
     const newStatus = searchParams.get('status') || '';
@@ -98,8 +96,9 @@ const ListOrders = () => {
   }, [searchParams]);
 
   useEffect(() => {
-    getListOrders();           // <-- run AFTER local state changed
-  }, [searchTerm, sortBy, statusOrders, currentPage]);
+    
+    getListOrders();
+  }, [searchParams]);
 
 
   const changePage = (newPage: number) => {
@@ -112,8 +111,19 @@ const ListOrders = () => {
     }
   };
 
+
   return (
     <div className="container mx-auto p-4">
+      <Button
+        variant="contained"
+        color="inherit"
+        size="large"
+        startIcon={<ArrowBack />}
+        onClick={() => navigate(-1)}
+        sx={{ borderRadius: 3, px: 4, textTransform: 'none', fontWeight: 'bold', boxShadow: 2 }}
+      >
+        {t("Go Back")}
+      </Button>
       <h1 className="text-xl font-bold mb-4">{t("List Orders")}</h1>
 
       
@@ -123,14 +133,18 @@ const ListOrders = () => {
           label={t("Search By Order ID")}
           variant="outlined"
           value={searchTerm}
-          onChange={(e) => setSearchTerm((e.target as HTMLInputElement).value)}
+          onChange={(e) => {
+            const params = new URLSearchParams(searchParams);
+            params.set('page', '1');
+            params.set('search', e.target.value.trim());
+            setSearchParams(params);
+          }}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               // ✅ merge existing params
               const params = new URLSearchParams(searchParams);
-              params.set("page", "1");               
-              if (searchTerm.trim()) params.set("search", searchTerm.trim());
-              else params.delete("search");         
+              params.set('page', '1');
+              params.set('search', searchTerm.trim());
               setSearchParams(params);
             }
           }}
@@ -146,7 +160,7 @@ const ListOrders = () => {
                     setSearchParams(params);
                   }}
                 >
-                <SearchIcon />
+                <SearchIcon color="primary"  />
                 </IconButton>
               </InputAdornment>
             ),
@@ -278,9 +292,9 @@ const ListOrders = () => {
           <tbody>
             {orders.length > 0 ? (
               orders.map((order) => (
-                <tr key={order.orderId} className="text-center">
+                <tr key={order._id} className="text-center">
                   <td className="border px-4 py-2">{count++}</td>
-                  <td className="border px-4 py-2">{order.orderId}</td>
+                  <td className="border px-4 py-2">{order._id}</td>
                   <td className="border px-4 py-2">${order.totalPrice}</td>
                   <td className="border px-4 py-2">{t(order.status)}</td>
                   <td className="border px-4 py-2">
@@ -293,10 +307,7 @@ const ListOrders = () => {
                     <button
                       className="btn btn-primary"
                       onClick={() =>
-                        navigate(
-                          `/userinfo/${user_id}/orders/${order.orderId}/orderDetails?page=1`,
-                          { state: { from: location.pathname + location.search } }
-                        )
+                        navigate(`/userinfo/${user_id}/orders/${order._id}/orderDetails`)
                       }
                     >
                       <RemoveRedEyeIcon /> {t("View")}
@@ -306,10 +317,7 @@ const ListOrders = () => {
                     <button
                       className="btn btn-primary"
                       onClick={() =>
-                        navigate(
-                          `/userinfo/${user_id}/orders/${order.orderId}/paymentInfo`,
-                          { state: { from: location.pathname + location.search } }
-                        )
+                        navigate(`/userinfo/${user_id}/orders/${order._id}/paymentInfo`)
                       }
                     >
                       <RemoveRedEyeIcon /> {t("View")}
@@ -319,10 +327,7 @@ const ListOrders = () => {
                     <button
                       className="btn btn-primary"
                       onClick={() =>
-                        navigate(
-                          `/userinfo/${user_id}/orders/${order.orderId}/shipmentInfo`,
-                          { state: { from: location.pathname + location.search } }
-                        )
+                       navigate(`/userinfo/${user_id}/orders/${order._id}/shipmentInfo`)
                       }
                     >
                       <RemoveRedEyeIcon /> {t("View")}

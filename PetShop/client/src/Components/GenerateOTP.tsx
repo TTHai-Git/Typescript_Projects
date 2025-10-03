@@ -5,6 +5,7 @@ import '../Assets/CSS/Login.css';
 import APIs, { endpoints } from '../Config/APIs';
 import { useNotification } from '../Context/Notification';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 
 const GenerateOTP = () => {
     const [email, setEmail] = useState<string>("")
@@ -13,6 +14,7 @@ const GenerateOTP = () => {
     const [errorMessage, setErrorMessage] = useState<string>("")
     const navigate = useNavigate()
     const { showNotification } = useNotification()
+    const [searchParams,setSearchParams] = useSearchParams()
     const { t } = useTranslation();
     const handleGenerateOTP = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -26,8 +28,8 @@ const GenerateOTP = () => {
            })
             // console.log(res)
             if (res.status === 200) {
-                showNotification(t(`${res.data.message}`), "success")
-                navigate('/reset-password', {state: email})
+              showNotification(t(`${res.data.message}`), "success")
+              handleNavigateToResetPassword()
             }
             
         } catch (error:any) {
@@ -37,6 +39,11 @@ const GenerateOTP = () => {
         } finally {
             setLoading(false)
         }
+    }
+
+    const handleNavigateToResetPassword = () => {
+      const ref = searchParams.get('ref')
+      navigate(`/reset-password?ref=${ref}`, {state: email})
     }
     useEffect(() => {
 
@@ -77,7 +84,7 @@ const GenerateOTP = () => {
           <button
             type="button"
             className="back-button"
-            onClick={() => navigate("/login")}
+            onClick={() => navigate(`${searchParams.get('ref')}`)}
           >
             {t("Back")}
           </button>
