@@ -84,8 +84,8 @@ app.get("/v1/csrf-token", (req, res) => {
   const token = crypto.randomBytes(32).toString("hex");
   res.cookie("XSRF-TOKEN", token, {
     httpOnly: false,
-    sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
-    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.REACT_APP_NODE_ENV === "production" ? "None" : "Lax",
+    secure: process.env.REACT_APP_NODE_ENV === "production",
   });
   res.json({ csrfToken: token });
 });

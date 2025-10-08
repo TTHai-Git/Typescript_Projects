@@ -162,6 +162,29 @@ brandRouter.get("/", getBrands);
  *               description:
  *                 type: string
  *                 example: update description
+ *     responses:
+ *      200:
+ *       description: Brand updated successfully
+ *       content:
+ *        application/json:
+ *         schema:
+ *          type: object
+ *          properties:
+ *            _id:
+ *              type: string
+ *              example: 65123abc987
+ *            name:
+ *              type: string
+ *              example: Admin
+ *            description:
+ *              type: string
+ *              example: Brand with full access
+ *            logoUrl:
+ *              type: string
+ *              example: https://example.com/logo.png
+ *
+ *      400: Brand not found to update
+ *      500: Internal server error
  *
  *   delete:
  *     summary: Delete a Brands
@@ -178,7 +201,7 @@ brandRouter.get("/", getBrands);
  *     responses:
  *       200:
  *         description: Brand deleted successfully
- *       400:
+ *       404:
  *         description: Brand not found
  *       500:
  *         description: Internal server error

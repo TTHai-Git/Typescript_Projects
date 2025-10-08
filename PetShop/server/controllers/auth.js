@@ -119,7 +119,7 @@ export const login = async (req, res) => {
     });
 
     // ✅ Set HttpOnly Cookies
-    const isProd = process.env.NODE_ENV === "production";
+    const isProd = process.env.REACT_APP_NODE_ENV === "production";
 
     const cookieOptions = {
       httpOnly: true,
@@ -155,7 +155,7 @@ export const login = async (req, res) => {
 };
 
 export const logout = (req, res) => {
-  const isProd = process.env.NODE_ENV === "production";
+  const isProd = process.env.REACT_APP_NODE_ENV === "production";
 
   const cookieOptions = {
     httpOnly: true,
@@ -173,8 +173,8 @@ export const logout = (req, res) => {
   // clear CSRF token (nếu bạn đang lưu trong cookie)
   res.clearCookie("XSRF-TOKEN", {
     httpOnly: false,
-    sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
-    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.REACT_APP_NODE_ENV === "production" ? "None" : "Lax",
+    secure: process.env.REACT_APP_NODE_ENV === "production",
   });
 
   return res.status(200).json({ message: "Logged out" });
@@ -212,7 +212,7 @@ export const refreshAccessToken = (req, res) => {
       }
     );
 
-    const isProd = process.env.NODE_ENV === "production";
+    const isProd = process.env.REACT_APP_NODE_ENV === "production";
 
     const cookieOptions = {
       httpOnly: true,

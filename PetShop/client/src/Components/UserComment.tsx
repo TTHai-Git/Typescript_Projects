@@ -108,6 +108,7 @@ const UserComment = (props: Props) => {
   const handleCheckIsMakeOrdersAndPaid = async (userId: string, productId: string) => {
     try {
       const res = await authApi.get(`${endpoints['checkIsOrderAndIsPayment']}?userId=${userId}&productId=${productId}`)
+      console.log("res.data", res.data)
       return res.data
     } catch (error) {
       console.log(error)
@@ -139,7 +140,7 @@ const UserComment = (props: Props) => {
   
       
 
-      if (await(handleCheckIsMakeOrdersAndPaid(props.userId, props.productId))) {
+      if (!await(handleCheckIsMakeOrdersAndPaid(props.userId, props.productId))) {
         showNotification(t("You must place an order for this product and pay for the order before leaving the review below"), "warning")
         return
       }
