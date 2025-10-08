@@ -35,7 +35,7 @@ const Login: React.FC = () => {
         username,
         password
         });
-      const user:UserState = response.data.user;
+      const user:UserState = response.data;
       if (user) {
         dispatch(login({
           ...user,

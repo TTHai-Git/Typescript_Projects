@@ -26,13 +26,13 @@ export const register = async (req, res) => {
     }
 
     // Check If phone of user is exists
-    const existingPhoneOfUser = await User.findOne({ phone })
-     if (existingPhoneOfUser) {
+    const existingPhoneOfUser = await User.findOne({ phone });
+    if (existingPhoneOfUser) {
       return res.status(200).json({ message: "This phone has already exists" });
     }
 
     // Check If email of user is exists
-    const existingEmailOfUser = await User.findOne({ email })
+    const existingEmailOfUser = await User.findOne({ email });
     if (existingEmailOfUser) {
       return res.status(200).json({ message: "This email has already exists" });
     }
@@ -139,17 +139,15 @@ export const login = async (req, res) => {
 
     // ✅ Only return user data (no token)
     res.status(200).json({
-      user: {
-        _id: user._id,
-        role: user.role,
-        username: user.username,
-        name: user.name,
-        avatar: user.avatar,
-        email: user.email,
-        phone: user.phone,
-        address: user.address,
-        isVerified: user.isVerified,
-      },
+      _id: user._id,
+      role: user.role,
+      username: user.username,
+      name: user.name,
+      avatar: user.avatar,
+      email: user.email,
+      phone: user.phone,
+      address: user.address,
+      isVerified: user.isVerified,
     });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });

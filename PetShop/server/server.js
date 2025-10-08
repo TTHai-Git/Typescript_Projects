@@ -46,7 +46,8 @@ import chatBotRoutes from "./routes/chatBot.js";
 import crypto from "crypto";
 import statsRoutes from "./routes/stats.js";
 import notificationRoutes from "./routes/notification.js";
-
+import swaggerJSDoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express";
 dotenv.config();
 
 const app = express();
@@ -97,6 +98,63 @@ const limiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
+
+const swaggerOptions = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "DOGSHOP API DOCUMENTATION",
+      version: "1.0.0",
+      description: "API documentation for DogShop project",
+    },
+    servers: [
+      {
+        url:
+          process.env.REACT_APP_NODE_ENV === "development"
+            ? process.env.LOCAL_SERVER_URL
+            : process.env.PUBLIC_SERVER_URL,
+        description: "Server environment",
+      },
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+          description:
+            "JWT access token stored in HttpOnly cookie named `accessToken`.",
+        },
+        csrfAuth: {
+          type: "apiKey",
+          in: "header", // ✅ must be header, not cookie
+          name: "X-CSRF-Token", // ✅ lowercase name that matches your middleware
+          description:
+            "CSRF protection header that must match the value of the `XSRF-TOKEN` cookie.",
+        },
+      },
+    },
+
+    security: [
+      {
+        bearerAuth: [],
+        csrfAuth: [],
+      },
+    ],
+  },
+  apis: ["./routes/*.js"], // path to your route files containing Swagger docs
+};
+
+const swaggerDocs = swaggerJSDoc(swaggerOptions);
+app.use(
+  "/v1/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerDocs, {
+    swaggerOptions: {
+      persistAuthorization: true, // 🔒 Keeps tokens after reload
+    },
+  })
+);
 
 // Routes
 app.use("/v1/auth", authRoutes, limiter);
