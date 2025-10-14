@@ -2,10 +2,9 @@ import express from "express";
 import crypto from "crypto";
 import querystring from "qs";
 import moment from "moment";
-import dotenv from "dotenv";
+import "../config/dotenv.config.js"; // ✅ loads environment variables once
 
 const VNPayRouter = express.Router();
-dotenv.config();
 
 const vnp_TmnCode = process.env.REACT_APP_vnp_TmnCode;
 const vnp_HashSecret = process.env.REACT_APP_vnp_HashSecret;

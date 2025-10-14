@@ -45,7 +45,7 @@ const UserInfo = () => {
   const {t} = useTranslation()
 
   useEffect(() => {
-    console.log("user", user)
+    // console.log("user", user)
     if (!user) {
       navigate('/login');
     } else {

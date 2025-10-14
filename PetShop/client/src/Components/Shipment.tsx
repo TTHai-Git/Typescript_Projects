@@ -102,10 +102,10 @@ const Shipment: React.FC = () => {
     type: 'city' | 'district' | 'ward'
   ) => {
     const id = String(e.target.value);
-    console.log("Order", order)
+    // console.log("Order", order)
     if (type === 'city') {
       const city = cities.find(c => c.province_id === id);
-      console.log("city", city)
+      // console.log("city", city)
       setOrder(prev => ({
         ...prev,
         city_id: id,

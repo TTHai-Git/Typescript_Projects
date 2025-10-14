@@ -44,7 +44,7 @@ export const endpoints = {
   calculateShipmentFee: "/shipments/calculate-fee",
   getShipmentOfOrder: (orderId) => `/shipments/order/${orderId}`,
   chatBot: `/chat-bot-faq/chat`,
-  "csrf-token": "/csrf-token",
+  "generate-csrf-token": "/csrf/generate-token",
   getNotifications: "/notifications",
   markANotificationAsRead: (notificationId) =>
     `/notifications/${notificationId}/update`,
@@ -71,7 +71,7 @@ let csrfToken = null; // lưu tạm trong memory
 // Hàm gọi API để lấy CSRF token
 export const fetchCsrfToken = async () => {
   try {
-    const res = await axios.get(`${BASE_URL}${endpoints["csrf-token"]}`, {
+    const res = await axios.get(`${BASE_URL}${endpoints["generate-csrf-token"]}`, {
       withCredentials: true,
     });
     csrfToken = res.data.csrfToken; // server trả { csrfToken: "xxx" }

@@ -118,7 +118,7 @@ const Register = () => {
     // console.log("secure_url of Cloudinary: ", res.data.secure_url)
     // Handle Upload Avatar For User
     if (res.status === 200) {
-        console.log("In update avatar")
+        // console.log("In update avatar")
         try {
         await authApi.put(endpoints["updateAvatar"](userId), {
           avatar: res.data.secure_url

@@ -18,7 +18,7 @@ import { ArrowBack } from '@mui/icons-material';
 
   const getShipmentOfOrder = async () => {
     try {
-      console.log("order_id: ", order_id)
+      // console.log("order_id: ", order_id)
       setLoading(true)
       const res = await authApi.get(endpoints.getShipmentOfOrder(order_id))
       if (res.status === 200) {

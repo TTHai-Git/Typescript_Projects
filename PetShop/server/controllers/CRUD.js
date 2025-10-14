@@ -19,16 +19,16 @@ const populateConfig = {
 
 export const createOne = (Model, modelName) => async (req, res) => {
   try {
-    console.log("req.body", req.body);
-    console.log("Model", Model);
+    // console.log("req.body", req.body);
+    // console.log("Model", Model);
     if (Model === Product) {
       return createProduct(req, res);
     }
     const doc = await Model.create(req.body);
-    console.log("Created doc:", doc);
+    // console.log("Created doc:", doc);
     if (Model === Voucher) {
       const users = await User.find({ isVerified: true });
-      console.log("users", users);
+      // console.log("users", users);
       for (const user of users) {
         const newNotification = await Notification.create({
           user: user._id,
@@ -36,7 +36,7 @@ export const createOne = (Model, modelName) => async (req, res) => {
           title: `New Voucher Has Been Released`,
           message: `A new voucher ${doc.code} has been released. Enjoy ${doc.discount}% off on your next purchase!`,
         });
-        console.log("Notification sent to user:", user._id);
+        // console.log("Notification sent to user:", user._id);
       }
     }
     res.status(201).json({

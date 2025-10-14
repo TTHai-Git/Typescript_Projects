@@ -1,8 +1,6 @@
 import PayOS from "@payos/node";
-import dotenv from "dotenv";
 import { Router } from "express";
 import Order from "../models/order.js";
-dotenv.config();
 
 const payos = new PayOS(
   process.env.REACT_APP_PAYOS_x_client_id,

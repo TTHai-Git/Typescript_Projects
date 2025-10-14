@@ -1,5 +1,6 @@
 import CommentDetails from "../models/commentdetails.js";
 import cloudinary from "cloudinary";
+import "../config/dotenv.config.js"; // ✅ loads environment variables once
 cloudinary.config({
   cloud_name: process.env.REACT_APP_CLOUD_NAME,
   api_key: process.env.REACT_APP_CLOUDINARY_API_KEY,

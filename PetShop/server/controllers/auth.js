@@ -1,11 +1,10 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import User from "../models/user.js";
-import dotenv from "dotenv";
 import Role from "../models/role.js";
 import nodemailer from "nodemailer";
 import validator from "validator";
-dotenv.config();
+import "../config/dotenv.config.js"; // ✅ loads environment variables once
 
 const SECRET_KEY = process.env.JWT_SECRET;
 

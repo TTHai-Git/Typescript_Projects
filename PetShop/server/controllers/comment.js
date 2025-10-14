@@ -6,6 +6,8 @@ import OrderDetails from "../models/orderdetails.js";
 import cloudinary from "cloudinary";
 import { deleteImageOnCloudinary } from "./commentdetails.js";
 import Payment from "../models/payment.js";
+import "../config/dotenv.config.js"; // ✅ loads environment variables once
+
 cloudinary.config({
   cloud_name: process.env.REACT_APP_CLOUD_NAME,
   api_key: process.env.REACT_APP_CLOUDINARY_API_KEY,
@@ -231,8 +233,8 @@ export const updateComment = async (req, res) => {
 
 export const checkIsOrderAndIsPayment = async (req, res) => {
   const { userId, productId } = req.query;
-  console.log("userId", userId);
-  console.log("productId", productId);
+  // console.log("userId", userId);
+  // console.log("productId", productId);
   const orders = await Order.find({ user: userId });
   for (const order of orders) {
     const hasProduct = await OrderDetails.exists({

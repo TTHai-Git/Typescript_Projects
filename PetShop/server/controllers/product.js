@@ -250,7 +250,7 @@ export const createProduct = async (req, res) => {
       ...rest
     } = req.body;
 
-    console.log("req.body", req.body);
+    // console.log("req.body", req.body);
     const Model = productTypes[type];
 
     if (!Model) {
@@ -310,8 +310,8 @@ export const deleteProduct = async (req, res) => {
 };
 
 export const updateStock = async (product_id, quantity) => {
-  console.log("product_id", product_id);
-  console.log("quantity", quantity);
+  // console.log("product_id", product_id);
+  // console.log("quantity", quantity);
 
   const product = await Product.findByIdAndUpdate(
     product_id,

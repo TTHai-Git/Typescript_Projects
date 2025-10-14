@@ -1,8 +1,6 @@
 import jwt from "jsonwebtoken";
 import User from "../models/user.js";
-import dotenv from "dotenv";
-
-dotenv.config();
+import "../config/dotenv.config.js"; // ✅ loads environment variables once
 
 export const verifyEmail = async (req, res) => {
   const { token } = req.body;

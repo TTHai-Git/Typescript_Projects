@@ -1,8 +1,7 @@
 import User from "../models/user.js";
 import nodemailer from "nodemailer";
-import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
-dotenv.config();
+import "../config/dotenv.config.js"; // ✅ loads environment variables once
 
 let otpStore = {};
 let otpRequestLog = {}; // Tracks OTP requests per email

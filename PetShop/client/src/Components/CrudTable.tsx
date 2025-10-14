@@ -202,7 +202,7 @@ const childModelFields: Record<string, string[]> = {
           showNotification(t("Update item failed"), "error")
         }
       } else {
-        console.log("formData", formData)
+        // console.log("formData", formData)
         if (model === "products" || model === "users" || model === "brands") {
             const data = new FormData();
             data.append("file", formData.imageUrl || formData.logoUrl || formData.avatar );
@@ -251,7 +251,7 @@ const childModelFields: Record<string, string[]> = {
     try {
       // await axios.delete(`/api/admin/${model}/${id}`);
       const res = await authApi.delete(adminEndpoints.deleteOne(model,id))
-      console.log("res", res)
+      // console.log("res", res)
       if (res.status === 204) {
         showNotification(t("Item was deleted successfully"), "success")
       }

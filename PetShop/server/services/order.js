@@ -6,6 +6,7 @@ import express from "express";
 import $ from "jquery";
 import request from "request";
 import moment from "moment";
+import "../config/dotenv.config.js"; // ✅ loads environment variables once
 
 const router = express.Router();
 

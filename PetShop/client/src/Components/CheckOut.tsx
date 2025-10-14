@@ -22,7 +22,7 @@ const CheckOut = () => {
     const { showNotification } = useNotification()
     const {t} = useTranslation()
     const handleMakePayment = async (choice: string) => {
-        console.log("Choice: ", choice)
+        // console.log("Choice: ", choice)
         
         try {
             setLoading(true);
@@ -117,8 +117,8 @@ const CheckOut = () => {
         };
 
     useEffect(() => {
-        console.log("Order ID:", orderId)
-        console.log("Total Price:", totalPrice)
+        // console.log("Order ID:", orderId)
+        // console.log("Total Price:", totalPrice)
         if (cartItems.length > 0) {
         generateVIETQRCODE();
         } else {
