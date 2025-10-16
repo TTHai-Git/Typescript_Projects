@@ -64,6 +64,12 @@ voucherRouter.delete(
  *       name: X-CSRF-Token
  *       description: >
  *         CSRF protection header that must match the value of the `XSRF-TOKEN` cookie.
+ *     isAdminAuth:
+ *       type: apiKey
+ *       in: header
+ *       name: adminKey
+ *       description: > 
+ *         To protect methods POST, PUT, PATCH, DELETE for APIs of Admin.
  */
 
 /**
@@ -212,6 +218,8 @@ voucherRouter.delete(
  *     security:
  *       - bearerAuth: []   # Requires JWT cookie
  *       - csrfAuth: []     # Requires CSRF header
+ *       - isAdminAuth: []  # Requires adminKey header
+
  *     description: Create a new voucher (Admin only). Expiry date should be in `DD/MM/YYYY - HH:mm:ss` format.
  *     requestBody:
  *       required: true
@@ -275,6 +283,8 @@ voucherRouter.delete(
  *     security:
  *       - bearerAuth: []   # Requires JWT cookie
  *       - csrfAuth: []     # Requires CSRF header
+ *       - isAdminAuth: []  # Requires adminKey header
+
  *     description: Update voucher details. Automatically deactivates if expired or reached max usage.
  *     parameters:
  *       - in: path
@@ -333,6 +343,8 @@ voucherRouter.delete(
  *     security:
  *       - bearerAuth: []   # Requires JWT cookie
  *       - csrfAuth: []     # Requires CSRF header
+ *       - isAdminAuth: []  # Requires adminKey header
+
  *     description: Increments the usage count of a voucher and deactivates it if max usage is reached or expired.
  *     parameters:
  *       - in: path
@@ -380,6 +392,8 @@ voucherRouter.delete(
  *     security:
  *       - bearerAuth: []   # Requires JWT cookie
  *       - csrfAuth: []     # Requires CSRF header
+ *       - isAdminAuth: []  # Requires adminKey header
+
  *     description: Delete an existing voucher (Admin only).
  *     parameters:
  *       - in: path

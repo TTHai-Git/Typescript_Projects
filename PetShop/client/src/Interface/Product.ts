@@ -21,6 +21,7 @@ export default interface Product extends ProductCart {
     totalRating?: number;
     beforeTotalRatingRounded?: number
     totalOrder?:number
+    countFavorite?:number
     
 }
 

@@ -17,7 +17,6 @@ import {
   Avatar,
   IconButton,
   Tooltip,
-  Snackbar
 } from '@mui/material';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import { Favorite, ShoppingCart, ColorLens, FitnessCenter, LocalOffer, ArrowBack, Inventory } from '@mui/icons-material';
@@ -30,7 +29,7 @@ import UserComment from './UserComment';
 import CommentsByProduct from './CommentsByProduct';
 import { useCart } from '../Context/Cart';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
+import { useNotification } from '../Context/Notification';
 
 const ProductClothesType = () => {
   const user = useSelector((state: RootState) => state.auth.user)
@@ -44,11 +43,9 @@ const ProductClothesType = () => {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedQuantity, setSelectedQuantity] = useState<number>(1)
   const [checkFavorite, setCheckFavorite] = useState<Boolean>(false)
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
   const navigate = useNavigate()
-  const [searchParams] = useSearchParams();
   const {t} = useTranslation()
+  const { showNotification } = useNotification()
 
   const loadInfoDetailsOfProduct = async () => {
     try {
@@ -115,18 +112,13 @@ const ProductClothesType = () => {
           userId: userId,
           productId: productId
         });
-        setCheckFavorite(res.data.isFavorite)
-        if (res.data.isFavorite === true) {
-          setSnackbarMessage("Add Product To FavoriteList Success")
-        }
-        else {
-          setSnackbarMessage("Remove Product To FavoriteList Success")
-        }
-        setSnackbarOpen(true)
+        setCheckFavorite(res.data.doc)
+        showNotification(`${res.data.message}`, "success")
       } catch (error) {
         console.error(error);
       } finally {
         setLoading(false)
+        loadInfoDetailsOfProduct()
       }
     };
 
@@ -136,12 +128,6 @@ const ProductClothesType = () => {
 
   return (
   <Container>
-    <Snackbar
-      open={snackbarOpen}
-      autoHideDuration={3000}
-      onClose={() => setSnackbarOpen(false)}
-      message={snackbarMessage}
-    />
     <Button
       variant="contained"
       color="inherit"
@@ -281,22 +267,23 @@ const ProductClothesType = () => {
 
             {/* Add to Wishlist / Cart Button */}
             <Box display="flex" alignItems="center" mt={2} mb={2}>
-              {user && (
-                <Tooltip title={checkFavorite ? t("Remove Product To FavoriteList") : t("Add Product To FavoriteList")}>
-                  <IconButton
-                    color={checkFavorite ? 'error' : 'default'}
-                    onClick={() => handleAddToFavoriteList(user._id, productClothes._id)}
-                  >
-                    <Favorite />
-                  </IconButton>
-                </Tooltip>
-              )}
               <Tooltip title={t("Add to Cart")}>
                 <IconButton color="primary" onClick={() => handleaddToCart(productClothes, selectedQuantity)}>
                   <ShoppingCart/>
                 </IconButton>
               </Tooltip>
               <NumberInput min={1} defaultValue={1} onChange={(value) => setSelectedQuantity(value)} />
+              {user && (
+                <Tooltip title={checkFavorite ? t("Remove Product To FavoriteList") : t("Add Product To FavoriteList")}>
+                  <IconButton
+                    color={checkFavorite ? 'error' : 'default'}
+                    onClick={() => handleAddToFavoriteList(user._id, productClothes._id)}
+                  >
+                  <Favorite />
+                  <Typography>{productClothes.countFavorite}</Typography>
+                  </IconButton>
+                </Tooltip>
+              )}
             </Box>
           </CardContent>
         </Card>

@@ -21,13 +21,15 @@ export const createOrUpdateFavorite = async (req, res) => {
       product: productId,
     });
     return res.status(201).json({
-      doc: newFavorite,
-      message: "Add or Update to favorite successfully",
+      doc: true,
+      message: "Add Product To Favorite List Success",
     });
   } else {
-    existsFavorite.isFavorite = !existsFavorite.isFavorite;
-    existsFavorite.save();
-    return res.status(200).json(existsFavorite);
+    const deleteFavorite = await Favorite.findByIdAndDelete(existsFavorite._id)
+    return res.status(200).json({
+      doc: false,
+      message: "Remove Product To Favorite List Success"
+    })
   }
 };
 
@@ -38,15 +40,12 @@ export const getFavoriteProductOfUser = async (req, res) => {
       .status(400)
       .json({ message: "Request body must userId and productId" });
   }
-  const existsFavorite = await Favorite.findOne({
+  const existsFavorite = await Favorite.exists({
     product: productId,
     user: userId,
   });
-  if (!existsFavorite) {
-    return res.status(200).json({ isFavorite: false });
-  } else {
-    return res.status(200).json({ isFavorite: existsFavorite.isFavorite });
-  }
+  return res.status(200).json({ isFavorite: existsFavorite });
+  
 };
 
 export const getFavoriteProductsList = async (req, res) => {
@@ -184,3 +183,9 @@ export const deleteFavorite = async (req, res) => {
     res.status(500).json({ message: "server error", error });
   }
 };
+
+export const countFavoriteOfProduct = async (productId) => {
+  const countFavoriteOfProduct = await Favorite.find({product: productId, isFavorite: true}).countDocuments()
+  // console.log("countFavoriteOfProduct", countFavoriteOfProduct)
+  return countFavoriteOfProduct
+}

@@ -38,6 +38,31 @@ commentRoutes.put("/:commentId", authMiddleware, csrfMiddleware, updateComment);
 /**
  * @swagger
  * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: apiKey
+ *       in: cookie
+ *       name: accessToken
+ *       description: >
+ *         JWT access token stored in HttpOnly cookie named `accessToken`.
+ *         This token is verified by `authMiddleware`.
+ *     csrfAuth:
+ *       type: apiKey
+ *       in: header
+ *       name: X-CSRF-Token
+ *       description: >
+ *         CSRF protection header that must match the value of the `XSRF-TOKEN` cookie.
+ *     isAdminAuth:
+ *       type: apiKey
+ *       in: header
+ *       name: adminKey
+ *       description: > 
+ *         To protect methods POST, PUT, PATCH, DELETE for APIs of Admin.
+ */
+
+/**
+ * @swagger
+ * components:
  *   schemas:
  *     Comment:
  *       type: object
@@ -94,20 +119,6 @@ commentRoutes.put("/:commentId", authMiddleware, csrfMiddleware, updateComment);
  *           items:
  *             type: string
  *
- *   securitySchemes:
- *     bearerAuth:
- *       type: apiKey
- *       in: cookie
- *       name: accessToken
- *       description: >
- *         JWT access token stored in HttpOnly cookie named `accessToken`.
- *         This token is verified by `authMiddleware`.
- *     csrfAuth:
- *       type: apiKey
- *       in: header
- *       name: X-CSRF-Token
- *       description: >
- *         CSRF protection header that must match the value of the `XSRF-TOKEN` cookie.
  */
 
 /**
@@ -120,6 +131,8 @@ commentRoutes.put("/:commentId", authMiddleware, csrfMiddleware, updateComment);
  *     security:
  *       - bearerAuth: []   # Requires JWT cookie
  *       - csrfAuth: []     # Requires CSRF header
+ *       - isAdminAuth: []  # Requires adminKey header
+
  *     requestBody:
  *       required: true
  *       content:

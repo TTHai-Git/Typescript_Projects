@@ -9,7 +9,7 @@ import FoodProduct from "../models/productfood.js";
 import Vendor from "../models/vendor.js";
 import Comment from "../models/comment.js";
 import OrderDetails from "../models/orderdetails.js";
-
+import {countFavoriteOfProduct} from "../controllers/favorite.js"
 export const productTypes = {
   dog: DogProduct,
   food: FoodProduct,
@@ -228,6 +228,7 @@ export const getProductById = async (req, res) => {
       beforeTotalRatingRounded: (await calculateRating(product._id))
         .beforeTotalRatingRounded,
       totalOrder: await calculateTotalOrderOfProduct(product._id),
+      countFavorite: await countFavoriteOfProduct(product._id)
     };
 
     return res.status(200).json({ product: data });

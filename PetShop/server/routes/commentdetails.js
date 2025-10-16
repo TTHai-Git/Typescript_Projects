@@ -29,6 +29,12 @@ const commentDetailsRoutes = Router();
  *       name: X-CSRF-Token
  *       description: >
  *         CSRF protection header that must match the value of the `XSRF-TOKEN` cookie.
+ *     isAdminAuth:
+ *       type: apiKey
+ *       in: header
+ *       name: adminKey
+ *       description: > 
+ *         To protect methods POST, PUT, PATCH, DELETE for APIs of Admin.
  */
 
 /**

@@ -13,9 +13,8 @@ import {
   Divider,
   Tooltip,
   IconButton,
-  Snackbar,
 } from '@mui/material';
-import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 // import axios from 'axios';
 import PetsIcon from '@mui/icons-material/Pets';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
@@ -48,12 +47,9 @@ const ProductDogType: React.FC = () => {
   const [selectedSize, setSelectedSize] = React.useState<string>("")
   const [selectedColor] = React.useState<string>("")
   const [checkFavorite, setCheckFavorite] = React.useState<Boolean>(false)
-  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
-  const [snackbarMessage, setSnackbarMessage] =React.useState('');
   const navigate = useNavigate()
   const { showNotification } = useNotification()
   const {t} = useTranslation()
-  const [searchParams] = useSearchParams();
 
   const handleAddToCart = (dog: ProductDog, quantity: number) => {
     if (!selectedSize) {
@@ -91,18 +87,14 @@ const ProductDogType: React.FC = () => {
           userId: userId,
           productId: productId
         });
-        setCheckFavorite(res.data.isFavorite)
-        if (res.data.isFavorite === true) {
-          setSnackbarMessage("Add Product To FavoriteList Success")
-        }
-        else {
-          setSnackbarMessage("Remove Product To FavoriteList Success")
-        }
-        setSnackbarOpen(true)
+        setCheckFavorite(res.data.doc)
+        showNotification(`${res.data.message}`, "success")
+
       } catch (error) {
         console.error(error);
       } finally {
         setLoading(false)
+        loadInfoDetailsOfProduct()
       }
     };
 
@@ -120,7 +112,7 @@ const ProductDogType: React.FC = () => {
     }
   React.useEffect(() => {
     loadInfoDetailsOfProduct()
-    if (user) handleCheckFavorite();
+    if (user) handleCheckFavorite()
   }, [product_id]);
 
   const handleSizeClick = (size: string) => {
@@ -162,12 +154,6 @@ const ProductDogType: React.FC = () => {
     >
       {t("Go Back")}
     </Button>
-    <Snackbar
-      open={snackbarOpen}
-      autoHideDuration={3000}
-      onClose={() => setSnackbarOpen(false)}
-      message={snackbarMessage}
-    />
 
     <Grid container spacing={4}>
       {/* Dog Image */}
@@ -284,9 +270,15 @@ const ProductDogType: React.FC = () => {
                     color={checkFavorite ? 'error' : 'default'}
                     onClick={() => handleAddToFavoriteList(user._id, dog._id)}
                   >
-                    <Favorite />
+                    
+                  <Favorite />
+                  <Typography>
+                    {dog.countFavorite}
+                  </Typography>
                   </IconButton>
+                  
                 </Tooltip>
+                
               )}
             </Box>
           </CardContent>
