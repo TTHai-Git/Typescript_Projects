@@ -11,10 +11,7 @@ cloudinary.config({
 export const deleteImageOnCloudinary = async (public_id) => {
   try {
     const response = await cloudinary.v2.uploader.destroy(public_id);
-    if (response.result === "ok") {
-      console.log("Image deleted successfully from Cloudinary");
-      return response;
-    }
+    return response
   } catch (error) {
     console.error("Error deleting image from Cloudinary:", error);
     throw error;
@@ -39,7 +36,8 @@ export const deleteCommentDetails = async (req, res) => {
         const deletedUrls = await deleteImageOnCloudinary(
           commentDetails.public_id
         );
-        return res.status(204).send();
+        if (deletedUrls.result === "ok") return res.status(200).json({message: "Delete image on Cloudinary successfully"});
+        return res.status(404).json({message: "Delete image on Cloudinary fail"});
       }
     }
   } catch (error) {

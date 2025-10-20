@@ -123,7 +123,11 @@ const ListOfRecentlyViewedProducts = () => {
                 transform: 'scale(1.03)',
                 boxShadow: 10,
               },
+              cursor: "pointer"
             }}
+            onClick={() =>
+              navigate(`/products/${item._id}/${item.type}`)
+            }
           >
             <Tooltip title={t("Remove")} arrow>
               <IconButton

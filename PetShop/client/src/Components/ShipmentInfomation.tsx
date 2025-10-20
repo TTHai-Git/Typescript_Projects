@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Shipment from '../Interface/Shipment';
 import { useNavigate, useParams } from 'react-router';
 import { authApi, endpoints } from '../Config/APIs';
-import formatDate from '../Convert/formatDate ';
+import formatDate from '../Convert/formatDate';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
@@ -32,7 +32,7 @@ import { ArrowBack } from '@mui/icons-material';
       
     } catch (error: any) {
       setError(true)
-      setErrorMessage(t(error.response.data.message))
+      setErrorMessage(t(error.response?.data?.message))
     } finally {
       setLoading(false)
     }

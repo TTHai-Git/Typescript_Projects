@@ -1,13 +1,14 @@
-import React, { useEffect, useState, useTransition } from 'react'
+import React, { useEffect, useState} from 'react'
 import { authApi, endpoints } from '../../Config/APIs'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../store'
-import { Box, Button, Card, CardActions, CardMedia, CircularProgress, Grid, IconButton, Rating, TextField, Typography } from '@mui/material'
+import { Box, Button, Card, CardActions, CardContent, CardMedia, CircularProgress, Grid, IconButton, Rating, TextField, Typography } from '@mui/material'
 import { Delete } from '@mui/icons-material'
-import { useLocation, useNavigate, useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 import axios from 'axios'
 import { useNotification } from '../../Context/Notification'
 import { useTranslation } from 'react-i18next'
+import { formatFileSize } from '../../Convert/FormatFileSize'
 
 const UpdateCommentForm = () => {
     const user = useSelector((state: RootState) => state.auth.user)
@@ -26,34 +27,69 @@ const UpdateCommentForm = () => {
         urls: ([]).map((url: string) => ({ preview: url })),
         commentDetails_ids: [],
     });
-
-
     const [loading, setLoading] = useState<boolean>(false)
-    const [error, setError] = useState<boolean>(false)
-    const [errorMessage, setErrorMessage] = useState<string>("")
     const navigate = useNavigate()
 
 
     const getCommentDetailsOfProduct = async () => {
-  try {
-    setLoading(true);
-    const res = await authApi.get(endpoints.getComment(commentId));
-    const data = res.data;
+    try {
+      setLoading(true);
+      const res = await authApi.get(endpoints.getComment(commentId));
+      const data = res.data;
 
-    setComment({
-      content: data.content,
-      rating: data.rating,
-      urls: data.urls.map((url: string) => ({ preview: url })), // Convert strings to preview objects
-      commentDetails_ids: data.commentDetails_ids,
-    });
-  } catch (error) {
-    console.error('Failed to fetch comment:', error);
-    setError(true);
-    setErrorMessage('Failed to fetch comment data.');
-  } finally {
-    setLoading(false);
+      setComment({
+        content: data.content,
+        rating: data.rating,
+        urls: data.urls.map((url: string) => ({ preview: url })), // Convert strings to preview objects
+        commentDetails_ids: data.commentDetails_ids,
+      });
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleValidateRating = (rating: number) => {
+    return rating > 0 && rating <= 5
   }
-};
+
+  const handleValidateContent = (content: string) => {
+    return content.length > 0 && content.length < 255
+  }
+
+  const handdleCheckUploadImages = (files: File[]) => {
+    const MAX_FILES = 5
+    const MINIMUM_FILES = 1
+    const MAX_TOTAL_SIZE = 10 * 1024 * 1024;
+
+
+    if (files.length > MAX_FILES) {
+      showNotification(t("You can only upload a maximum of five photos for comment"), "warning")
+      return false
+    }
+    
+    if (files.length < MINIMUM_FILES) {
+      showNotification(t("You have to upload at least one photos for comment"), "warning")
+      return false
+    }
+
+    const totalSize = files.reduce((sum, file) => sum + file.size, 0)
+    if (totalSize > MAX_TOTAL_SIZE)
+    {
+      showNotification(t("The maximum capacity for uploading photos is 10MB"), "warning")
+      return false
+    }
+
+    const nonImages = files.find((file) => !file.type.startsWith("image/"))
+    if (nonImages) {
+      showNotification(t("Only image files are allowed"), "warning")
+      return false
+    }
+   
+    return true
+    
+  }
 
 
  const handleSubmitUpdateComment = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -62,33 +98,50 @@ const UpdateCommentForm = () => {
     setLoading(true);
     if (!window.confirm('Are you sure you want to update this comment?')) return;
 
+    const newFiles = comment.urls.filter((file) => file instanceof File) as File []
+
+    if (newFiles.length > 0 && !handdleCheckUploadImages(newFiles)) {
+      setLoading(false);
+      return;
+    }
+
+    if(!handleValidateRating(comment.rating)) {
+      showNotification(t("You have to rating your comment from 1 to 5 stats to submit comment"))
+      setLoading(false);
+      return
+    }
+
+    if (!handleValidateContent(comment.content)) {
+      showNotification(t("You have to write content for your comment. Maximum length of comment is 255 characters"))
+      setLoading(false);
+      return
+    }
+    
     const uploadedUrls: string[] = [];
     const public_ids : string[] = []
 
-    for (const file of comment.urls) {
-        if(file instanceof File) {
-            const formData = new FormData();
-            formData.append("file", file);
-            formData.append("upload_preset", process.env.REACT_APP_UPLOAD_PRESET || "");
-            formData.append("cloud_name", process.env.REACT_APP_CLOUD_NAME || "");
-            formData.append("folder", process.env.REACT_APP_FOLDER_CLOUD || "")
+    for (const file of newFiles) {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", process.env.REACT_APP_UPLOAD_PRESET || "");
+      formData.append("cloud_name", process.env.REACT_APP_CLOUD_NAME || "");
+      formData.append("folder", process.env.REACT_APP_FOLDER_CLOUD || "")
 
-            const res = await axios.post(
-            `${endpoints['uploadAvatarToCloudinary'](
-                process.env.REACT_APP_BASE_CLOUD_URL,
-                process.env.REACT_APP_CLOUD_NAME,
-                process.env.REACT_APP_DIR_CLOUD,
-            )}`,
-            formData
-            );
-            // console.log('res', res)
+      const res = await axios.post(
+      `${endpoints['uploadAvatarToCloudinary'](
+          process.env.REACT_APP_BASE_CLOUD_URL,
+          process.env.REACT_APP_CLOUD_NAME,
+          process.env.REACT_APP_DIR_CLOUD,
+      )}`,
+      formData
+      );
+      // console.log('res', res)
 
-            uploadedUrls.push(res.data.secure_url);
-            public_ids.push(res.data.public_id)
-        }        
-      }
+      uploadedUrls.push(res.data.secure_url);
+      public_ids.push(res.data.public_id)      
+    }
 
-    const res = await authApi.put(
+      const res = await authApi.put(
       endpoints.updateComment(commentId),{
         content: comment.content,
         rating: comment.rating,
@@ -105,9 +158,7 @@ const UpdateCommentForm = () => {
       console.error("Error updating comment:", res.data.message);
     }
   } catch (error) {
-    console.error("Error updating comment:", error);
-    setError(true);
-    setErrorMessage('Something went wrong. Please try again later.');
+    console.error(error);
   } finally {
     setLoading(false);
   }
@@ -135,36 +186,43 @@ const UpdateCommentForm = () => {
     try{
         setLoading(true)
         if (!window.confirm('Are you sure you want to delete this image?')) return;
+
+        const image = comment.urls[index];
+        // Case 1️⃣: If the image is a new file (not yet saved in DB)
+        if (image instanceof File) {
+          setComment(prev => ({
+            ...prev,
+            urls: prev.urls.filter((_, i) => i !== index)
+          }));
+          showNotification(t("Image was removed from the list"), "success");
+          return;
+        }
+
+        // Case 2️⃣: If the image is an existing one (already saved in DB with url and file onto cloudinary)
         if (commentDetails_id) {
           const res = await authApi.delete(endpoints.deleteCommentDetails(commentDetails_id))
-          if (res.status === 204) {
-            setError(false)
-            showNotification(t("Image was deleted successfully"), "success")
+          if (res.status === 200) {
+            showNotification(t(`${res.data.message}`), "success")
             setComment(prev => ({
             ...prev,
             urls: prev.urls.filter((_: any, i: number) => i !== index)
-        }));
+            }));
           } 
           else {
-            setError(true)
-            setErrorMessage(t(`${res.data.message}`))
-            showNotification(errorMessage, "error")
+            showNotification(t(`${res.data.message}`), "error")
           }
         }
         
     } catch (error:any) {
-        setError(true)
-        setErrorMessage(error.response?.data.message)
-        showNotification(errorMessage, "error")
+      showNotification(t(`${error.response?.data?.message}`), "error")
     } finally {
-        setLoading(false)
+      setLoading(false)
     }
-    
   };
 
   useEffect(() => {
     getCommentDetailsOfProduct()
-  }, [])
+  }, [commentId])
   return (
     <Box
       component="form"
@@ -229,6 +287,12 @@ const UpdateCommentForm = () => {
 
                 alt={`preview-${index}`}
                 />
+                <CardContent>
+                  {file instanceof File
+                    ? `${index + 1}. ${file.name} - ${formatFileSize(file.size)} - (New photo uploaded)`
+                    : `${index + 1}. (Existing image)`}
+                </CardContent>
+
 
               <CardActions sx={{ justifyContent: 'flex-end' }}>
                 <IconButton onClick={() => removeImage(index, comment.commentDetails_ids[index])} color="error">

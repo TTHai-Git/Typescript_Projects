@@ -32,7 +32,7 @@ import {
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import{ ProductFood } from '../Interface/Product';
 
-import formatDate from '../Convert/formatDate ';
+import formatDate from '../Convert/formatDate';
 import NumberInput from './Customs/NumberInput';
 import APIs, { authApi, endpoints } from '../Config/APIs';
 import { useSelector } from 'react-redux';

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router'
 import '../Assets/CSS/ListOrders.css';
-import formatDate from '../Convert/formatDate ';
+import formatDate from '../Convert/formatDate';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import Order from '../Interface/Orders';
 import { authApi, endpoints } from '../Config/APIs';

@@ -10,7 +10,8 @@ import {
   IconButton,
   Card,
   CardMedia,
-  CardActions
+  CardActions,
+  CardContent
 } from '@mui/material';
 import { Delete } from '@mui/icons-material';
 import  { authApi, endpoints } from '../Config/APIs';
@@ -19,6 +20,7 @@ import axios from 'axios';
 // import { RootState } from '../store';
 import { useNotification } from '../Context/Notification';
 import { useTranslation } from 'react-i18next';
+import { formatFileSize } from '../Convert/FormatFileSize';
 
 
 export interface Props {
@@ -59,6 +61,7 @@ const UserComment = (props: Props) => {
   };
 
   const removeImage = (index: number) => {
+     if (!window.confirm('Are you sure you want to remove this image?')) return;
     setComment(prev => ({
       ...prev,
       urls: prev.urls.filter((_, i) => i !== index)
@@ -193,6 +196,9 @@ const UserComment = (props: Props) => {
     }
   };
 
+  
+
+
 return (
   <Box
     component="form"
@@ -247,7 +253,7 @@ return (
     </Button>
 
     <Grid container spacing={2} sx={{ mb: 2 }}>
-      {comment.urls.map((file, index) => (
+      {comment.urls.map((file, index ) => (
         <Grid item xs={4} key={index}>
           <Card sx={{ position: 'relative' }}>
             <CardMedia
@@ -256,6 +262,9 @@ return (
               image={URL.createObjectURL(file)}
               alt={`preview-${index}`}
             />
+            <CardContent>
+              {`${index + 1}. ${file.name} - ${formatFileSize(file.size)}`}
+            </CardContent>
             <CardActions sx={{ justifyContent: 'flex-end' }}>
               <IconButton onClick={() => removeImage(index)} color="error">
                 <Delete />

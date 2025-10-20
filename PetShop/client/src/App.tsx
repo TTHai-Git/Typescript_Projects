@@ -90,7 +90,7 @@ function App() {
               <Route path='/PAYOS/payment-return' element={<PAYOSPaymentReturn/>}/>
               <Route path='/cart/shipment' element={< Shipment/>}/>
               <Route path= "/cart/shipment/checkout" element={< CheckOut/>}/>
-              // CRUD Admin Routes
+              
               <Route path="/admin-dashboard" element={<RequireAdmin><Dashboard /></RequireAdmin>} />
               <Route path="/admin-dashboard/brands" element={<RequireAdmin><AdminBrands /></RequireAdmin>} />
               <Route path="/admin-dashboard/breeds" element={<RequireAdmin><AdminBreeds /></RequireAdmin>} />

@@ -339,6 +339,7 @@ const Products = () => {
               <Grid item xs={12} sm={6} md={6} key={item._id}>
 
                 <Card
+                
                   sx={{
                     borderRadius: 3,
                     boxShadow: 5,
@@ -348,9 +349,12 @@ const Products = () => {
                       transform: 'scale(1.03)',
                       boxShadow: 10,
                     },
+                    cursor: "pointer",
+                    
                   }}
+                  onClick={() => handleAddToRecentLyViewedProducts(item)}
                 >
-                  <Box sx={{ p: 2, display: 'flex', gap: 2, alignItems: 'center' }}>
+                  <Box sx={{ p: 2, display: 'flex', gap: 2, alignItems: 'center' }} >
                     <Avatar
                       variant="rounded"
                       src={item.imageUrl}

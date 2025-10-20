@@ -14,7 +14,7 @@ import axios from "axios";
 import { adminEndpoints, authApi, endpoints } from "../Config/APIs";
 import { useSearchParams } from "react-router-dom";
 import { set } from "date-fns";
-import formatDate from "../Convert/formatDate ";
+import formatDate from "../Convert/formatDate";
 import { useNotification } from "../Context/Notification";
 import { useTranslation } from "react-i18next";
 

@@ -30,7 +30,8 @@
     "recharts": "^3.1.2",
     "styled-components": "^6.1.16",
     "use-react-router-breadcrumbs": "^4.0.1",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "yet-another-react-lightbox": "^3.25.0"
   },
   "scripts": {
     "start": "react-scripts start",

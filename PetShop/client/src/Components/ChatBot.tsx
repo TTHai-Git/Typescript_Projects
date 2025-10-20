@@ -12,7 +12,7 @@ import ChatIcon from "@mui/icons-material/Chat";
 import SendIcon from "@mui/icons-material/Send";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import APIs, { endpoints } from "../Config/APIs";
-import formatDate from "../Convert/formatDate ";
+import formatDate from "../Convert/formatDate";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import { Cancel, Chat } from "@mui/icons-material";
 

@@ -25,11 +25,16 @@ import StarHalfIcon from '@mui/icons-material/StarHalf';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import SortIcon from '@mui/icons-material/Sort';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
-import formatDate from '../Convert/formatDate '
+import formatDate from '../Convert/formatDate'
 import { useSelector } from 'react-redux'
 import { RootState } from '../store'
 import { useNotification } from '../Context/Notification';
 import { useTranslation } from 'react-i18next';
+import Lightbox from "yet-another-react-lightbox";
+import "yet-another-react-lightbox/styles.css";
+import Zoom from "yet-another-react-lightbox/plugins/zoom";
+import Download from "yet-another-react-lightbox/plugins/download";
+import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen"
 
 export interface Props {
   productId: string
@@ -71,6 +76,9 @@ const CommentsByProduct = ({ productId, totalRating, beforeTotalRatingRounded, l
   const locaion = useLocation()
   const { showNotification} = useNotification()
   const {t} = useTranslation()
+  const [open, setOpen] = useState(false);
+  const [slides, setSlides] = useState<{ src: string }[]>([]);
+  const [startIndex, setStartIndex] = useState(0);
 
   const getCommentsByProduct = async () => {
     try {
@@ -149,6 +157,13 @@ const ratingOptions = [
       setLoading(false)
     }
   }
+
+  const handleImageClick = (commentImages: string[], index: number) => {
+  setSlides(commentImages.map((url) => ({ src: url })));
+  setStartIndex(index);
+  setOpen(true);
+};
+
 
   if (loading) {
     return (
@@ -316,7 +331,9 @@ const ratingOptions = [
                             src={url}
                             alt={`comment-img-${idx}`}
                             loading="lazy"
-                            style={{ borderRadius: 8, objectFit: 'cover', width: '100px', height: '100px' }}
+                            style={{ borderRadius: 8, objectFit: 'cover', width: '100px', height: '100px', cursor: "pointer" }}
+                            onClick={() => handleImageClick(comment.urls, idx)}
+                             
                           />
                         </ImageListItem>
                       ))}
@@ -370,6 +387,15 @@ const ratingOptions = [
         </Stack>
       </>
     )}
+    <Lightbox
+        open={open}
+        close={() => setOpen(false)}
+        slides={slides}
+        index={startIndex}
+        plugins={[Zoom, Download, Fullscreen]}
+        controller={{ closeOnBackdropClick: true }}
+        zoom={{ maxZoomPixelRatio: 3, scrollToZoom: true }}
+      />
   </Box>
 );
 
