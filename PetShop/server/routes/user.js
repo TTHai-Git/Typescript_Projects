@@ -1,6 +1,8 @@
 import { Router } from "express";
 import {
   generateOTP,
+  handleDisable2FAInfoForUser,
+  handleEnable2FAInfoForUser,
   resetPassword,
   updateAvatar,
   updateInfor,
@@ -20,6 +22,18 @@ userRoutes.put("/:user_id/update-avatar", updateAvatar);
 userRoutes.post("/generate-otp", generateOTP);
 // userRoutes.post("/verify-otp", verifyOTP);
 userRoutes.put("/reset-password", resetPassword);
+userRoutes.put(
+  "/:user_id/enable-2fa",
+  authMiddleware,
+  csrfMiddleware,
+  handleEnable2FAInfoForUser
+);
+userRoutes.put(
+  "/:user_id/disable-2fa",
+  authMiddleware,
+  csrfMiddleware,
+  handleDisable2FAInfoForUser
+);
 
 /**
  * @swagger
@@ -49,7 +63,7 @@ userRoutes.put("/reset-password", resetPassword);
  *       type: apiKey
  *       in: header
  *       name: adminKey
- *       description: > 
+ *       description: >
  *         To protect methods POST, PUT, PATCH, DELETE for APIs of Admin.
  */
 

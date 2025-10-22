@@ -11,6 +11,7 @@ export const endpoints = {
   getOrderDetails: (orderId, page) => `/orders/${orderId}/orderDetails`,
   getOrdersOfCustomer: (userId, page) => `/orders/user/${userId}`,
   login: "/auth/login",
+  loginWith2Fa: "/auth/login-with-2fa",
   logout: "/auth/logout",
   authMe: "/auth/me",
   refreshAccessToken: "/auth/refresh",
@@ -52,6 +53,10 @@ export const endpoints = {
   getAvailableVouchersForShipment: "/vouchers/available/for-shipments",
   getVoucher: (voucherId) => `/vouchers/${voucherId}`,
   updateVoucherUsageForUser: (voucherId) => `/vouchers/${voucherId}/usage`,
+  generateQR: "/2fa/generate-qr",
+  verifyTOTP: "/2fa/verify-totp",
+  enable2FA: (userId) => `/users/${userId}/enable-2fa`,
+  disable2FA: (userId) => `/users/${userId}/disable-2fa`,
 };
 
 export const adminEndpoints = {
@@ -71,9 +76,12 @@ let csrfToken = null; // lưu tạm trong memory
 // Hàm gọi API để lấy CSRF token
 export const fetchCsrfToken = async () => {
   try {
-    const res = await axios.get(`${BASE_URL}${endpoints["generate-csrf-token"]}`, {
-      withCredentials: true,
-    });
+    const res = await axios.get(
+      `${BASE_URL}${endpoints["generate-csrf-token"]}`,
+      {
+        withCredentials: true,
+      }
+    );
     csrfToken = res.data.csrfToken; // server trả { csrfToken: "xxx" }
     return csrfToken;
   } catch (err) {

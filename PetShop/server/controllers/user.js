@@ -62,22 +62,27 @@ export const updateInfor = async (req, res) => {
 
 export const updateAvatar = async (req, res) => {
   const { user_id } = req.params;
-  const avatar = req.body.avatar
+  const avatar = req.body.avatar;
   // console.log("avatar", avatar)
   // console.log("user_id", user_id)
   try {
-    const updatedUser = await User.findByIdAndUpdate(user_id, {
-      avatar: avatar
-    },
-    {
-      new: true,
-      runValidators: true,
-    })
+    const updatedUser = await User.findByIdAndUpdate(
+      user_id,
+      {
+        avatar: avatar,
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
     // console.log("updatedUser",updatedUser )
   } catch (error) {
-    return res.status(500).json({message: "Sever error! Please try again later"})
+    return res
+      .status(500)
+      .json({ message: "Sever error! Please try again later" });
   }
-}
+};
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -230,3 +235,49 @@ setInterval(() => {
     new Date().toLocaleTimeString()
   );
 }, 10 * 60 * 1000); // Run every 10 minutes
+
+export const handleEnable2FAInfoForUser = async (req, res) => {
+  const { user_id } = req.params;
+  const { secret } = req.body;
+  const updatedUser = await User.findByIdAndUpdate(
+    user_id,
+    {
+      isAuthenticated2Fa: true,
+      secretKey2FA: secret,
+    },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+  if (updatedUser)
+    return res
+      .status(200)
+      .json({ message: "Two-Factor Authentication enabled successfully!" });
+  return res
+    .status(400)
+    .json({ message: "Two-Factor Authentication enabled fail!" });
+};
+
+export const handleDisable2FAInfoForUser = async (req, res) => {
+  const { user_id } = req.params;
+  console.log();
+  const updatedUser = await User.findByIdAndUpdate(
+    user_id,
+    {
+      isAuthenticated2Fa: false,
+      secretKey2FA: "",
+    },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+  if (updatedUser)
+    return res
+      .status(200)
+      .json({ message: "Two-Factor Authentication disabled successfully!" });
+  return res
+    .status(400)
+    .json({ message: "Two-Factor Authentication disabled fail!" });
+};

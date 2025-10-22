@@ -1,4 +1,4 @@
-import express from "express"
+import express from "express";
 import limiter from "../middleware/limiter.js";
 import authRoutes from "./auth.js";
 import roleRoutes from "./role.js";
@@ -26,6 +26,7 @@ import swaggerUi from "swagger-ui-express";
 import csrfRoutes from "./csrf.js";
 import adminRouter from "./admin/index.js";
 import "../config/dotenv.config.js"; // ✅ loads environment variables once
+import authenticate_2fa_Router from "./2fa.js";
 
 const router = express.Router();
 
@@ -64,6 +65,7 @@ router.use("/v1/shipments", limiter, shipmentRoutes);
 router.use("/v1/vouchers", limiter, voucherRouter);
 router.use("/v1/chat-bot-faq", limiter, chatBotRoutes);
 router.use("/v1/notifications", limiter, notificationRoutes);
-router.use("/v1/admin", adminRouter)
+router.use("/v1/2fa", limiter, authenticate_2fa_Router);
+router.use("/v1/admin", adminRouter);
 
 export default router;

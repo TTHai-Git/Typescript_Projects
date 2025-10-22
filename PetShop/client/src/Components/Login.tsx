@@ -30,31 +30,42 @@ const Login: React.FC = () => {
     
 
     try {
-  
       const response = await APIs.post(endpoints.login, {
         username,
         password
-        });
-      const user:UserState = response.data;
-      if (user) {
-        dispatch(login({
-          ...user,
-          isAuthenticated: true,
-        }));
-        fetchCsrfToken()
-        const ref = searchParams.get("ref")
-        if (ref) 
-        {
-          navigate(`${ref}`)
-        } 
-        else {
-          navigate("/products")
+      });
+      const ref = searchParams.get("ref")
+      if (!response.data?.isAuthenticated2Fa) {
+        const user:UserState = response.data;
+        if (user && !user.isAuthenticated2Fa) {
+          dispatch(login({
+            ...user,
+            isAuthenticated: true,
+          }));
+          fetchCsrfToken()
+          
+          if (ref) 
+          {
+            navigate(`${ref}`)
+          } 
+          else {
+            navigate("/products")
+          }
+         
+        } else {
+          showNotification(t(`${response.data.message}`), "warning")
         }
-       
-        
-      } else {
-        showNotification("Username or password is incorect", "error")
       }
+      else {
+        navigate("/login/2fa-verify", {
+          state: {
+            _id: response.data._id,
+            secretKey2FA: response.data.secretKey2FA,
+            ref: ref,
+          }
+        })
+      }
+      
     } catch (error:any) {
       setIsError(true);
       setErrorMessage(error.response?.data?.message || 'Something went wrong');

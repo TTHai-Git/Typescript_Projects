@@ -5,6 +5,7 @@ import Role from "../models/role.js";
 import nodemailer from "nodemailer";
 import validator from "validator";
 import "../config/dotenv.config.js"; // ✅ loads environment variables once
+import speakeasy from "speakeasy";
 
 const SECRET_KEY = process.env.JWT_SECRET;
 
@@ -92,16 +93,14 @@ export const login = async (req, res) => {
       (await User.findOne({ username }).populate("role")) ||
       (await User.findOne({ email: username }).populate("role")) ||
       (await User.findOne({ phone: username }).populate("role"));
-    if (!user) {
-      const user = await User.findOne({ username }).populate("role");
-      return res.status(400).json({ message: "Invalid Username/EmaiL/Phone" });
-    }
 
-    if (!user.isVerified) {
+    if (!user)
+      return res.status(400).json({ message: "Invalid Username/EmaiL/Phone" });
+
+    if (!user.isVerified)
       return res
         .status(403)
         .json({ message: "Please verify your email before logging in" });
-    }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
@@ -136,21 +135,58 @@ export const login = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7d
     });
 
-    // ✅ Only return user data (no token)
-    res.status(200).json({
-      _id: user._id,
-      role: user.role,
-      username: user.username,
-      name: user.name,
-      avatar: user.avatar,
-      email: user.email,
-      phone: user.phone,
-      address: user.address,
-      isVerified: user.isVerified,
-    });
+    if (!user?.isAuthenticated2Fa) {
+      res.status(200).json(getFiledsOfUserWhenLogin(user));
+    } else {
+      return res.status(200).json({
+        _id: user._id,
+        isAuthenticated2Fa: user.isAuthenticated2Fa,
+        secretKey2FA: user.secretKey2FA,
+      });
+    }
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }
+};
+
+export const handleLoginWith2Fa = async (req, res) => {
+  const { totp, secretKey, userId } = req.body;
+  // console.log("req.body", req.body);
+  const isVerified2FA = speakeasy.totp.verify({
+    secret: secretKey,
+    encoding: "base32",
+    token: totp,
+  });
+  if (isVerified2FA) {
+    const user = await User.findById(userId).populate("role");
+    return res.status(200).json({
+      isVerified2FA: true,
+      message: "Two-Factor Authentication successful!",
+      user: getFiledsOfUserWhenLogin(user),
+    });
+  } else {
+    return res.status(400).json({
+      isVerified2FA: false,
+      message: "Invalid or expired 2FA code!",
+    });
+  }
+};
+
+export const getFiledsOfUserWhenLogin = (user) => {
+  return {
+    _id: user._id,
+    role: user.role,
+    username: user.username,
+    name: user.name,
+    avatar: user.avatar,
+    email: user.email,
+    phone: user.phone,
+    address: user.address,
+    isVerified: user.isVerified,
+    isAuthenticated2Fa: user.isAuthenticated2Fa
+      ? user.isAuthenticated2Fa
+      : false,
+  };
 };
 
 export const logout = (req, res) => {

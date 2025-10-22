@@ -51,6 +51,9 @@ import { RecentlyViewedProductsProvider } from './Context/RecentlyViewedProducts
 import ListOfRecentlyViewedProducts from './Components/ListOfRecentlyViewedProducts';
 import NavBar from './Components/NavBar';
 import { NotificationProvider } from './Context/Notification';
+import Form2FA from './Components/Form2FA';
+import { VerifyTOTP2FA } from './Components/VerifyTOTP2FA';
+
 
 
 
@@ -69,12 +72,14 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/login" element={<Login/>} />
+              <Route path="/login/2fa-verify" element={<VerifyTOTP2FA/>} />
               <Route path="/generate-otp" element={<GenerateOTP/>} />
               <Route path="/reset-password" element={<ResetPassword/>} />
               <Route path="/register" element={<Register/>} />
               <Route path ="/verify-email" element={<VerifyEmail/>} />
               <Route path="/userinfo" element={<UserInfo/>} />
               <Route path="/userinfo/:user_id/orders" element={<ListOrders/>}/>
+              <Route path="/userinfo/:user_id/2fa" element={<Form2FA/>}/>
               <Route path="/userinfo/:user_id/orders/:order_id/orderDetails" element={<ListOrderDetails/>}/>
               <Route path="/userinfo/:user_id/orders/:order_id/paymentInfo" element={<PaymentInfomation/>}/>
               <Route path="/userinfo/:user_id/orders/:order_id/shipmentInfo" element={<ShipmentInfomation/>}/>

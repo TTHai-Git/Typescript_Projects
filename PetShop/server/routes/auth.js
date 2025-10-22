@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   authMe,
+  handleLoginWith2Fa,
   login,
   logout,
   refreshAccessToken,
@@ -17,6 +18,7 @@ authRoutes.post("/logout", logout);
 authRoutes.get("/me", authMiddleware, authMe);
 authRoutes.post("/refresh", authMiddleware, csrfMiddleware, refreshAccessToken);
 authRoutes.post("/verify-email", verifyEmail);
+authRoutes.post("/login-with-2fa", authMiddleware, handleLoginWith2Fa);
 
 /**
  * @swagger
@@ -46,7 +48,7 @@ authRoutes.post("/verify-email", verifyEmail);
  *       type: apiKey
  *       in: header
  *       name: adminKey
- *       description: > 
+ *       description: >
  *         To protect methods POST, PUT, PATCH, DELETE for APIs of Admin.
  */
 

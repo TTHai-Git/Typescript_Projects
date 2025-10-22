@@ -15,4 +15,6 @@ export interface UserState extends User {
     phone: string;
     address: string;
     isVerified: boolean;
+    isAuthenticated2Fa: boolean;
+    secretKey2FA: string;
 }

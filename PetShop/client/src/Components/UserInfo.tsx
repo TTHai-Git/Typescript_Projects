@@ -24,7 +24,7 @@ import ReceiptIcon from '@mui/icons-material/Receipt';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import { authApi, endpoints } from '../Config/APIs';
-import { AdminPanelSettings, Favorite } from '@mui/icons-material';
+import { AdminPanelSettings, Favorite, Security } from '@mui/icons-material';
 import { useNotification } from '../Context/Notification';
 import { useTranslation } from 'react-i18next';
 
@@ -45,7 +45,6 @@ const UserInfo = () => {
   const {t} = useTranslation()
 
   useEffect(() => {
-    // console.log("user", user)
     if (!user) {
       navigate('/login');
     } else {
@@ -56,7 +55,7 @@ const UserInfo = () => {
         address: user.address || ''
       });
     }
-  }, [user, navigate]);
+  }, [user, navigate, user?.isAuthenticated2Fa]);
 
   const handleLogOut = async () => {
     dispatch(logout());
@@ -233,6 +232,7 @@ const UserInfo = () => {
               startIcon={<LogoutIcon />}
               fullWidth
               onClick={handleLogOut}
+              
             >
               {t("Logout")}
             </Button>
@@ -258,6 +258,18 @@ const UserInfo = () => {
             >
               {t("Follow Favoritelist")}
             </Button>
+            <Button
+              variant="outlined"
+              color="warning"
+              startIcon={<Security />}
+              fullWidth
+              onClick={() =>
+                navigate(`${user?._id}/2fa?isAuthenticated2Fa=${user?.isAuthenticated2Fa}`)
+              }
+            >
+              {user?.isAuthenticated2Fa ? t("Disable 2FA") : t("Enable 2FA")}
+            </Button>
+
             {user?.role.name === "Admin" && (
               <Button
                 variant="outlined"
