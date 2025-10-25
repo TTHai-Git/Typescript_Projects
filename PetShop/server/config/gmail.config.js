@@ -32,4 +32,5 @@ export const sendEmail = (
     }
     return res.status(200).send({ message: successMessage });
   });
+  return res.status(200).json({message: "Finish send email"})
 };

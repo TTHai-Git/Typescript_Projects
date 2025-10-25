@@ -71,16 +71,17 @@ export const generateOTP = async (req, res) => {
 
     await debugOTPState(email)
 
-    sendEmail(
-      res,
-      process.env.EMAIL_SECRET,
-      email,
-      "Reset Password OTP",
-      `Your OTP code is ${otpCode}. It will expire in 5 minutes.`,
-      "",
-      "OTP sent successfully.",
-      "Failed to send OTP."
-    );
+    // sendEmail(
+    //   res,
+    //   process.env.EMAIL_SECRET,
+    //   email,
+    //   "Reset Password OTP",
+    //   `Your OTP code is ${otpCode}. It will expire in 5 minutes.`,
+    //   "",
+    //   "OTP sent successfully.",
+    //   "Failed to send OTP."
+    // );
+    return res.status(200).json({message: "Finish send email"})
   } catch (err) {
     return res
       .status(500)
