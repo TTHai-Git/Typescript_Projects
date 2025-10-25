@@ -47,47 +47,45 @@ export const generateOTP = async (req, res) => {
   try {
     const { email } = req.body;
 
-    await debugOTPState(email)
-
     if (!email) return res.status(400).json({ message: "Invalid Email." });
 
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: "User not found." });
 
     const requestCount = await redis.incr(`otp:req:${email}`);
-    if (requestCount === 1) {
-      await redis.expire(`otp:req:${email}`, 60 * 60);
-    }
-
-    if (requestCount > MAX_OTP_REQUESTS_PER_HOUR) {
-      return res.status(429).json({
-        message: "OTP request limit exceeded. Try again in one hour.",
-      });
-    }
+    if (requestCount === 1) await redis.expire(`otp:req:${email}`, 60 * 60);
+    if (requestCount > MAX_OTP_REQUESTS_PER_HOUR)
+      return res.status(429).json({ message: "OTP limit exceeded." });
 
     const otpCode = Math.floor(100000 + Math.random() * 900000);
     await redis.setex(`otp:${email}`, 5 * 60, otpCode);
     await redis.del(`otp:attempt:${email}`);
 
-    await debugOTPState(email)
+    try {
+      await sendEmail(
+        process.env.EMAIL_SECRET,
+        email,
+        "Reset Password OTP",
+        `Your OTP is ${otpCode}. It expires in 5 minutes.`
+      );
 
-    // sendEmail(
-    //   res,
-    //   process.env.EMAIL_SECRET,
-    //   email,
-    //   "Reset Password OTP",
-    //   `Your OTP code is ${otpCode}. It will expire in 5 minutes.`,
-    //   "",
-    //   "OTP sent successfully.",
-    //   "Failed to send OTP."
-    // );
-    return res.status(200).json({message: "Finish send email"})
+      return res.status(200).json({
+        message: "OTP sent successfully."
+      });
+
+    } catch (error) {
+      console.error("❌ Error sending OTP email:", error);
+
+      return res.status(500).json({
+        message: "Failed to send OTP email.",
+        error: error.message, // (optional: xem log)
+      });
+    }
   } catch (err) {
-    return res
-      .status(500)
-      .json({ message: "Server error", error: err.message });
+    return res.status(500).json({ message: "Server error", error: err.message });
   }
 };
+
 
 export const resetPassword = async (req, res) => {
   try {

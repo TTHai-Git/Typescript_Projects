@@ -65,16 +65,23 @@ export const register = async (req, res) => {
     const url = `${process.env.CLIENT_URL}/verify-email?token=${emailToken}`;
     const html = `Click <a href="${url}">here</a> to verify your email. Expires in 24 hourse.`;
     const text = `Welcome to DOGSHOP Website. Hope you enjoy it! `;
-    const successMessage = "Sent verify email to user successfully.";
-    const failMessage = "Sent verify email to user fail.";
 
-    sendEmail(res, from, to, subject, text, html, successMessage, failMessage);
+    try {
+      await sendEmail(from, to, subject, text, html); // ❗ phải await
+      return res.status(201).json({
+        doc: newUser,
+        message: "User registered successfully. Verification email sent.",
+      });
+      
+    } catch (error) {
+      console.error("❌ sendEmail error:", error);
 
-    return res.status(201).json({
-      doc: newUser,
-      message:
-        "User registered successfully. Verification email has sent to your email. Please check your email to verify acount as soon as !",
-    });
+      return res.status(500).json({
+        message: "Registration success but failed to send verification email.",
+        error: error.message,
+      });
+    }
+
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }
