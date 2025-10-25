@@ -30,20 +30,19 @@ const Login: React.FC = () => {
     
 
     try {
+      const ref = searchParams.get("ref")
       const response = await APIs.post(endpoints.login, {
         username,
         password
       });
-      const ref = searchParams.get("ref")
-      if (!response.data?.isAuthenticated2Fa) {
+      if (response.status === 200) {
         const user:UserState = response.data;
+        fetchCsrfToken()
         if (user && !user.isAuthenticated2Fa) {
           dispatch(login({
             ...user,
             isAuthenticated: true,
           }));
-          fetchCsrfToken()
-          
           if (ref) 
           {
             navigate(`${ref}`)
@@ -51,19 +50,18 @@ const Login: React.FC = () => {
           else {
             navigate("/products")
           }
-         
-        } else {
-          showNotification(t(`${response.data.message}`), "warning")
+        }
+        else {
+          navigate("/login/2fa-verify", {
+            state: {
+              user: user,
+              ref: ref? ref : "",
+            }
+          })
         }
       }
       else {
-        navigate("/login/2fa-verify", {
-          state: {
-            _id: response.data._id,
-            secretKey2FA: response.data.secretKey2FA,
-            ref: ref,
-          }
-        })
+        showNotification(t(`${response.data.message}`), 'warning')
       }
       
     } catch (error:any) {

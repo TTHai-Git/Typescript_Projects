@@ -20,15 +20,11 @@ const ResetPassword = () => {
   const email = location.state || null;
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams()
-
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [otpDigits, setOtpDigits] = useState<string[]>(Array(6).fill(''));
-  const [isLoading, setIsLoading] = useState(false);
-  const [isError, setIsError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [loading, setLoading] = useState(false);
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
-
   const inputRefs = useRef<HTMLInputElement[]>([]);
   const { showNotification } = useNotification()
   const {t} = useTranslation()
@@ -51,33 +47,38 @@ const ResetPassword = () => {
     }
   };
 
+  const handleValidatePassWord = (passWord: string) => {
+    // at least 8 chars, 1 upper, 1 lower, 1 number
+    return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(passWord);
+  };
+
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsError(false);
-    setIsLoading(true);
+   
+    setLoading(true);
 
     const OTP = otpDigits.join('');
 
     if (confirmNewPassword !== newPassword) {
-      setIsError(true);
-      setErrorMessage('Passwords do not match.');
-      setIsLoading(false);
+      showNotification('Passwords do not match.', 'warning');
+      setLoading(false);
       return;
     }
 
     if (newPassword.length < 6) {
-      setIsError(true);
-      setErrorMessage('Password must be at least 6 characters.');
-      setIsLoading(false);
+     
+      showNotification('Password must be at least 8 characters.', "warning");
+      setLoading(false);
+      return;
+    }
+
+    if (!handleValidatePassWord(newPassword)) {
+      showNotification('Password must be at least 8 chars, 1 upper, 1 lower, 1 number', "warning");
+      setLoading(false);
       return;
     }
 
     try {
-      // const res = await axios.put('/v1/users/reset-password', {
-      //   email,
-      //   otp: OTP,
-      //   newPassword,
-      // });
       const res = await APIs.put(endpoints.resetPassword, {
         email,
         otp: OTP,
@@ -90,10 +91,9 @@ const ResetPassword = () => {
         
       }
     } catch (error: any) {
-      setIsError(true);
-      setErrorMessage(error.response?.data?.message || 'Something went wrong');
+      showNotification(error.response?.data?.message || 'Something went wrong', "warning");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
@@ -118,11 +118,7 @@ const ResetPassword = () => {
         {t("Enter your new password and the 6-digit OTP sent to your email.")}
       </Typography>
 
-      {isError && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {errorMessage}
-        </Alert>
-      )}
+      
 
       <form onSubmit={handleResetPassword}>
         <TextField
@@ -173,8 +169,8 @@ const ResetPassword = () => {
             variant="contained"
             color="primary"
             fullWidth
-            disabled={isLoading || timeLeft === 0}
-            endIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
+            disabled={loading || timeLeft === 0}
+            endIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
           >
             {timeLeft === 0 ? t("OTP Expired") : t("Reset Password")}
           </Button>

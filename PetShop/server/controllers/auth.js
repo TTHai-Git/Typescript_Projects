@@ -2,10 +2,9 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import User from "../models/user.js";
 import Role from "../models/role.js";
-import nodemailer from "nodemailer";
 import validator from "validator";
 import "../config/dotenv.config.js"; // ✅ loads environment variables once
-import speakeasy from "speakeasy";
+import { sendEmail } from "../config/gmail.config.js";
 
 const SECRET_KEY = process.env.JWT_SECRET;
 
@@ -59,20 +58,17 @@ export const register = async (req, res) => {
       expiresIn: "1d",
     });
 
+    const from = process.env.EMAIL_SECRET;
+    const to = email;
+    const subject =
+      "Verify Your Email Of Account On E-Commerce Website DOGSHOP";
     const url = `${process.env.CLIENT_URL}/verify-email?token=${emailToken}`;
+    const html = `Click <a href="${url}">here</a> to verify your email. Expires in 24 hourse.`;
+    const text = `Welcome to DOGSHOP Website. Hope you enjoy it! `;
+    const successMessage = "Sent verify email to user successfully.";
+    const failMessage = "Sent verify email to user fail.";
 
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_SECRET,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-    await transporter.sendMail({
-      to: email,
-      subject: "Verify Your Email Of Account On E-Commerce Website DOGSHOP",
-      html: `Click <a href="${url}">here</a> to verify your email. Expires in 24 hourse.`,
-    });
+    sendEmail(res, from, to, subject, text, html, successMessage, failMessage);
 
     return res.status(201).json({
       doc: newUser,
@@ -135,60 +131,25 @@ export const login = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7d
     });
 
-    if (!user?.isAuthenticated2Fa) {
-      res.status(200).json(getFiledsOfUserWhenLogin(user));
-    } else {
-      return res.status(200).json({
-        _id: user._id,
-        isAuthenticated2Fa: user.isAuthenticated2Fa,
-        secretKey2FA: user.secretKey2FA,
-      });
-    }
+    return res.status(200).json({
+      _id: user._id,
+      role: user.role,
+      username: user.username,
+      name: user.name,
+      avatar: user.avatar,
+      email: user.email,
+      phone: user.phone,
+      address: user.address,
+      isVerified: user.isVerified,
+      isAuthenticated2Fa: user.isAuthenticated2Fa
+        ? user.isAuthenticated2Fa
+        : false,
+      secretKey2FA: user.secretKey2FA ? user.secretKey2FA : "",
+    });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }
 };
-
-export const handleLoginWith2Fa = async (req, res) => {
-  const { totp, secretKey, userId } = req.body;
-  // console.log("req.body", req.body);
-  const isVerified2FA = speakeasy.totp.verify({
-    secret: secretKey,
-    encoding: "base32",
-    token: totp,
-  });
-  if (isVerified2FA) {
-    const user = await User.findById(userId).populate("role");
-    return res.status(200).json({
-      isVerified2FA: true,
-      message: "Two-Factor Authentication successful!",
-      user: getFiledsOfUserWhenLogin(user),
-    });
-  } else {
-    return res.status(400).json({
-      isVerified2FA: false,
-      message: "Invalid or expired 2FA code!",
-    });
-  }
-};
-
-export const getFiledsOfUserWhenLogin = (user) => {
-  return {
-    _id: user._id,
-    role: user.role,
-    username: user.username,
-    name: user.name,
-    avatar: user.avatar,
-    email: user.email,
-    phone: user.phone,
-    address: user.address,
-    isVerified: user.isVerified,
-    isAuthenticated2Fa: user.isAuthenticated2Fa
-      ? user.isAuthenticated2Fa
-      : false,
-  };
-};
-
 export const logout = (req, res) => {
   const isProd = process.env.REACT_APP_NODE_ENV === "production";
 

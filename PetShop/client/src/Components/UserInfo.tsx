@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { useLocation, useNavigate } from 'react-router';
 import { logout } from '../features/login/authSlice';
-import { Chip, Tooltip } from '@mui/material';
+import { Chip, FormControlLabel, FormGroup, Switch, Tooltip } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import {
@@ -74,6 +74,16 @@ const UserInfo = () => {
     });
   };
 
+  const handleEnableOrDisable2FA = () => {
+    navigate(`${user?._id}/2fa?isAuthenticated2Fa=${user?.isAuthenticated2Fa}`)
+  }
+  const handleEnableOrDisableVerifyEmail = () => {
+
+  }
+  const handleEnableOrDisableVerifyPhone = () => {
+    
+  }
+
   const handleSave = async () => {
     try {
       const res = await authApi.put(endpoints.updateInfor(user?._id), {
@@ -93,6 +103,8 @@ const UserInfo = () => {
       showNotification((err.response?.data?.message || err.message), "error");
     }
   };
+
+  
   return (
     <Box
       display="flex"
@@ -102,7 +114,7 @@ const UserInfo = () => {
       bgcolor="#f0f2f5"
       p={2}
     >
-      <Card sx={{ maxWidth: 600, width: "100%", borderRadius: 4, boxShadow: 3 }}>
+      <Card sx={{ maxWidth: "50%", width: "100%", borderRadius: 4, boxShadow: 3 }}>
         <CardContent>
           {/* Header */}
           <Stack
@@ -133,8 +145,8 @@ const UserInfo = () => {
                 <Tooltip
                   title={
                     user.isVerified
-                      ? t("Your email is verified")
-                      : t("Please verify your email")
+                      ? t("Your email and phone is verified")
+                      : t("Please verify your email and phone")
                   }
                 >
                   <Chip
@@ -154,6 +166,58 @@ const UserInfo = () => {
                   />
                 </Tooltip>
               </Stack>
+              <Stack
+                direction="row"
+                alignItems="center"
+                justifyContent="center"
+                spacing={4} // controls equal spacing between switches
+                mb={2}
+              >
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={user.isAuthenticated2Fa}
+                      size="small"
+                      onChange={() => handleEnableOrDisable2FA()}
+                    />
+                  }
+                  label={
+                    user?.isAuthenticated2Fa
+                      ? t("Enable 2FA")
+                      : t("Disable 2FA")
+                  }
+                />
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={user.isVerified}
+                      size="small"
+                      onChange={() => handleEnableOrDisableVerifyEmail()}
+                    />
+                  }
+                  label={
+                    user?.isVerified
+                      ? t("Enable Verified Email")
+                      : t("Disable Verified Email")
+                  }
+                />
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={user.isVerified}
+                      size="small"
+                      onChange={() => handleEnableOrDisableVerifyPhone()}
+                    />
+                  }
+                  label={
+                    user?.isVerified
+                      ? t("Enable Verified Phone")
+                      : t("Disable Verified Phone")
+                  }
+                />
+              </Stack>
+
+              
 
               {/* Editable User Info */}
               <Grid container spacing={2}>
@@ -257,17 +321,6 @@ const UserInfo = () => {
               }
             >
               {t("Follow Favoritelist")}
-            </Button>
-            <Button
-              variant="outlined"
-              color="warning"
-              startIcon={<Security />}
-              fullWidth
-              onClick={() =>
-                navigate(`${user?._id}/2fa?isAuthenticated2Fa=${user?.isAuthenticated2Fa}`)
-              }
-            >
-              {user?.isAuthenticated2Fa ? t("Disable 2FA") : t("Enable 2FA")}
             </Button>
 
             {user?.role.name === "Admin" && (

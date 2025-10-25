@@ -11,7 +11,6 @@ export const endpoints = {
   getOrderDetails: (orderId, page) => `/orders/${orderId}/orderDetails`,
   getOrdersOfCustomer: (userId, page) => `/orders/user/${userId}`,
   login: "/auth/login",
-  loginWith2Fa: "/auth/login-with-2fa",
   logout: "/auth/logout",
   authMe: "/auth/me",
   refreshAccessToken: "/auth/refresh",

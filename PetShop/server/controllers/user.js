@@ -1,14 +1,157 @@
 import User from "../models/user.js";
-import nodemailer from "nodemailer";
 import bcrypt from "bcryptjs";
-import "../config/dotenv.config.js"; // ✅ loads environment variables once
-
-let otpStore = {};
-let otpRequestLog = {}; // Tracks OTP requests per email
-let otpAttemptLog = {}; // Tracks failed attempts per email
+import "../config/dotenv.config.js";
+import { sendEmail } from "../config/gmail.config.js";
+import redis from "../utils/redis.js";
 
 const MAX_OTP_REQUESTS_PER_HOUR = 3;
 const MAX_OTP_ATTEMPTS = 5;
+
+const verifyOTP = async (email, otp) => {
+  const storedOTP = await redis.get(`otp:${email}`);
+  if (!storedOTP)
+    return { success: false, message: "OTP expired or not found." };
+
+  if (storedOTP === otp) return { success: true };
+
+  const attempts = await redis.incr(`otp:attempt:${email}`);
+  if (attempts === 1) {
+    await redis.expire(`otp:attempt:${email}`, 10 * 60);
+  }
+
+  if (attempts > MAX_OTP_ATTEMPTS) {
+    return {
+      success: false,
+      message: "Too many attempts. Try again in 10 minutes.",
+    };
+  }
+
+  return { success: false, message: "Invalid OTP." };
+};
+
+export const generateOTP = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: "Invalid Email." });
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: "User not found." });
+
+    const requestCount = await redis.incr(`otp:req:${email}`);
+    if (requestCount === 1) {
+      await redis.expire(`otp:req:${email}`, 60 * 60);
+    }
+
+    if (requestCount > MAX_OTP_REQUESTS_PER_HOUR) {
+      return res.status(429).json({
+        message: "OTP request limit exceeded. Try again in one hour.",
+      });
+    }
+
+    const otpCode = Math.floor(100000 + Math.random() * 900000);
+    await redis.setex(`otp:${email}`, 5 * 60, otpCode);
+    await redis.del(`otp:attempt:${email}`);
+
+    sendEmail(
+      res,
+      process.env.EMAIL_SECRET,
+      email,
+      "Reset Password OTP",
+      `Your OTP code is ${otpCode}. It will expire in 5 minutes.`,
+      "",
+      "OTP sent successfully.",
+      "Failed to send OTP."
+    );
+  } catch (err) {
+    return res
+      .status(500)
+      .json({ message: "Server error", error: err.message });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+
+    if (!email || !otp || !newPassword) {
+      return res
+        .status(400)
+        .json({ message: "Email, OTP, and new password are required" });
+    }
+
+    const otpResult = await verifyOTP(email, otp);
+    if (!otpResult.success) {
+      return res.status(401).json({ message: otpResult.message });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const isSamePassword = await bcrypt.compare(newPassword, user.password);
+    if (isSamePassword) {
+      return res
+        .status(400)
+        .json({ message: "You cannot set the same password as the old one!" });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+    await redis.del(`otp:${email}`);
+    await redis.del(`otp:attempt:${email}`);
+
+    return res.status(200).json({ message: "Password reset successfully" });
+  } catch (err) {
+    return res
+      .status(500)
+      .json({ message: "Server error", error: err.message });
+  }
+};
+
+export const handleEnable2FAInfoForUser = async (req, res) => {
+  const { user_id } = req.params;
+  const { secret } = req.body;
+  const updatedUser = await User.findByIdAndUpdate(
+    user_id,
+    {
+      isAuthenticated2Fa: true,
+      secretKey2FA: secret,
+    },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+  if (updatedUser)
+    return res
+      .status(200)
+      .json({ message: "Two-Factor Authentication enabled successfully!" });
+  return res
+    .status(400)
+    .json({ message: "Two-Factor Authentication enabled fail!" });
+};
+
+export const handleDisable2FAInfoForUser = async (req, res) => {
+  const { user_id } = req.params;
+  console.log();
+  const updatedUser = await User.findByIdAndUpdate(
+    user_id,
+    {
+      isAuthenticated2Fa: false,
+      secretKey2FA: "",
+    },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+  if (updatedUser)
+    return res
+      .status(200)
+      .json({ message: "Two-Factor Authentication disabled successfully!" });
+  return res
+    .status(400)
+    .json({ message: "Two-Factor Authentication disabled fail!" });
+};
 
 export const updateInfor = async (req, res) => {
   try {
@@ -82,202 +225,4 @@ export const updateAvatar = async (req, res) => {
       .status(500)
       .json({ message: "Sever error! Please try again later" });
   }
-};
-
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_SECRET,
-    pass: process.env.EMAIL_PASS,
-  },
-});
-
-const verifyOTP = (email, otp) => {
-  const entry = otpStore[email];
-  if (!entry) return { success: false, message: "No OTP found" };
-
-  if (Date.now() > entry.expiresAt) {
-    delete otpStore[email];
-    return { success: false, message: "OTP expired" };
-  }
-
-  if (parseInt(otp) === entry.code) {
-    delete otpStore[email];
-    delete otpAttemptLog[email]; // reset failed attempts on success
-    return { success: true };
-  }
-
-  // Track failed attempts
-  if (!otpAttemptLog[email]) {
-    otpAttemptLog[email] = { attempts: 1, lastAttemptAt: Date.now() };
-  } else {
-    otpAttemptLog[email].attempts += 1;
-    otpAttemptLog[email].lastAttemptAt = Date.now();
-  }
-
-  if (otpAttemptLog[email].attempts > MAX_OTP_ATTEMPTS) {
-    return {
-      success: false,
-      message: "Too many incorrect attempts. Try again in ten minutes.",
-    };
-  }
-
-  return { success: false, message: "Invalid OTP." };
-};
-
-export const generateOTP = async (req, res) => {
-  try {
-    const { email } = req.body;
-    if (!email) return res.status(400).json({ message: "Invalid Email." });
-
-    const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: "User not found." });
-
-    // Rate limiting
-    const now = Date.now();
-    otpRequestLog[email] = otpRequestLog[email] || [];
-    otpRequestLog[email] = otpRequestLog[email].filter(
-      (t) => now - t < 60 * 60 * 1000
-    );
-
-    if (otpRequestLog[email].length >= MAX_OTP_REQUESTS_PER_HOUR) {
-      return res.status(429).json({
-        message: "OTP request limit exceeded. Try again in ten minutes.",
-      });
-    }
-
-    otpRequestLog[email].push(now);
-
-    const otpCode = Math.floor(100000 + Math.random() * 900000);
-    const expiresAt = now + 5 * 60 * 1000; // 5 minutes
-
-    otpStore[email] = { code: otpCode, expiresAt };
-
-    const mailOptions = {
-      from: process.env.EMAIL_SECRET,
-      to: email,
-      subject: "Reset Password OTP",
-      text: `Your OTP code is ${otpCode}. It will expire in 5 minutes.`,
-    };
-
-    transporter.sendMail(mailOptions, (error, _info) => {
-      if (error) {
-        return res.status(500).send({ message: "Failed to send OTP." });
-      }
-      res.status(200).send({ message: "OTP sent successfully." });
-    });
-  } catch (err) {
-    return res
-      .status(500)
-      .json({ message: "Server error", error: err.message });
-  }
-};
-
-export const resetPassword = async (req, res) => {
-  try {
-    // console.log(req.body);
-    const { email, otp, newPassword } = req.body;
-
-    if (!email || !otp || !newPassword) {
-      return res
-        .status(400)
-        .json({ message: "Email, OTP, and new password are required" });
-    }
-
-    const otpResult = verifyOTP(email, otp);
-    if (!otpResult.success) {
-      return res.status(401).json({ message: otpResult.message });
-    }
-
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    user.password = await bcrypt.hash(newPassword, 10);
-    await user.save();
-
-    return res.status(200).json({ message: "Password reset successfully" });
-  } catch (err) {
-    console.error(err);
-    return res
-      .status(500)
-      .json({ message: "Server error", error: err.message });
-  }
-};
-
-// 🔁 Auto Cleanup Memory Logs Every 10 Minutes
-setInterval(() => {
-  const now = Date.now();
-  const oneHourAgo = now - 60 * 60 * 1000;
-
-  for (const email in otpStore) {
-    if (otpStore[email].expiresAt < now) {
-      delete otpStore[email];
-    }
-  }
-
-  for (const email in otpRequestLog) {
-    otpRequestLog[email] = otpRequestLog[email].filter((ts) => ts > oneHourAgo);
-    if (otpRequestLog[email].length === 0) {
-      delete otpRequestLog[email];
-    }
-  }
-
-  for (const email in otpAttemptLog) {
-    if (otpAttemptLog[email].lastAttemptAt < oneHourAgo) {
-      delete otpAttemptLog[email];
-    }
-  }
-
-  console.log(
-    "[CLEANUP] Expired OTPs and logs removed:",
-    new Date().toLocaleTimeString()
-  );
-}, 10 * 60 * 1000); // Run every 10 minutes
-
-export const handleEnable2FAInfoForUser = async (req, res) => {
-  const { user_id } = req.params;
-  const { secret } = req.body;
-  const updatedUser = await User.findByIdAndUpdate(
-    user_id,
-    {
-      isAuthenticated2Fa: true,
-      secretKey2FA: secret,
-    },
-    {
-      new: true,
-      runValidators: true,
-    }
-  );
-  if (updatedUser)
-    return res
-      .status(200)
-      .json({ message: "Two-Factor Authentication enabled successfully!" });
-  return res
-    .status(400)
-    .json({ message: "Two-Factor Authentication enabled fail!" });
-};
-
-export const handleDisable2FAInfoForUser = async (req, res) => {
-  const { user_id } = req.params;
-  console.log();
-  const updatedUser = await User.findByIdAndUpdate(
-    user_id,
-    {
-      isAuthenticated2Fa: false,
-      secretKey2FA: "",
-    },
-    {
-      new: true,
-      runValidators: true,
-    }
-  );
-  if (updatedUser)
-    return res
-      .status(200)
-      .json({ message: "Two-Factor Authentication disabled successfully!" });
-  return res
-    .status(400)
-    .json({ message: "Two-Factor Authentication disabled fail!" });
 };

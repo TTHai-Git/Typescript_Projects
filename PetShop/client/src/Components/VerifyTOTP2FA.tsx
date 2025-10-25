@@ -19,7 +19,7 @@ export const VerifyTOTP2FA = () => {
   const dispatch = useDispatch<AppDispatch>();
   
   // Destructure the state safely
-  const { _id, secretKey2FA, ref } = location.state || {};
+  const { user, secretKey2FA, ref } = location.state || {};
 
   
 
@@ -42,20 +42,18 @@ export const VerifyTOTP2FA = () => {
     try {
        
         setVerifying(true);
-        const response = await authApi.post(endpoints['loginWith2Fa'], {
+        const response = await authApi.post(endpoints['verifyTOTP'], {
             totp: code,
             secretKey: secretKey2FA,
-            userId: _id
+            userId: user._id,
         })
         if (response.status === 200 && response.data.isVerified2FA) {
             showNotification(t(`${response.data.message}`), "success")
             
             dispatch(login({
-            ...response.data.user,
+            ...user,
             isAuthenticated: response.data.isVerified2FA,
             }));
-            
-            fetchCsrfToken()
 
             if (ref) 
             {

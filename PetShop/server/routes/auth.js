@@ -1,7 +1,6 @@
 import { Router } from "express";
 import {
   authMe,
-  handleLoginWith2Fa,
   login,
   logout,
   refreshAccessToken,
@@ -18,7 +17,6 @@ authRoutes.post("/logout", logout);
 authRoutes.get("/me", authMiddleware, authMe);
 authRoutes.post("/refresh", authMiddleware, csrfMiddleware, refreshAccessToken);
 authRoutes.post("/verify-email", verifyEmail);
-authRoutes.post("/login-with-2fa", authMiddleware, handleLoginWith2Fa);
 
 /**
  * @swagger
