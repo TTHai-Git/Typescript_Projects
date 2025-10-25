@@ -58,7 +58,6 @@ export const register = async (req, res) => {
       expiresIn: "1d",
     });
 
-    const from = process.env.EMAIL_SECRET;
     const to = email;
     const subject =
       "Verify Your Email Of Account On E-Commerce Website DOGSHOP";
@@ -67,7 +66,7 @@ export const register = async (req, res) => {
     const text = `Welcome to DOGSHOP Website. Hope you enjoy it! `;
 
     try {
-      await sendEmail(from, to, subject, text, html); // ❗ phải await
+      await sendEmail(to, subject, text, html); // ❗ phải await
       return res.status(201).json({
         doc: newUser,
         message: "User registered successfully. Verification email sent.",

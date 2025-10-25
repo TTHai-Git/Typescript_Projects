@@ -52,6 +52,8 @@ export const generateOTP = async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: "User not found." });
 
+    await debugOTPState(email)
+
     const requestCount = await redis.incr(`otp:req:${email}`);
     if (requestCount === 1) await redis.expire(`otp:req:${email}`, 60 * 60);
     if (requestCount > MAX_OTP_REQUESTS_PER_HOUR)
@@ -61,11 +63,13 @@ export const generateOTP = async (req, res) => {
     await redis.setex(`otp:${email}`, 5 * 60, otpCode);
     await redis.del(`otp:attempt:${email}`);
 
+    await debugOTPState(email)
+
     try {
       await sendEmail(
-        process.env.EMAIL_SECRET,
         email,
         "Reset Password OTP",
+        "Welcome Back To DogShop!",
         `Your OTP is ${otpCode}. It expires in 5 minutes.`
       );
 
