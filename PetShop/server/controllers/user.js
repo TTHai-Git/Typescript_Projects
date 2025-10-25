@@ -69,6 +69,8 @@ export const generateOTP = async (req, res) => {
     await redis.setex(`otp:${email}`, 5 * 60, otpCode);
     await redis.del(`otp:attempt:${email}`);
 
+    await debugOTPState(email)
+
     sendEmail(
       res,
       process.env.EMAIL_SECRET,
