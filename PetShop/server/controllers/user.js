@@ -7,6 +7,20 @@ import redis from "../utils/redis.js";
 const MAX_OTP_REQUESTS_PER_HOUR = 3;
 const MAX_OTP_ATTEMPTS = 5;
 
+const debugOTPState = async (email) => {
+  const otp = await redis.get(`otp:${email}`);
+  const attempts = await redis.get(`otp:attempt:${email}`);
+  const reqCount = await redis.get(`otp:req:${email}`);
+
+  console.log("🔍 DEBUG OTP STATE:", {
+    email,
+    otp,
+    attempts,
+    reqCount,
+  });
+};
+
+
 const verifyOTP = async (email, otp) => {
   const storedOTP = await redis.get(`otp:${email}`);
   if (!storedOTP)
@@ -32,6 +46,9 @@ const verifyOTP = async (email, otp) => {
 export const generateOTP = async (req, res) => {
   try {
     const { email } = req.body;
+
+    await debugOTPState(email)
+
     if (!email) return res.status(400).json({ message: "Invalid Email." });
 
     const user = await User.findOne({ email });
@@ -80,6 +97,9 @@ export const resetPassword = async (req, res) => {
     }
 
     const otpResult = await verifyOTP(email, otp);
+    
+    await debugOTPState(email); // Log sau khi check OTP
+
     if (!otpResult.success) {
       return res.status(401).json({ message: otpResult.message });
     }

@@ -1,5 +1,9 @@
 import redis from "./redis.js";
 
-setInterval(() => {
-  redis.ping().catch(() => {});
-}, 30000); // 30 seconds
+setInterval(async () => {
+  try {
+    await redis.ping();
+  } catch (e) {
+    console.log("⚠️ Redis Ping Failed:", e.message);
+  }
+}, 10000);

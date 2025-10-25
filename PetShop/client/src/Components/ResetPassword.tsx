@@ -7,7 +7,6 @@ import {
   Grid,
   TextField,
   Typography,
-  Alert,
   CircularProgress
 } from '@mui/material';
 // import axios from 'axios';
@@ -19,7 +18,7 @@ const ResetPassword = () => {
   const location = useLocation();
   const email = location.state || null;
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [otpDigits, setOtpDigits] = useState<string[]>(Array(6).fill(''));
@@ -117,9 +116,6 @@ const ResetPassword = () => {
       <Typography variant="body1" color="text.secondary" gutterBottom>
         {t("Enter your new password and the 6-digit OTP sent to your email.")}
       </Typography>
-
-      
-
       <form onSubmit={handleResetPassword}>
         <TextField
           label={t("New Password")}

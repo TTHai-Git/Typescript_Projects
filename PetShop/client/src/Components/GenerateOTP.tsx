@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, {useState } from 'react'
 import { useNavigate } from 'react-router'
 import '../Assets/CSS/Login.css';
 // import axios from 'axios';
@@ -10,34 +10,30 @@ import { useSearchParams } from 'react-router-dom';
 const GenerateOTP = () => {
     const [email, setEmail] = useState<string>("")
     const [loading, setLoading] = useState<Boolean>(false)
-    const [isError, setIsError] = useState<Boolean>(false)
-    const [errorMessage, setErrorMessage] = useState<string>("")
     const navigate = useNavigate()
     const { showNotification } = useNotification()
-    const [searchParams,setSearchParams] = useSearchParams()
+    const [searchParams] = useSearchParams()
     const { t } = useTranslation();
     const handleGenerateOTP = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
             setLoading(true)
-            // const res = await axios.post('/v1/users/generate-otp', {
-            //    email
-            // })
             const res = await APIs.post(endpoints.generateOTP, {
               email
            })
-            // console.log(res)
+            console.log(res.data)
             if (res.status === 200) {
               showNotification(t(`${res.data.message}`), "success")
               handleNavigateToResetPassword()
+              setLoading(false)
             }
             
         } catch (error:any) {
-          setIsError(true);
-          setErrorMessage(error.response?.data?.message || 'Something went wrong');
+          
+          showNotification(error.response?.data?.message || 'Something went wrong', "error");
             
         } finally {
-            setLoading(false)
+          setLoading(false)
         }
     }
 
@@ -45,9 +41,6 @@ const GenerateOTP = () => {
       const ref = searchParams.get('ref')
       navigate(`/reset-password?ref=${ref}`, {state: email})
     }
-    useEffect(() => {
-
-    }, [isError])
   return (
   <div className="login-container">
     {loading && <div className="loading-spinner"></div>}
@@ -66,14 +59,6 @@ const GenerateOTP = () => {
             onChange={(e) => setEmail(e.target.value)}
             required
           />
-        </div>
-
-        <div className="form-group">
-          {isError ? (
-            <p className="errorMessage">
-              {t("Error")}: {errorMessage}
-            </p>
-          ) : null}
         </div>
 
         <div className="form-group">
