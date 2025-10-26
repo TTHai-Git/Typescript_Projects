@@ -65,6 +65,22 @@ export const generateOTP = async (req, res) => {
 
     await debugOTPState(email);
 
+    const html = `
+      <div style="font-family: Arial, sans-serif; padding: 16px; color: #333;">
+        <h2 style="color: #0077ff;">🐶 Welcome Back To DogShop!</h2>
+        <p>Your OTP code is:</p>
+        <div style="font-size: 28px; font-weight: bold; padding: 12px 0;">
+          ${otpCode}
+        </div>
+        <p style="color: #d9534f; font-weight: bold;">
+          This OTP expires in 5 minutes.
+        </p>
+        <p>If you did not request this, you can safely ignore this email.</p>
+        <hr />
+        <small>Thank you for using DogShop 🐾</small>
+      </div>
+    `;
+
     try {
       // await sendEmail(
       //   email,
@@ -77,7 +93,7 @@ export const generateOTP = async (req, res) => {
         email,
         "Reset Password OTP Which was sent by GmailAPI",
         `Welcome Back To DogShop! Your OTP is ${otpCode}. It expires in 5 minutes.`,
-        "html content"
+        html
       );
 
       return res.status(200).json({

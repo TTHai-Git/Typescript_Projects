@@ -62,8 +62,16 @@ export const register = async (req, res) => {
     const subject =
       "Verify Your Email Of Account On E-Commerce Website DOGSHOP";
     const url = `${process.env.CLIENT_URL}/verify-email?token=${emailToken}`;
-    const html = `Click <a href="${url}">here</a> to verify your email. Expires in 24 hourse.`;
-    const text = `Welcome to DOGSHOP Website. Hope you enjoy it! `;
+
+    const html = `
+                    <div style="font-family:sans-serif;font-size:16px;">
+                      <p>Welcome to <b>DOGSHOP</b>!</p>
+                      <p>Click the link below to verify your email:</p>
+                      <a href="${url}" style="color:#1a73e8;">Verify Account</a>
+                      <p>This link expires in <b>24 hours</b>.</p>
+                    </div>
+                  `;
+    const text = `Verify your account: ${url}`;
 
     try {
       // await sendEmail(to, subject, text, html); // ❗ phải await

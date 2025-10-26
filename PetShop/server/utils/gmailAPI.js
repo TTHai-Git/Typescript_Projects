@@ -14,18 +14,26 @@ export const sendEmailByGmailAPI = async (email, subject, text, html) => {
   try {
     const gmail = google.gmail({ version: "v1", auth: oauth2Client });
 
-    // Nội dung email
     const messageParts = [
       `From: "Pet Shop" <${process.env.SENDER_EMAIL}>`,
-      `To: <${email}>`,
+      `To: ${email}`,
       `Subject: ${subject}`,
       "MIME-Version: 1.0",
+      `Content-Type: multipart/alternative; boundary="boundary_string"`,
+      "",
+      "--boundary_string",
+      "Content-Type: text/plain; charset=UTF-8",
+      "",
+      text,
+      "",
+      "--boundary_string",
       "Content-Type: text/html; charset=UTF-8",
       "",
-      html || text,
+      html,
+      "",
+      "--boundary_string--",
     ];
 
-    // Encode Base64 URL Safe
     const rawMessage = Buffer.from(messageParts.join("\n"))
       .toString("base64")
       .replace(/\+/g, "-")
