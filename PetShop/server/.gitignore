@@ -44,3 +44,8 @@ docker-compose.override.yml
 # Ignore package managers lock files (optional, depending on team workflow)
 yarn.lock
 pnpm-lock.yaml
+
+#Ignore Txt Files
+refresh_token.txt
+#Igonre Json Files
+DogShop_client_secret.json

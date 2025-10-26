@@ -5,6 +5,7 @@ import Role from "../models/role.js";
 import validator from "validator";
 import "../config/dotenv.config.js"; // ✅ loads environment variables once
 import { sendEmail } from "../config/gmail.config.js";
+import { sendEmailByGmailAPI } from "../utils/gmailAPI.js";
 
 const SECRET_KEY = process.env.JWT_SECRET;
 
@@ -58,7 +59,6 @@ export const register = async (req, res) => {
       expiresIn: "1d",
     });
 
-    const to = email;
     const subject =
       "Verify Your Email Of Account On E-Commerce Website DOGSHOP";
     const url = `${process.env.CLIENT_URL}/verify-email?token=${emailToken}`;
@@ -66,12 +66,12 @@ export const register = async (req, res) => {
     const text = `Welcome to DOGSHOP Website. Hope you enjoy it! `;
 
     try {
-      await sendEmail(to, subject, text, html); // ❗ phải await
+      // await sendEmail(to, subject, text, html); // ❗ phải await
+      sendEmailByGmailAPI(email, subject, text, html);
       return res.status(201).json({
         doc: newUser,
         message: "User registered successfully. Verification email sent.",
       });
-      
     } catch (error) {
       console.error("❌ sendEmail error:", error);
 
@@ -80,7 +80,6 @@ export const register = async (req, res) => {
         error: error.message,
       });
     }
-
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }

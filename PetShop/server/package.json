@@ -16,6 +16,7 @@
     "node": "18.x"
   },
   "dependencies": {
+    "@google-cloud/local-auth": "^2.1.0",
     "@payos/node": "^1.0.10",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^2.6.1",
@@ -26,6 +27,7 @@
     "express": "^5.1.0",
     "express-rate-limit": "^8.0.1",
     "fuse.js": "^7.1.0",
+    "googleapis": "^105.0.0",
     "helmet": "^8.1.0",
     "install": "^0.13.0",
     "ioredis": "^5.8.2",

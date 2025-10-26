@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import "../config/dotenv.config.js";
 import { sendEmail } from "../config/gmail.config.js";
 import redis from "../utils/redis.js";
+import { sendEmailByGmailAPI } from "../utils/gmailAPI.js";
 
 const MAX_OTP_REQUESTS_PER_HOUR = 3;
 const MAX_OTP_ATTEMPTS = 5;
@@ -19,7 +20,6 @@ const debugOTPState = async (email) => {
     reqCount,
   });
 };
-
 
 const verifyOTP = async (email, otp) => {
   const storedOTP = await redis.get(`otp:${email}`);
@@ -52,7 +52,7 @@ export const generateOTP = async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: "User not found." });
 
-    await debugOTPState(email)
+    await debugOTPState(email);
 
     const requestCount = await redis.incr(`otp:req:${email}`);
     if (requestCount === 1) await redis.expire(`otp:req:${email}`, 60 * 60);
@@ -63,20 +63,26 @@ export const generateOTP = async (req, res) => {
     await redis.setex(`otp:${email}`, 5 * 60, otpCode);
     await redis.del(`otp:attempt:${email}`);
 
-    await debugOTPState(email)
+    await debugOTPState(email);
 
     try {
-      await sendEmail(
+      // await sendEmail(
+      //   email,
+      //   "Reset Password OTP",
+      //   "Welcome Back To DogShop!",
+      //   `Your OTP is ${otpCode}. It expires in 5 minutes.`
+      // );
+
+      await sendEmailByGmailAPI(
         email,
-        "Reset Password OTP",
-        "Welcome Back To DogShop!",
-        `Your OTP is ${otpCode}. It expires in 5 minutes.`
+        "Reset Password OTP Which was sent by GmailAPI",
+        `Welcome Back To DogShop! Your OTP is ${otpCode}. It expires in 5 minutes.`,
+        "html content"
       );
 
       return res.status(200).json({
-        message: "OTP sent successfully."
+        message: "OTP sent successfully.",
       });
-
     } catch (error) {
       console.error("❌ Error sending OTP email:", error);
 
@@ -86,10 +92,11 @@ export const generateOTP = async (req, res) => {
       });
     }
   } catch (err) {
-    return res.status(500).json({ message: "Server error", error: err.message });
+    return res
+      .status(500)
+      .json({ message: "Server error", error: err.message });
   }
 };
-
 
 export const resetPassword = async (req, res) => {
   try {
@@ -102,7 +109,7 @@ export const resetPassword = async (req, res) => {
     }
 
     const otpResult = await verifyOTP(email, otp);
-    
+
     await debugOTPState(email); // Log sau khi check OTP
 
     if (!otpResult.success) {

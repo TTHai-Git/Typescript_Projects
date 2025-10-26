@@ -27,6 +27,7 @@ import csrfRoutes from "./csrf.js";
 import adminRouter from "./admin/index.js";
 import "../config/dotenv.config.js"; // ✅ loads environment variables once
 import authenticate_2fa_Router from "./2fa.js";
+import oauth2Router from "./oauth2.js";
 
 const router = express.Router();
 
@@ -67,5 +68,6 @@ router.use("/v1/chat-bot-faq", limiter, chatBotRoutes);
 router.use("/v1/notifications", limiter, notificationRoutes);
 router.use("/v1/2fa", limiter, authenticate_2fa_Router);
 router.use("/v1/admin", adminRouter);
+router.use("/v1/oauth2", oauth2Router);
 
 export default router;
