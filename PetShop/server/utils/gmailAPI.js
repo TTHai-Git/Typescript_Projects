@@ -1,4 +1,3 @@
-import nodemailer from "nodemailer";
 import { google } from "googleapis";
 
 const oauth2Client = new google.auth.OAuth2(
@@ -7,34 +6,40 @@ const oauth2Client = new google.auth.OAuth2(
   process.env.REDIRECT_URI
 );
 
-oauth2Client.setCredentials({ refresh_token: process.env.REFRESH_TOKEN });
+oauth2Client.setCredentials({
+  refresh_token: process.env.REFRESH_TOKEN,
+});
 
 export const sendEmailByGmailAPI = async (email, subject, text, html) => {
   try {
-    const accessToken = await oauth2Client.getAccessToken();
-    // console.log("accessToken", accessToken);
+    const gmail = google.gmail({ version: "v1", auth: oauth2Client });
 
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        type: "OAuth2",
-        user: process.env.SENDER_EMAIL,
-        clientId: process.env.CLIENT_ID,
-        clientSecret: process.env.CLIENT_SECRET,
-        refreshToken: process.env.REFRESH_TOKEN,
-        accessToken: accessToken.token,
+    // Nội dung email
+    const messageParts = [
+      `From: "Pet Shop" <${process.env.SENDER_EMAIL}>`,
+      `To: <${email}>`,
+      `Subject: ${subject}`,
+      "MIME-Version: 1.0",
+      "Content-Type: text/html; charset=UTF-8",
+      "",
+      html || text,
+    ];
+
+    // Encode Base64 URL Safe
+    const rawMessage = Buffer.from(messageParts.join("\n"))
+      .toString("base64")
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/, "");
+
+    await gmail.users.messages.send({
+      userId: "me",
+      requestBody: {
+        raw: rawMessage,
       },
     });
 
-    await transporter.sendMail({
-      from: `"Pet Shop" <${process.env.SENDER_EMAIL}>`,
-      to: email,
-      subject,
-      text,
-      html,
-    });
-
-    console.log("✅ Email sent successfully");
+    console.log("✅ Email sent successfully via Gmail API (NO SMTP)");
   } catch (err) {
     console.error("❌ Error sending email:", err.message);
   }
