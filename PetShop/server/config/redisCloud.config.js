@@ -9,7 +9,7 @@ const getRedisClient = createClient({
   socket: {
     host: process.env.REDIS_CLOUD_HOST,
     port: process.env.REDIS_CLOUD_PORT,
-    tls: process.env.REACT_APP_NODE_ENV === "development" ? false : true, // Redis Cloud bắt buộc dùng SSL/TLS, chỉ cần true là đủ
+    // tls: process.env.REACT_APP_NODE_ENV === "development" ? false : true, // Redis Cloud bắt buộc dùng SSL/TLS, chỉ cần true là đủ
   },
 });
 
