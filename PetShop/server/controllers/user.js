@@ -2,8 +2,8 @@ import User from "../models/user.js";
 import bcrypt from "bcryptjs";
 import "../config/dotenv.config.js";
 import { sendEmail } from "../config/gmail.config.js";
-import redis from "../utils/redis.js";
 import { sendEmailByGmailAPI } from "../utils/gmailAPI.js";
+import redis from "../config/redisRender.config.js";
 
 const MAX_OTP_REQUESTS_PER_HOUR = 3;
 const MAX_OTP_ATTEMPTS = 5;

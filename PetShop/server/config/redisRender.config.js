@@ -12,13 +12,15 @@ const redis = new Redis({
   keepAlive: 30000, // ping TCP mỗi 30s để tránh idle reset
   connectTimeout: 5000, // tránh treo kết nối
   maxRetriesPerRequest: 1, // tránh retry vô hạn gây timeout từ frontend
-  
+
   retryStrategy(times) {
     return Math.min(times * 200, 2000); // reconnect mềm, không spam
   },
 });
 
-redis.on("connect", () => console.log("✅ Redis connected"));
-redis.on("error", (err) => console.error("❌ Redis error:", err));
+redis.on("connect", () => console.log("✅ Redis Server Render was connected"));
+redis.on("error", (err) =>
+  console.error("❌  Redis Server Render error:", err)
+);
 
 export default redis;
