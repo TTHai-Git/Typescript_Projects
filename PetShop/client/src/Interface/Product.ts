@@ -13,6 +13,7 @@ export default interface Product extends ProductCart {
     status: boolean;
     stock: number;
     category: Category;
+    __t: string;
     type: string;
     brand: Brand;
     vendor: Vendor;

@@ -3,6 +3,7 @@ import Category from "../models/category.js";
 import Favorite from "../models/favorite.js";
 import Product from "../models/product.js";
 import Vendor from "../models/vendor.js";
+import { clearCacheByKeyword, getOrSetCachedData } from "./redis.js";
 
 export const createOrUpdateFavorite = async (req, res) => {
   const { userId, productId } = req.body;
@@ -15,6 +16,11 @@ export const createOrUpdateFavorite = async (req, res) => {
     user: userId,
     product: productId,
   });
+
+  //clear cache data of favorites and products
+  await clearCacheByKeyword("favorites");
+  // await clearCacheByKeyword("products");
+
   if (!existsFavorite) {
     const newFavorite = await Favorite.create({
       user: userId,
@@ -25,141 +31,168 @@ export const createOrUpdateFavorite = async (req, res) => {
       message: "Add Product To Favorite List Success",
     });
   } else {
-    const deleteFavorite = await Favorite.findByIdAndDelete(existsFavorite._id)
+    const deleteFavorite = await Favorite.findByIdAndDelete(existsFavorite._id);
     return res.status(200).json({
       doc: false,
-      message: "Remove Product To Favorite List Success"
-    })
+      message: "Remove Product To Favorite List Success",
+    });
   }
 };
 
 export const getFavoriteProductOfUser = async (req, res) => {
   const { productId, userId } = req.params;
-  if (!userId || !productId) {
-    return res
-      .status(400)
-      .json({ message: "Request body must userId and productId" });
+  const cacheKey = `GET:/v1/favorites/product/${productId}/user/${userId}`;
+  try {
+    if (!userId || !productId) {
+      return res
+        .status(400)
+        .json({ message: "Request body must userId and productId" });
+    }
+
+    const isFavorite = await getOrSetCachedData(cacheKey, async () => {
+      const exists = await Favorite.exists({
+        product: productId,
+        user: userId,
+      });
+      return Boolean(exists);
+    });
+    return res.status(200).json({ isFavorite: isFavorite });
+  } catch (error) {
+    return res.status(500).json({ message: `Server Error: ${error} ` });
   }
-  const existsFavorite = await Favorite.exists({
-    product: productId,
-    user: userId,
-  });
-  return res.status(200).json({ isFavorite: existsFavorite });
-  
 };
 
 export const getFavoriteProductsList = async (req, res) => {
   const { userId } = req.params;
   const perPage = parseInt(req.query.limit) || 5;
-  const page = req.query.page || 1;
+  const page = parseInt(req.query.page) || 1;
   const { category, search, sort } = req.query;
 
   if (!userId) {
-    return res.status(400).json({ message: "Request body must userId" });
+    return res
+      .status(400)
+      .json({ message: "Request body must include userId" });
   }
 
   try {
-    const productFilter = {};
-    if (category) {
-      productFilter.category = category;
-    }
-    if (search) {
-      productFilter.$or = [
-        { name: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } },
-      ];
-    }
+    // 🧩 Step 1: Build unique cache key
+    const cacheKey = `GET:/v1/favorites/user/${userId}?page=${page}&limit=${perPage}&category=${
+      category || "all"
+    }&search=${search || "none"}&sort=${sort || "none"}`;
 
-    // Step 1: Get matching product IDs
-    const matchedProducts = await Product.find(productFilter).select("_id");
-    const matchedProductIds = matchedProducts.map((p) => p._id);
+    // 🧠 Step 2: Wrap DB logic inside caching function
+    const result = await getOrSetCachedData(cacheKey, async () => {
+      const productFilter = {};
+      if (category) productFilter.category = category;
+      if (search) {
+        productFilter.$or = [
+          { name: { $regex: search, $options: "i" } },
+          { description: { $regex: search, $options: "i" } },
+        ];
+      }
 
-    // Step 2: Sorting logic for Favorite
-    let favoriteSort = { createdAt: -1 }; // Default
-    if (sort === "latest") favoriteSort = { createdAt: -1 };
-    else if (sort === "oldest") favoriteSort = { createdAt: 1 };
+      // Step 3: Find matching product IDs
+      const matchedProducts = await Product.find(productFilter).select("_id");
+      const matchedProductIds = matchedProducts.map((p) => p._id);
 
-    // Step 3: Find Favorites
-    const favorites = await Favorite.find({
-      user: userId,
-      isFavorite: true,
-      product: { $in: matchedProductIds },
-    })
-      .sort(favoriteSort)
-      .skip(perPage * (page - 1))
-      .limit(perPage);
+      // Step 4: Sorting logic for favorites
+      let favoriteSort = { createdAt: -1 }; // default newest
+      if (sort === "latest") favoriteSort = { createdAt: -1 };
+      else if (sort === "oldest") favoriteSort = { createdAt: 1 };
 
-    if (favorites.length === 0) {
+      // Step 5: Find favorites for this user
+      const favorites = await Favorite.find({
+        user: userId,
+        isFavorite: true,
+        product: { $in: matchedProductIds },
+      })
+        .sort(favoriteSort)
+        .skip(perPage * (page - 1))
+        .limit(perPage);
+
+      if (favorites.length === 0) {
+        return { results: [], current: page, pages: 0, total: 0 };
+      }
+
+      // Step 6: Load related products
+      const productIds = favorites.map((fav) => fav.product);
+      const products = await Product.find({ _id: { $in: productIds } });
+      const productsMap = new Map(
+        products.map((prod) => [prod._id.toString(), prod])
+      );
+
+      // Step 7: Compose combined data
+      const combinedData = [];
+      for (const favorite of favorites) {
+        const product = productsMap.get(favorite.product.toString());
+        if (!product) continue;
+
+        const [brand, vendor, categoryObj] = await Promise.all([
+          Brand.findById(product.brand),
+          Vendor.findById(product.vendor),
+          Category.findById(product.category),
+        ]);
+
+        combinedData.push({
+          _id: favorite._id,
+          userId: favorite.user,
+          isFavorite: favorite.isFavorite,
+          createdAt: favorite.createdAt,
+          updatedAt: favorite.updatedAt,
+          product: {
+            _id: product._id,
+            type: product.__t,
+            name: product.name,
+            description: product.description,
+            price: product.price,
+            imageUrl: product.imageUrl,
+            status: product.status,
+            createdAt: product.createdAt,
+            updatedAt: product.updatedAt,
+            category: categoryObj,
+            vendor,
+            brand,
+          },
+        });
+      }
+
+      // Step 8: Optional in-memory sorting
+      if (sort === "price_asc")
+        combinedData.sort((a, b) => a.product.price - b.product.price);
+      else if (sort === "price_desc")
+        combinedData.sort((a, b) => b.product.price - a.product.price);
+      else if (sort === "az")
+        combinedData.sort((a, b) =>
+          a.product.name.localeCompare(b.product.name)
+        );
+      else if (sort === "za")
+        combinedData.sort((a, b) =>
+          b.product.name.localeCompare(a.product.name)
+        );
+
+      // Step 9: Count total favorites
+      const totalFavorites = await Favorite.countDocuments({
+        user: userId,
+        isFavorite: true,
+        product: { $in: matchedProductIds },
+      });
+
+      return {
+        results: combinedData,
+        current: page,
+        pages: Math.ceil(totalFavorites / perPage),
+        total: totalFavorites,
+      };
+    });
+
+    // 🧾 Step 10: Return cached or fresh data
+    if (!result.results || result.results.length === 0) {
       return res.status(200).json({ message: "No Favorite Product Found" });
     }
 
-    // Step 4: Load related Products
-    const productIds = favorites.map((fav) => fav.product);
-    const products = await Product.find({ _id: { $in: productIds } });
-    const productsMap = new Map(
-      products.map((prod) => [prod._id.toString(), prod])
-    );
-
-    // Step 5: Compose combined data
-    let combinedData = [];
-    for (const favorite of favorites) {
-      const product = productsMap.get(favorite.product.toString());
-      if (!product) continue;
-
-      const [brand, vendor, category] = await Promise.all([
-        Brand.findById(product.brand),
-        Vendor.findById(product.vendor),
-        Category.findById(product.category),
-      ]);
-
-      combinedData.push({
-        _id: favorite._id,
-        userId: favorite.user,
-        isFavorite: favorite.isFavorite,
-        createdAt: favorite.createdAt,
-        updatedAt: favorite.updatedAt,
-        product: {
-          _id: product._id,
-          type: product.__t,
-          name: product.name,
-          description: product.description,
-          price: product.price,
-          imageUrl: product.imageUrl,
-          status: product.status,
-          createdAt: product.createdAt,
-          updatedAt: product.updatedAt,
-          category,
-          vendor,
-          brand,
-        },
-      });
-    }
-
-    // Step 6: Sort by Product fields if needed
-    if (sort === "price_asc") {
-      combinedData.sort((a, b) => a.product.price - b.product.price);
-    } else if (sort === "price_desc") {
-      combinedData.sort((a, b) => b.product.price - a.product.price);
-    } else if (sort === "az") {
-      combinedData.sort((a, b) => a.product.name.localeCompare(b.product.name));
-    } else if (sort === "za") {
-      combinedData.sort((a, b) => b.product.name.localeCompare(a.product.name));
-    }
-
-    // Step 7: Total count
-    const totalFavorites = await Favorite.countDocuments({
-      user: userId,
-      isFavorite: true,
-      product: { $in: matchedProductIds },
-    });
-
-    return res.status(200).json({
-      results: combinedData,
-      current: page,
-      pages: Math.ceil(totalFavorites / perPage),
-      total: totalFavorites,
-    });
+    return res.status(200).json(result);
   } catch (error) {
+    console.error("❌ Error fetching favorite products:", error);
     return res.status(500).json({ message: error.message });
   }
 };
@@ -177,7 +210,11 @@ export const deleteFavorite = async (req, res) => {
         .json({ message: "You are not authorized to delete this favorite" });
     }
     await favorite.deleteOne();
-    res.status(204).send()
+
+    // clear cache data of favorites and products
+    await clearCacheByKeyword("favorites");
+
+    res.status(204).send();
   } catch (error) {
     console.error("Error delete Favorite:", error);
     res.status(500).json({ message: "server error", error });
@@ -185,7 +222,10 @@ export const deleteFavorite = async (req, res) => {
 };
 
 export const countFavoriteOfProduct = async (productId) => {
-  const countFavoriteOfProduct = await Favorite.find({product: productId, isFavorite: true}).countDocuments()
+  const countFavoriteOfProduct = await Favorite.find({
+    product: productId,
+    isFavorite: true,
+  }).countDocuments();
   // console.log("countFavoriteOfProduct", countFavoriteOfProduct)
-  return countFavoriteOfProduct
-}
+  return countFavoriteOfProduct;
+};

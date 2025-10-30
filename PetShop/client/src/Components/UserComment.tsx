@@ -110,9 +110,9 @@ const UserComment = (props: Props) => {
   }
   const handleCheckIsMakeOrdersAndPaid = async (userId: string, productId: string) => {
     try {
-      const res = await authApi.get(`${endpoints['checkIsOrderAndIsPayment']}?userId=${userId}&productId=${productId}`)
+      const res = await authApi.get(endpoints['checkIsOrderAndIsPayment'](userId, productId))
       // console.log("res.data", res.data)
-      return res.data
+      return res.data.isPurchasedAndPaid
     } catch (error) {
       console.log(error)
     }

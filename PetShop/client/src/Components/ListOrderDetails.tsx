@@ -6,11 +6,10 @@ import OrderDetails from '../Interface/OrderDetails';
 import { authApi, endpoints } from '../Config/APIs';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Button } from '@mui/material';
+import { Button, Stack, Typography } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
 
 export const ListOrderDetails = () => {
-
   const { user_id, order_id } = useParams();
   const [orderDetails, setOrderDetails] = useState<OrderDetails[]>([]);
   const [searchParams, setSearchParams] = useSearchParams()
@@ -20,17 +19,13 @@ export const ListOrderDetails = () => {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const {t} = useTranslation()
-
-
   let [numericalOrder] = useState<number>(1)
 
   const getListOrderDetails = async () => {
     setLoading(true);
     try {
-      // const response = await axios.get(`/v1/orders/${order_id}/orderDetails/${current}`);
-      const query = new URLSearchParams()
-      query.append('page', currentPage.toString())
-      const response = await authApi.get(endpoints.getOrderDetails(order_id,currentPage))
+      const query = new URLSearchParams(searchParams)
+      const response = await authApi.get(`${endpoints[`getOrderDetails`](order_id)}?${query.toString()}`)
       if (response.status === 200) {
         setOrderDetails(response.data.results);
         setPages(response.data.pages)
@@ -50,7 +45,7 @@ export const ListOrderDetails = () => {
   }, [searchParams.toString()]);
 
   const changePage = (newPage: number) => {
-    if (newPage > 0 && newPage <= pages) {
+    if (newPage >= 1 && newPage <= pages) {
       const params: any = {page: newPage.toString()}
       setSearchParams(params)
     }
@@ -134,39 +129,14 @@ export const ListOrderDetails = () => {
       {t("Total Number of Products in Order Is")} {total}
     </h2>
 
-    <div className="pagination">
-      <button
-        className="page-btn"
-        onClick={() => changePage(1)}
-        disabled={currentPage === 1}
-      >
-        {t("First")}
-      </button>
-      <button
-        className="page-btn"
-        onClick={() => changePage(currentPage - 1)}
-        disabled={currentPage === 1}
-      >
-        {t("Previous")}
-      </button>
-      <span className="current-page">
-        {t("Page")} {currentPage} {t("of")} {pages}
-      </span>
-      <button
-        className="page-btn"
-        onClick={() => changePage(currentPage + 1)}
-        disabled={currentPage === pages}
-      >
-        {t("Next")}
-      </button>
-      <button
-        className="page-btn"
-        onClick={() => changePage(pages)}
-        disabled={currentPage === pages}
-      >
-        {t("Last")}
-      </button>
-    </div>
+    {/* Pagination */}
+    <Stack direction="row" spacing={2} justifyContent="center" mt={4}>
+      <Button onClick={() => changePage(1)} disabled={currentPage === 1}>{t("First")}</Button>
+      <Button onClick={() => changePage(currentPage - 1)} disabled={currentPage === 1}>{t("Previous")}</Button>
+      <Typography variant="body1">Page {currentPage} of {pages}</Typography>
+      <Button onClick={() => changePage(currentPage + 1)} disabled={currentPage === pages}>{t("Next")}</Button>
+      <Button onClick={() => changePage(pages)} disabled={currentPage === pages}>{t("Last")}</Button>
+    </Stack>
 
     <h2 className="count">
       {t("Total Number of Pages Is")} {pages}

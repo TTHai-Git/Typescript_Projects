@@ -1,26 +1,38 @@
-import mongoose from "mongoose";
 import Category from "../models/category.js";
+import getRedisClient from "../config/redisCloud.config.js";
+import { clearCacheByKeyword, getOrSetCachedData } from "./redis.js";
 
 export const getCategories = async (req, res) => {
   try {
-    const categories = await Category.find();
+    const cacheKey = "GET:/v1/categories";
+
+    const categories = await getOrSetCachedData(cacheKey, async () => {
+      const data = await Category.find();
+      return data;
+    });
+
     if (!categories || categories.length === 0) {
       return res.status(404).json({ message: "no categories found" });
     }
-    res.status(200).json(categories);
+
+    return res.status(200).json(categories);
   } catch (error) {
     console.error("Error fetching categories:", error);
-    res.status(500).json({ message: "server error", error });
+    return res.status(500).json({ message: "server error", error });
   }
 };
 
 export const getCatgoryById = async (req, res) => {
-  try {
-    const { cate_id } = req.params;
+  const { cate_id } = req.params;
+  const cacheKey = `GET:/v1/categories/${cate_id}`;
 
-    const category = await Category.findById(cate_id);
+  try {
+    const category = await getOrSetCachedData(cacheKey, async () => {
+      const data = await Category.findById(cate_id);
+      return data;
+    });
     // check if category is null or undefined
-    if (!category) {
+    if (!category || category.length === 0) {
       return res.status(404).json({ message: "Category not found" });
     }
     res.status(200).json(category);
@@ -42,6 +54,10 @@ export const createCategory = async (req, res) => {
     }
 
     const category = await Category.create({ name, description });
+
+    // clear all data of categories
+    // await clearCacheByKeyword("categories");
+
     res
       .status(201)
       .json({ doc: category, message: "Category created successfully" });
@@ -68,6 +84,10 @@ export const updateCategory = async (req, res) => {
     if (!category) {
       return res.status(404).json({ message: "Category not found" });
     }
+
+    // clear all data of categories
+    // await clearCacheByKeyword("categories");
+
     res.status(200).json(category);
   } catch (error) {
     console.error("Error update category:", error);
@@ -83,6 +103,10 @@ export const deleteCategory = async (req, res) => {
     }
 
     await category.deleteOne();
+
+    // clear all data of categories
+    // await clearCacheByKeyword("categories");
+
     return res.status(204).send();
   } catch (error) {
     console.error("Error delete category:", error);

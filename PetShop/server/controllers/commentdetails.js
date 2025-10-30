@@ -1,17 +1,11 @@
 import CommentDetails from "../models/commentdetails.js";
-import cloudinary from "cloudinary";
-import "../config/dotenv.config.js"; // ✅ loads environment variables once
-cloudinary.config({
-  cloud_name: process.env.REACT_APP_CLOUD_NAME,
-  api_key: process.env.REACT_APP_CLOUDINARY_API_KEY,
-  api_secret: process.env.REACT_APP_CLOUDINARY_API_SECRET,
-  secure: true,
-});
+import cloudinary from "../config/cloudinary.config.js";
+import { clearCacheByKeyword } from "./redis.js";
 
 export const deleteImageOnCloudinary = async (public_id) => {
   try {
-    const response = await cloudinary.v2.uploader.destroy(public_id);
-    return response
+    const response = await cloudinary.uploader.destroy(public_id);
+    return response;
   } catch (error) {
     console.error("Error deleting image from Cloudinary:", error);
     throw error;
@@ -36,8 +30,16 @@ export const deleteCommentDetails = async (req, res) => {
         const deletedUrls = await deleteImageOnCloudinary(
           commentDetails.public_id
         );
-        if (deletedUrls.result === "ok") return res.status(200).json({message: "Delete image on Cloudinary successfully"});
-        return res.status(404).json({message: "Delete image on Cloudinary fail"});
+        if (deletedUrls.result === "ok") {
+          // await clearCacheByKeyword("comments");
+          return res
+            .status(200)
+            .json({ message: "Delete image on Cloudinary successfully" });
+        } else {
+          return res
+            .status(404)
+            .json({ message: "Delete image on Cloudinary fail" });
+        }
       }
     }
   } catch (error) {

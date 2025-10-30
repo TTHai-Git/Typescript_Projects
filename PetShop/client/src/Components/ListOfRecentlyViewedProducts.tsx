@@ -126,7 +126,7 @@ const ListOfRecentlyViewedProducts = () => {
               cursor: "pointer"
             }}
             onClick={() =>
-              navigate(`/products/${item._id}/${item.type}`)
+              navigate(`/products/${item._id}/${item.__t}`)
             }
           >
             <Tooltip title={t("Remove")} arrow>
@@ -206,7 +206,7 @@ const ListOfRecentlyViewedProducts = () => {
                     color="info"
                     startIcon={<InfoIcon />}
                     onClick={() =>
-                      navigate(`/products/${item._id}/${item.type}`)
+                      navigate(`/products/${item._id}/${item.__t}`)
                     }
                   >
                     {t("Details")}

@@ -1,30 +1,38 @@
 import Vendor from "../models/vendor.js";
+import { clearCacheByKeyword, getOrSetCachedData } from "./redis.js";
 export const getVendors = async (req, res) => {
+  const cacheKey = `GET:/v1/vouchers`;
   try {
-    const vendors = await Vendor.find();
+    const vendors = await getOrSetCachedData(cacheKey, async () => {
+      const data = await Vendor.find();
+      return data;
+    });
     if (!vendors || vendors.length === 0) {
       return res.status(404).json({ message: "no vendors found" });
     }
-    res.status(200).json(vendors);
+    return res.status(200).json(vendors);
   } catch (error) {
     console.error("Error fetching vendors:", error);
-    res.status(500).json({ message: "server error", error });
+    return res.status(500).json({ message: "server error", error });
   }
 };
 
 export const getVendorById = async (req, res) => {
+  const { vendor_id } = req.params;
+  const cacheKey = `GET:/v1/vouchers/${vendor_id}`;
   try {
-    const { vendor_id } = req.params;
-
-    const vendor = await Vendor.findById(vendor_id);
+    const vendor = getOrSetCachedData(cacheKey, async () => {
+      const data = await Vendor.findById(vendor_id);
+      return data;
+    });
     // check if category is null or undefined
     if (!vendor) {
       return res.status(404).json({ message: "vendor not found" });
     }
-    res.status(200).json(vendor);
+    return res.status(200).json(vendor);
   } catch (error) {
     console.error("Error fetching vendor:", error);
-    res.status(500).json({ message: "server error", error });
+    return res.status(500).json({ message: "server error", error });
   }
 };
 
@@ -46,7 +54,11 @@ export const createVendor = async (req, res) => {
       email,
       phone,
     });
-    res
+
+    // clear data of vendors
+    // await clearCacheByKeyword("vendors");
+
+    return res
       .status(201)
       .json({ doc: vendor, message: "Vendor created successfully" });
   } catch (error) {
@@ -72,6 +84,10 @@ export const updateVendor = async (req, res) => {
     if (!vendor) {
       return res.status(404).json({ message: "vendor not found" });
     }
+
+    // clear data of vendors
+    // await clearCacheByKeyword("vendors");
+
     res.status(200).json(vendor);
   } catch (error) {
     console.error("Error update vendor:", error);
@@ -86,10 +102,14 @@ export const deleteVendor = async (req, res) => {
       return res.status(404).json({ message: "vendor not found to delete" });
     }
     await vendor.deleteOne();
-    res.status(200).json({ message: "vendor deleted successfully" });
+
+    // clear data of vendors
+    // await clearCacheByKeyword("vendors");
+
+    return res.status(200).json({ message: "vendor deleted successfully" });
   } catch (error) {
     console.error("Error delete vendor:", error);
-    res.status(500).json({ message: "server error", error });
+    return res.status(500).json({ message: "server error", error });
   }
 };
 export const calculateDiscountPrice = (price, discount) => {

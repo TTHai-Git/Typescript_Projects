@@ -1,10 +1,15 @@
 import Shipment from "../models/shipment.js";
+import { getOrSetCachedData } from "./redis.js";
 import { calculateDiscountPrice } from "./vendor.js";
 
 export const createShipment = async (req, res) => {
   try {
     // console.log(req.body);
     const shipment = await Shipment.create(req.body);
+
+    //clear data of shipments
+    // await clearCacheByKeyword("shipments");
+
     return res.status(201).json({
       message:
         "Delivery information has been successfully created! Proceed to payment.",
@@ -46,9 +51,13 @@ export const caculateShipmentFee = async (req, res) => {
 };
 export const getShipmentOfOrder = async (req, res) => {
   const { orderId } = req.params;
+  const cacheKey = `GET:/v1/shipments/order/${orderId}`;
 
   try {
-    const shipment = await Shipment.findOne({ order: orderId });
+    const shipment = await getOrSetCachedData(cacheKey, async () => {
+      const data = await Shipment.findOne({ order: orderId });
+      return data;
+    });
 
     if (!shipment) {
       return res.status(400).json({ message: "Shipment not found for Order" });

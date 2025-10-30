@@ -1,5 +1,5 @@
 import swaggerJSDoc from "swagger-jsdoc";
-import "../config/dotenv.config.js"; // ✅ loads environment variables once
+import "./dotenv.config.js"; // ✅ loads environment variables once
 const swaggerOptions = {
   definition: {
     openapi: "3.0.0",
@@ -23,19 +23,22 @@ const swaggerOptions = {
           type: "http",
           scheme: "bearer",
           bearerFormat: "JWT",
-          description: "JWT access token stored in HttpOnly cookie named `accessToken`.",
+          description:
+            "JWT access token stored in HttpOnly cookie named `accessToken`.",
         },
         csrfAuth: {
           type: "apiKey",
           in: "header", // ✅ must be header, not cookie
           name: "X-CSRF-Token", // ✅ lowercase name that matches your middleware
-          description: "CSRF protection header that must match the value of the `XSRF-TOKEN` cookie.",
+          description:
+            "CSRF protection header that must match the value of the `XSRF-TOKEN` cookie.",
         },
         isAdminAuth: {
           type: "apiKey",
           in: "header",
           name: "adminKey",
-          description: "To protect methods POST, PUT, PATCH, DELETE for APIs of Admin."
+          description:
+            "To protect methods POST, PUT, PATCH, DELETE for APIs of Admin.",
         },
       },
     },

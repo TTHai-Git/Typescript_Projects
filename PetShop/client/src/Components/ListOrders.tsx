@@ -307,7 +307,7 @@ const ListOrders = () => {
                     <button
                       className="btn btn-primary"
                       onClick={() =>
-                        navigate(`/userinfo/${user_id}/orders/${order._id}/orderDetails`)
+                        navigate(`/userinfo/${user_id}/orders/${order._id}/orderDetails?page=${1}`)
                       }
                     >
                       <RemoveRedEyeIcon /> {t("View")}

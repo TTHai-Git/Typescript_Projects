@@ -1,5 +1,5 @@
 import Redis from "ioredis";
-import "../config/dotenv.config.js"; // loads .env
+import "./dotenv.config.js"; // loads .env
 
 const redis = new Redis({
   port: process.env.REDIS_PORT,

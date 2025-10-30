@@ -1,27 +1,19 @@
-import getRedisClient from "../config/redisCloud.config.js";
 import Brand from "../models/brand.js";
+import { clearCacheByKeyword, getOrSetCachedData } from "./redis.js";
 
 export const getBrands = async (req, res) => {
   try {
-    const cacheKey = "getBrands";
+    const cacheKey = "GET:/v1/brands";
 
-    // 🧠 1️⃣ Kiểm tra cache trước
-    const cachedData = await getRedisClient.get(cacheKey);
-    if (cachedData) {
-      console.log("✅ Cache hit: getBrands");
-      return res.status(200).json(JSON.parse(cachedData));
-    }
+    const brands = await getOrSetCachedData(cacheKey, async () => {
+      const data = await Brand.find();
+      return data;
+    });
 
-    // 🧩 2️⃣ Lấy từ MongoDB nếu chưa có cache
-    const brands = await Brand.find();
     if (!brands || brands.length === 0) {
       return res.status(404).json({ message: "No brands found" });
     }
 
-    // 💾 3️⃣ Lưu vào cache trong 300s (5 phút)
-    await getRedisClient.set(cacheKey, JSON.stringify(brands), { EX: 300 });
-
-    console.log("💾 Cache miss → saved to Redis");
     return res.status(200).json(brands);
   } catch (error) {
     console.error("❌ Error fetching brands:", error);
@@ -30,12 +22,16 @@ export const getBrands = async (req, res) => {
 };
 
 export const getbrandById = async (req, res) => {
+  const { brand_id } = req.params;
   try {
-    const { brand_id } = req.params;
+    const cacheKey = `GET:/v1/brands/${brand_id}`;
 
-    const brand = await Brand.findById(brand_id);
+    const brand = await getOrSetCachedData(cacheKey, async () => {
+      const data = await Brand.findById(brand_id);
+      return data;
+    });
     // check if category is null or undefined
-    if (!brand) {
+    if (!brand || brand.length === 0) {
       return res.status(404).json({ message: "Brand not found" });
     }
     res.status(200).json(brand);
@@ -57,6 +53,10 @@ export const createBrand = async (req, res) => {
     }
 
     const brand = await Brand.create({ name, description, logoUrl });
+
+    // clear all cache data of brands
+    // await clearCacheByKeyword("brands");
+
     res.status(201).json({ doc: brand, message: "Brand created successfully" });
   } catch (error) {
     console.error("Error create brand:", error);
@@ -81,6 +81,10 @@ export const updateBrand = async (req, res) => {
     if (!brand) {
       return res.status(404).json({ message: "Brand not found" });
     }
+
+    // clear all cache data of brands
+    // await clearCacheByKeyword("brands");
+
     res.status(200).json(brand);
   } catch (error) {
     console.error("Error update brand:", error);
@@ -95,6 +99,10 @@ export const deleteBrand = async (req, res) => {
       return res.status(404).json({ message: "Brand not found to delete" });
     }
     await brand.deleteOne();
+
+    // clear all cache data of brands
+    // await clearCacheByKeyword("brands");
+
     res.status(200).json({ message: "Brand deleted successfully" });
   } catch (error) {
     console.error("Error delete brand:", error);

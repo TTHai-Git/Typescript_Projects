@@ -1,4 +1,5 @@
 import OrderDetails from "../models/orderdetails.js";
+import { clearCacheByKeyword } from "./redis.js";
 
 export const createOrderDetails = async (req, res) => {
   try {
@@ -15,12 +16,13 @@ export const createOrderDetails = async (req, res) => {
       })
     );
 
-    res
-      .status(201)
-      .json({
-        doc: createdOrderDetails,
-        message: "Order details created successfully",
-      });
+    // clear cache data of orders
+    // await clearCacheByKeyword("orderDetails");
+
+    res.status(201).json({
+      doc: createdOrderDetails,
+      message: "Order details created successfully",
+    });
   } catch (error) {
     console.error("Error creating order details:", error);
     res.status(500).json({ message: "Server error", error });

@@ -1,4 +1,4 @@
-import "../config/dotenv.config.js";
+import "./dotenv.config.js";
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -12,11 +12,8 @@ export const sendEmail = async (to, subject, text, html) => {
       text,
       html,
     });
-
   } catch (error) {
     console.error("❌ Resend email error:", error);
     throw new Error("Email failed to send.");
   }
 };
-
-

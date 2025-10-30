@@ -70,7 +70,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
   // ✅ Fetch notifications
   const getNotifications = async (page: number) => {
     try {
-      const res = await APIs.get(`${endpoints.getNotifications}?userId=${user?._id}&page=${page}`);
+      const res = await APIs.get(`${endpoints.getNotifications(user?._id)}?page=${page}`);
       if (page === 1) {
         setNotificationItems(res.data.notifs);
       } else {

@@ -429,7 +429,7 @@ const FavoriteList = () => {
                               variant="outlined"
                               size="small"
                               startIcon={<VisibilityIcon />}
-                              onClick={() => viewProductDetails(fav.product._id, fav.product.type)}
+                              onClick={() => viewProductDetails(fav.product._id, fav.product.__t)}
                             >
                               {t("View")}
                             </Button>

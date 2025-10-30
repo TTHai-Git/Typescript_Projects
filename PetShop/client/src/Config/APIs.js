@@ -8,8 +8,8 @@ export const endpoints = {
   createOrder: "/orders",
   createOrderDetails: "/orderDetails",
   generateOTP: "/users/generate-otp",
-  getOrderDetails: (orderId, page) => `/orders/${orderId}/orderDetails`,
-  getOrdersOfCustomer: (userId, page) => `/orders/user/${userId}`,
+  getOrderDetails: (orderId) => `/orders/${orderId}/orderDetails`,
+  getOrdersOfCustomer: (userId) => `/orders/user/${userId}`,
   login: "/auth/login",
   logout: "/auth/logout",
   authMe: "/auth/me",
@@ -28,7 +28,8 @@ export const endpoints = {
     `/favorites/product/${productId}/user/${userId}`,
   getFavoriteProductsList: (userId) => `/favorites/user/${userId}`,
   addComment: "/comments/",
-  checkIsOrderAndIsPayment: "/comments/check/is-make-orders-and-paid",
+  checkIsOrderAndIsPayment: (userId, productId) =>
+    `/comments/user/${userId}/product/${productId}/is-make-orders-and-paid`,
   getCommentsByProduct: (productId) => `/comments/product/${productId}`,
   deleteComment: (commentId) => `/comments/${commentId}`,
   updateComment: (commentId) => `/comments/${commentId}`,
@@ -45,7 +46,7 @@ export const endpoints = {
   getShipmentOfOrder: (orderId) => `/shipments/order/${orderId}`,
   chatBot: `/chat-bot-faq/chat`,
   "generate-csrf-token": "/csrf/generate-token",
-  getNotifications: "/notifications",
+  getNotifications: (userId) => `/notifications/user/${userId}`,
   markANotificationAsRead: (notificationId) =>
     `/notifications/${notificationId}/update`,
   getAvailableVouchersForOrders: "/vouchers/available/for-orders",
@@ -66,7 +67,7 @@ export const adminEndpoints = {
   updateOne: (model, id) => `/admin/${model}/${id}`,
   deleteOne: (model, id) => `/admin/${model}/${id}`,
   "stats-revenue": "/admin/stats/revenue",
-  "stats-best-selling-products": "/admin/stats/selling-best-products",
+  "stats-best-selling-products": "/admin/stats/best-selling-products",
   "stats-most-popular-products": "/admin/stats/most-popular-products",
 };
 

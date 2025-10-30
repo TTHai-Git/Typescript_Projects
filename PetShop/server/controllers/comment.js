@@ -7,7 +7,7 @@ import cloudinary from "cloudinary";
 import { deleteImageOnCloudinary } from "./commentdetails.js";
 import Payment from "../models/payment.js";
 import "../config/dotenv.config.js"; // ✅ loads environment variables once
-
+import { clearCacheByKeyword, getOrSetCachedData } from "./redis.js";
 cloudinary.config({
   cloud_name: process.env.REACT_APP_CLOUD_NAME,
   api_key: process.env.REACT_APP_CLOUDINARY_API_KEY,
@@ -16,99 +16,123 @@ cloudinary.config({
 });
 
 export const getComment = async (req, res) => {
+  const { commentId } = req.params;
+  const cacheKey = `GET:/v1/comments/${commentId}`;
+
   try {
-    const { commentId } = req.params;
-    const comment = await Comment.findById(commentId);
-    if (!comment) {
+    const commentData = await getOrSetCachedData(cacheKey, async () => {
+      const comment = await Comment.findById(commentId);
+      if (!comment) return null;
+
+      const commentDetails = await CommentDetails.find({
+        comment: comment._id,
+      });
+
+      return {
+        _id: comment._id,
+        user: comment.user,
+        product: comment.product,
+        content: comment.content,
+        rating: comment.rating,
+        createdAt: comment.createdAt,
+        commentDetails_ids: commentDetails.map((item) => item._id),
+        urls: commentDetails.map((item) => item.url),
+      };
+    });
+
+    if (!commentData) {
       return res.status(404).json({ message: "Comment not found" });
     }
-    const commentDetails = await CommentDetails.find({
-      comment: comment._id,
-    });
-    return res.status(200).json({
-      _id: comment._id,
-      user: comment.user,
-      product: comment.product,
-      content: comment.content,
-      rating: comment.rating,
-      createdAt: comment.createdAt,
-      commentDetails_ids: commentDetails.map((item) => item._id),
-      urls: commentDetails.map((item) => item.url),
-    });
+
+    return res.status(200).json(commentData);
   } catch (error) {
+    console.error("❌ Error fetching comment:", error);
     return res.status(500).json({ message: error.message });
   }
 };
 
 export const getCommentsByProduct = async (req, res) => {
-  // console.log("req.query", req.query);
+  const { productId } = req.params;
   const page = parseInt(req.query.page) || 1;
   const perPage = parseInt(req.query.perPage) || 5;
   const limit = parseInt(req.query.limit) || 5;
   const { sortBy, rating } = req.query;
-  // console.log("sort", sortBy);
-  // console.log("rating", rating);
-  try {
-    const filter = {};
-    if (rating) {
-      filter.rating = rating;
-    }
-    let sortOption = {};
-    switch (sortBy) {
-      case "latest": // Latest
-        sortOption.createdAt = -1;
-        break;
-      case "oldest": // Oldest
-        sortOption.createdAt = 1;
-        break;
-    }
-    const { productId } = req.params;
-    const comments = await Comment.find({
-      product: productId,
-      ...filter,
-    })
-      .populate("user")
-      .populate("product")
-      .sort(sortOption)
-      .skip(perPage * (page - 1))
-      .limit(limit);
 
-    // console.log(comments.length);
-    if (comments.length < 1) {
+  try {
+    const cacheKey = `GET:/v1/comments/product/${productId}?page=${page}&sortBy=${
+      sortBy || "none"
+    }&rating=${rating || "all"}`;
+
+    const result = await getOrSetCachedData(cacheKey, async () => {
+      const filter = {};
+      if (rating) {
+        filter.rating = rating;
+      }
+
+      let sortOption = {};
+      switch (sortBy) {
+        case "latest":
+          sortOption.createdAt = -1;
+          break;
+        case "oldest":
+          sortOption.createdAt = 1;
+          break;
+      }
+
+      const comments = await Comment.find({
+        product: productId,
+        ...filter,
+      })
+        .populate("user")
+        .populate("product")
+        .sort(sortOption)
+        .skip(perPage * (page - 1))
+        .limit(limit);
+
+      if (comments.length < 1) {
+        return { commentsWithUrls: [], current: page, pages: 0, total: 0 };
+      }
+
+      const count = await Comment.find({
+        product: productId,
+        ...filter,
+      }).countDocuments();
+
+      const commentsWithUrls = await Promise.all(
+        comments.map(async (comment) => {
+          const commentDetails = await CommentDetails.find({
+            comment: comment._id,
+          });
+
+          return {
+            _id: comment._id,
+            user: comment.user,
+            product: comment.product,
+            content: comment.content,
+            rating: comment.rating,
+            createdAt: comment.createdAt,
+            commentDetails_ids: commentDetails.map((item) => item._id),
+            urls: commentDetails.map((item) => item.url),
+            public_ids: commentDetails.map((item) => item.public_id),
+          };
+        })
+      );
+
+      return {
+        commentsWithUrls,
+        current: page,
+        pages: Math.ceil(count / perPage),
+        total: count,
+      };
+    });
+
+    if (!result || result.commentsWithUrls.length < 1) {
       return res.status(400).json({ message: "No comments found" });
     }
 
-    const count = await Comment.find({
-      product: productId,
-      ...filter,
-    }).countDocuments();
-
-    const commentsWithUrls = await Promise.all(
-      comments.map(async (comment) => {
-        const commentDetails = await CommentDetails.find({
-          comment: comment._id,
-        });
-        return {
-          _id: comment._id,
-          user: comment.user,
-          product: comment.product,
-          content: comment.content,
-          rating: comment.rating,
-          createdAt: comment.createdAt,
-          commentDetails_ids: commentDetails.map((item) => item._id),
-          urls: commentDetails.map((item) => item.url),
-          public_ids: commentDetails.map((item) => item.public_id),
-        };
-      })
-    );
-
-    return res.status(200).json({
-      commentsWithUrls,
-      current: page,
-      pages: Math.ceil(count / perPage),
-      total: count,
-    });
+    return res.status(200).json(result);
   } catch (error) {
+    console.error("❌ Error fetching comments by product:", error);
     return res.status(500).json({ message: error.message });
   }
 };
@@ -136,6 +160,9 @@ export const addComment = async (req, res) => {
         createdUrls.push(newCommentDetails.url);
       }
     }
+
+    // clear all data of comments
+    clearCacheByKeyword("comments");
 
     return res.status(201).json({
       _id: newComment._id,
@@ -184,6 +211,9 @@ export const deleteComment = async (req, res) => {
       await CommentDetails.deleteMany({ comment: commentId });
     }
 
+    // clear all data of comments
+    clearCacheByKeyword("comments");
+
     return res.status(204).send();
   } catch (error) {
     console.error("Error deleting comment:", error);
@@ -215,6 +245,10 @@ export const updateComment = async (req, res) => {
         createdUrls.push(newCommentDetails.url);
       }
     }
+
+    // clear all data of comments
+    clearCacheByKeyword("comments");
+
     return res.status(200).json({
       _id: comment._id,
       userId: comment.user,
@@ -232,20 +266,30 @@ export const updateComment = async (req, res) => {
 };
 
 export const checkIsOrderAndIsPayment = async (req, res) => {
-  const { userId, productId } = req.query;
+  const { userId, productId } = req.params;
   // console.log("userId", userId);
   // console.log("productId", productId);
-  const orders = await Order.find({ user: userId });
-  for (const order of orders) {
-    const hasProduct = await OrderDetails.exists({
-      order: order._id,
-      product: productId,
+  try {
+    const cacheKey = `GET:/v1/comments/user/${userId}/product/${productId}/check/is-make-orders-and-paid`;
+
+    const result = await getOrSetCachedData(cacheKey, async () => {
+      const orders = Order.find({ user: userId });
+      for (const order of orders) {
+        const hasProduct = await OrderDetails.exists({
+          order: order._id,
+          product: productId,
+        });
+
+        if (!hasProduct) continue;
+
+        const paid = await Payment.exists({ order: order._id, status: "PAID" });
+        if (paid) return true;
+      }
+      return false;
     });
-
-    if (!hasProduct) continue;
-
-    const paid = await Payment.exists({ order: order._id, status: "PAID" });
-    if (paid) return res.status(200).json(true);
+    return res.status(200).json({ isPurchasedAndPaid: result });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: `Somthing went wrong: ${error}` });
   }
-  return res.status(200).json(true);
 };

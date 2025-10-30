@@ -9,7 +9,8 @@ import FoodProduct from "../models/productfood.js";
 import Vendor from "../models/vendor.js";
 import Comment from "../models/comment.js";
 import OrderDetails from "../models/orderdetails.js";
-import {countFavoriteOfProduct} from "../controllers/favorite.js"
+import { countFavoriteOfProduct } from "../controllers/favorite.js";
+import { clearCacheByKeyword, getOrSetCachedData } from "./redis.js";
 export const productTypes = {
   dog: DogProduct,
   food: FoodProduct,
@@ -104,98 +105,79 @@ export const getAllProducts = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const { category, search, sort } = req.query;
 
+  // Define unique cache key for this query
+  const cacheKey = `GET:/v1/products?page=${page}&limit=${perPage}&category=${
+    category || ""
+  }&search=${search || ""}&sort=${sort || ""}`;
+
   try {
-    const filter = {};
+    // Fetch data with caching helper
+    const productsData = await getOrSetCachedData(cacheKey, async () => {
+      const filter = {};
+      if (category) filter.category = category;
+      if (search) filter.$or = [{ name: { $regex: search, $options: "i" } }];
 
-    // 🟦 Category filter
-    if (category) {
-      filter.category = category;
-    }
-
-    // 🔍 Search by name
-    if (search) {
-      filter.$or = [{ name: { $regex: search, $options: "i" } }];
-    }
-
-    // ⬆️⬇️ Sort logic
-    let sortOption = {};
-    switch (sort) {
-      case "price_asc": // Increasing by price
-        sortOption.price = 1;
-        break;
-      case "price_desc": // Decrease by price
-        sortOption.price = -1;
-        break;
-      case "latest": // Latest
-        sortOption.createdAt = -1;
-        break;
-      case "oldest": // Oldest
-        sortOption.createdAt = 1;
-        break;
-      case "az": // A-Z by name
-        sortOption.name = 1;
-        break;
-      case "za": // Z-A by name
-        sortOption.name = -1;
-        break;
-      case "none":
-        sortOption = {};
-        break;
-      default:
-        sortOption.createdAt = -1;
-    }
-
-    const productsFromDB = await Product.find(filter)
-      .sort(sortOption)
-      .skip(perPage * (page - 1))
-      .limit(perPage);
-
-    const categoryDocs = {};
-    const products = [];
-
-    for (const product of productsFromDB) {
-      const catId = product.category;
-      if (!categoryDocs[catId]) {
-        categoryDocs[catId] = await Category.findById(catId);
+      // Sorting options
+      let sortOption = {};
+      switch (sort) {
+        case "price_asc":
+          sortOption.price = 1;
+          break;
+        case "price_desc":
+          sortOption.price = -1;
+          break;
+        case "latest":
+          sortOption.createdAt = -1;
+          break;
+        case "oldest":
+          sortOption.createdAt = 1;
+          break;
+        case "az":
+          sortOption.name = 1;
+          break;
+        case "za":
+          sortOption.name = -1;
+          break;
+        default:
+          sortOption.createdAt = -1;
       }
 
-      const vendor = await Vendor.findById(product.vendor);
-      const brand = await Brand.findById(product.brand);
+      // Get products
+      const productsFromDB = await Product.find(filter)
+        .populate("category vendor brand")
+        .sort(sortOption)
+        .skip(perPage * (page - 1))
+        .limit(perPage);
 
-      products.push({
-        _id: product._id || null,
-        type: product.__t,
-        name: product.name,
-        description: product.description,
-        price: product.price,
-        imageUrl: product.imageUrl,
-        status: product.status,
-        stock: product.stock,
-        createdAt: product.createdAt,
-        updatedAt: product.updatedAt,
-        category: categoryDocs[catId],
-        vendor,
-        brand,
-        totalRating: (await calculateRating(product._id)).totalRating,
-        beforeTotalRatingRounded: (await calculateRating(product._id))
-          .beforeTotalRatingRounded,
-        totalOrder: await calculateTotalOrderOfProduct(product._id),
-      });
-    }
+      // Add rating & order info
+      const products = await Promise.all(
+        productsFromDB.map(async (product) => {
+          const rating = await calculateRating(product._id);
+          const totalOrder = await calculateTotalOrderOfProduct(product._id);
+          return {
+            ...product.toObject(),
+            totalRating: rating.totalRating,
+            beforeTotalRatingRounded: rating.beforeTotalRatingRounded,
+            totalOrder,
+          };
+        })
+      );
 
-    const count = await Product.countDocuments(filter);
+      const count = await Product.countDocuments(filter);
 
-    // if (products.length === 0) {
-    //   return res.status(404).json({ message: "No products found" });
-    // }
-
-    return res.status(200).json({
-      products,
-      current: page,
-      pages: Math.ceil(count / perPage),
-      total: count,
+      // Return plain data (NOT res.json)
+      return {
+        products,
+        current: page,
+        pages: Math.ceil(count / perPage),
+        total: count,
+      };
     });
+
+    // ✅ Send response here (after cache logic)
+    return res.status(200).json(productsData);
   } catch (error) {
+    console.error("❌ Error fetching products:", error);
     return res.status(500).json({ message: error.message });
   }
 };
@@ -204,35 +186,60 @@ export const getProductById = async (req, res) => {
   try {
     const { type, product_id } = req.params;
     const model = productTypes[type];
-    const product = await model.findById(product_id);
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
+
+    if (!model) {
+      return res.status(400).json({ message: "Invalid product type" });
     }
-    const category = await Category.findById(product.category);
-    const vendor = await Vendor.findById(product.vendor);
-    const brand = await Brand.findById(product.brand);
-    if (type === "dog") {
-      const breed = await Breed.findById(product.breed);
-      if (!breed) {
-        return res.status(404).json({ message: "Breed not found" });
+
+    // ✅ Use endpoint-based cache key
+    const cacheKey = `GET:/v1/products/${product_id}`;
+
+    // Use caching helper
+    const productData = await getOrSetCachedData(cacheKey, async () => {
+      const product = await model.findById(product_id);
+      if (!product) throw new Error("Product not found");
+
+      const [category, vendor, brand] = await Promise.all([
+        Category.findById(product.category),
+        Vendor.findById(product.vendor),
+        Brand.findById(product.brand),
+      ]);
+
+      if (!category || !vendor || !brand) {
+        throw new Error("Related entities not found");
       }
-      product.breed = breed;
-    }
 
-    const data = {
-      ...product._doc,
-      category: category,
-      vendor: vendor,
-      brand: brand,
-      totalRating: (await calculateRating(product._id)).totalRating,
-      beforeTotalRatingRounded: (await calculateRating(product._id))
-        .beforeTotalRatingRounded,
-      totalOrder: await calculateTotalOrderOfProduct(product._id),
-      countFavorite: await countFavoriteOfProduct(product._id)
-    };
+      let breed = null;
+      if (type === "dog") {
+        breed = await Breed.findById(product.breed);
+        if (!breed) throw new Error("Breed not found");
+      }
 
-    return res.status(200).json({ product: data });
+      const [rating, totalOrder, countFavorite] = await Promise.all([
+        calculateRating(product._id),
+        calculateTotalOrderOfProduct(product._id),
+        countFavoriteOfProduct(product._id),
+      ]);
+
+      return {
+        product: {
+          ...product.toObject(),
+          breed,
+          category,
+          vendor,
+          brand,
+          totalRating: rating.totalRating,
+          beforeTotalRatingRounded: rating.beforeTotalRatingRounded,
+          totalOrder,
+          countFavorite,
+        },
+      };
+    });
+
+    // ✅ Return response here (after caching)
+    return res.status(200).json(productData);
   } catch (error) {
+    console.error("❌ Error in getProductById:", error);
     return res.status(500).json({ message: error.message });
   }
 };
@@ -269,6 +276,9 @@ export const createProduct = async (req, res) => {
       ...rest, // contains type-specific fields like ingredients, size, etc.
     });
 
+    //clear data of products
+    // await clearCacheByKeyword("products");
+
     return res
       .status(201)
       .json({ doc: newProduct, message: "Product created successfully" });
@@ -290,7 +300,11 @@ export const updateProduct = async (req, res) => {
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
-    res.status(200).json(product);
+
+    //clear data of products
+    // await clearCacheByKeyword("products");
+
+    return res.status(200).json(product);
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }

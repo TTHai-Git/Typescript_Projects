@@ -12,8 +12,8 @@ import { csrfMiddleware } from "../middleware/csrf.js";
 const orderRoutes = Router();
 orderRoutes.post("/", authMiddleware, csrfMiddleware, createOrder);
 orderRoutes.get("/user/:user_id", authMiddleware, getOrdersOfCustomer);
-orderRoutes.get("/:orderId/orderDetails/", authMiddleware, getOrderDetails);
-orderRoutes.get("/:orderId/", authMiddleware, getOrder);
+orderRoutes.get("/:orderId/orderDetails", authMiddleware, getOrderDetails);
+orderRoutes.get("/:orderId", authMiddleware, getOrder);
 orderRoutes.put(
   "/:orderId",
   authMiddleware,
@@ -49,7 +49,7 @@ orderRoutes.put(
  *       type: apiKey
  *       in: header
  *       name: adminKey
- *       description: > 
+ *       description: >
  *         To protect methods POST, PUT, PATCH, DELETE for APIs of Admin.
  */
 

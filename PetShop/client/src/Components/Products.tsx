@@ -130,7 +130,7 @@ const Products = () => {
   
   const handleAddToRecentLyViewedProducts = (product: Product) => {
     addToRecentlyViewedProducts(product)
-    navigate(`/products/${product._id}/${product.type}`)
+    navigate(`/products/${product._id}/${product.__t}`)
   }
   return (
     <Box p={4}>

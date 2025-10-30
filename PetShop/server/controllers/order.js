@@ -5,12 +5,17 @@ import Category from "../models/category.js";
 import Brand from "../models/brand.js";
 import Vendor from "../models/vendor.js";
 import Payment from "../models/payment.js";
+import { clearCacheByKeyword, getOrSetCachedData } from "./redis.js";
 
 export const createOrder = async (req, res) => {
   // console.log(req.body);
   try {
     const newOrder = await Order.create(req.body);
-    res
+
+    // clear cache data of orders
+    // await clearCacheByKeyword("orders");
+
+    return res
       .status(201)
       .json({ doc: newOrder, message: "Order created successfully" });
   } catch {
@@ -19,100 +24,120 @@ export const createOrder = async (req, res) => {
 };
 
 export const getOrdersOfCustomer = async (req, res) => {
-  const perPage = parseInt(req.query.limt) || 5;
+  const perPage = parseInt(req.query.limit) || 5;
   const page = parseInt(req.query.page) || 1;
   const { sort, status, search } = req.query;
+  const { user_id } = req.params;
 
   try {
-    const { user_id } = req.params;
-    let sortOption = {};
-    switch (sort) {
-      case "price_asc":
-        sortOption.totalPrice = 1;
-        break;
-      case "price_desc":
-        sortOption.totalPrice = -1;
-        break;
-      case "latest":
-        sortOption.createdAt = -1;
-        break;
-      case "oldest":
-        sortOption.createdAt = 1;
-        break;
-      case "none":
-        sortOption = {};
-        break;
-      default:
-        break;
-    }
-    const filter = { user: user_id };
-    if (status && status !== "" && status !== "all") filter.status = status;
+    // ✅ Define cache key uniquely per user and query params
+    const cacheKey = `GET:/v1/orders/user/${user_id}?page=${page}&limit=${perPage}&sort=${
+      sort || "none"
+    }&status=${status || "all"}&search=${search || "none"}`;
 
-    // console.log("filter", filter);
+    const result = await getOrSetCachedData(cacheKey, async () => {
+      // --- Build filters ---
+      const filter = { user: user_id };
+      if (status && status !== "" && status !== "all") filter.status = status;
+      if (search) filter._id = { _id: search };
 
-    if (search) filter._id = { _id: search }; // case-insensitive
+      // --- Sorting options ---
+      let sortOption = {};
+      switch (sort) {
+        case "price_asc":
+          sortOption.totalPrice = 1;
+          break;
+        case "price_desc":
+          sortOption.totalPrice = -1;
+          break;
+        case "latest":
+          sortOption.createdAt = -1;
+          break;
+        case "oldest":
+          sortOption.createdAt = 1;
+          break;
+        default:
+          break;
+      }
 
-    // console.log("filter", filter);
+      // --- Query MongoDB ---
+      const orders = await Order.find(filter)
+        .sort(sortOption)
+        .skip(perPage * (page - 1))
+        .limit(perPage);
 
-    const orders = await Order.find(filter)
-      .sort(sortOption)
-      .skip(perPage * (page - 1))
-      .limit(perPage);
-    // console.log(orders);
-    const count = await Order.countDocuments(filter);
+      const count = await Order.countDocuments(filter);
 
-    if (!orders || orders.length === 0) {
-      return res.status(404).json({ message: "No orders found" });
-    }
+      if (!orders || orders.length === 0) {
+        return { message: "No orders found" };
+      }
 
-    const data = orders.map((order) => ({
-      _id: order._id,
-      userId: order.user,
-      totalPrice: order.totalPrice,
-      status: order.status,
-      createdAt: order.createdAt,
-      updatedAt: order.updatedAt,
-    }));
+      // --- Map data ---
+      const data = orders.map((order) => ({
+        _id: order._id,
+        userId: order.user,
+        totalPrice: order.totalPrice,
+        status: order.status,
+        createdAt: order.createdAt,
+        updatedAt: order.updatedAt,
+      }));
 
-    res.status(200).json({
-      orders: data,
-      current: page,
-      pages: Math.ceil(count / perPage),
-      total: count,
+      return {
+        orders: data,
+        current: page,
+        pages: Math.ceil(count / perPage),
+        total: count,
+      };
     });
-  } catch {
-    res.status(500).json({ message: "Error" });
+
+    // ✅ Return the cached or freshly fetched data
+    if (result.message === "No orders found") {
+      return res.status(404).json(result);
+    }
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("❌ Error fetching customer orders:", error);
+    res.status(500).json({ message: error.message });
   }
 };
 
 export const getOrderDetails = async (req, res) => {
   const orderId = req.params.orderId;
-
   const perPage = parseInt(req.query.limit) || 5;
   const page = parseInt(req.query.page) || 1;
 
+  // ✅ Unique cache key based on order + pagination
+  const cacheKey = `GET:/v1/orders/${orderId}/orderDetails?page=${page}&limit=${perPage}`;
+
   try {
-    const orderDetails = await OrderDetails.find({ order: orderId })
-      .skip(perPage * (page - 1))
-      .limit(perPage);
+    const result = await getOrSetCachedData(cacheKey, async () => {
+      // --- Fetch order details from DB ---
+      const orderDetails = await OrderDetails.find({ order: orderId })
+        .skip(perPage * (page - 1))
+        .limit(perPage);
 
-    if (!orderDetails || orderDetails.lenght === 0) {
-      return res.status(404).json({ message: "No order details found" });
-    }
-    // console.log(orderDetails)
+      if (!orderDetails || orderDetails.length === 0) {
+        return { message: "No order details found" };
+      }
 
-    const count = await OrderDetails.countDocuments({ order: orderId });
-    const pages = Math.ceil(count / perPage);
-    const results = [];
+      const count = await OrderDetails.countDocuments({ order: orderId });
+      const pages = Math.ceil(count / perPage);
+      const results = [];
 
-    for (const item of orderDetails) {
-      const product = await Product.findById(item.product);
-      const category = await Category.findById(product.category);
-      const brand = await Brand.findById(product.brand);
-      const vendor = await Vendor.findById(product.vendor);
-      if (product) {
+      // --- Populate product info ---
+      for (const item of orderDetails) {
+        const product = await Product.findById(item.product);
+        if (!product) continue;
+
+        const [category, brand, vendor] = await Promise.all([
+          Category.findById(product.category),
+          Brand.findById(product.brand),
+          Vendor.findById(product.vendor),
+        ]);
+
         results.push({
-          orderId: orderId,
+          orderId,
           product: {
             _id: product._id || null,
             type: product.__t,
@@ -132,17 +157,24 @@ export const getOrderDetails = async (req, res) => {
           note: item.note,
         });
       }
+
+      return {
+        results,
+        page,
+        pages,
+        total: count,
+      };
+    });
+
+    // ✅ Handle cache result
+    if (result.message === "No order details found") {
+      return res.status(404).json(result);
     }
 
-    res.status(200).json({
-      results,
-      page,
-      pages,
-      total: count,
-    });
+    return res.status(200).json(result);
   } catch (error) {
-    console.error("Error getting order details:", error);
-    res.status(500).json({ message: "Server error", error });
+    console.error("❌ Error getting order details:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
@@ -165,6 +197,10 @@ export const updateStatusOfOrder = async (req, res) => {
         .status(400)
         .json({ message: "Order not found to update status" });
     }
+
+    // clear cache data of orders
+    // await clearCacheByKeyword("orders");
+
     return res.status(200).json({
       doc: updatedOrder,
       message: "Order status updated successfully",
@@ -175,10 +211,15 @@ export const updateStatusOfOrder = async (req, res) => {
 };
 
 export const getOrder = async (req, res) => {
+  const { orderId } = req.params;
+  const cacheKey = `GET:/v1/orders/${orderId}`;
   try {
-    const { orderId } = req.params;
-    const order = await Order.findById(orderId);
-    if (!order) return res.status(400).json({ message: "Order not found" });
+    const order = await getOrSetCachedData(cacheKey, async () => {
+      const data = await Order.findById(orderId);
+      return data;
+    });
+    if (!order || order.length === 0)
+      return res.status(400).json({ message: "Order not found" });
     return res.status(200).json(order);
   } catch (error) {
     console.log(error);

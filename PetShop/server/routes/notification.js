@@ -10,7 +10,7 @@ import { csrfMiddleware } from "../middleware/csrf.js";
 
 const notificationRoutes = Route();
 
-notificationRoutes.get("/", authMiddleware, getNotifications);
+notificationRoutes.get("/user/:userId", authMiddleware, getNotifications);
 // notificationRoutes.get("/", getNotifications);
 notificationRoutes.post("/", authMiddleware, isAdmin, createNotification);
 // notificationRoutes.post("/", createNotification);
@@ -55,7 +55,7 @@ notificationRoutes.patch(
  *       type: apiKey
  *       in: header
  *       name: adminKey
- *       description: > 
+ *       description: >
  *         To protect methods POST, PUT, PATCH, DELETE for APIs of Admin.
  */
 

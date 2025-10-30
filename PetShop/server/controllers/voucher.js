@@ -1,5 +1,6 @@
 import Voucher from "../models/voucher.js";
 import moment from "moment-timezone";
+import { clearCacheByKeyword, getOrSetCachedData } from "./redis.js";
 
 export const createVoucher = async (req, res) => {
   try {
@@ -17,6 +18,9 @@ export const createVoucher = async (req, res) => {
       ...rest,
       expiryDate, // this is now a JS Date (stored in UTC)
     });
+
+    // clear data of vouchers
+    // await clearCacheByKeyword("vouchers");
 
     res.status(201).json(voucher);
   } catch (error) {
@@ -48,6 +52,9 @@ export const createManyVouchers = async (req, res) => {
     // insertMany for bulk creation
     const saved = await Voucher.insertMany(vouchers);
 
+    // clear data of vouchers
+    // await clearCacheByKeyword("vouchers");
+
     res.status(201).json({
       message: `${saved.length} vouchers created successfully`,
       data: saved,
@@ -66,6 +73,10 @@ export const deleteVoucher = async (req, res) => {
       return res.status(404).json({ message: "Voucher not found to delete" });
     }
     await voucher.deleteOne();
+
+    // clear data of vouchers
+    // await clearCacheByKeyword("vouchers");
+
     return res.status(204).send();
   } catch (error) {
     return res.status(500).json({ message: "Internal server error" });
@@ -94,6 +105,9 @@ export const updateVoucher = async (req, res) => {
       updatedVoucher.isActive = false;
       await updatedVoucher.save();
     }
+
+    // clear data of vouchers
+    // await clearCacheByKeyword("vouchers");
 
     return res.status(200).json(updatedVoucher);
   } catch (error) {
@@ -126,6 +140,10 @@ export const updateVoucherUsageForUser = async (req, res) => {
     }
 
     await voucher.save();
+
+    // clear data of vouchers
+    // await clearCacheByKeyword("vouchers");
+
     return res.status(200).json(voucher);
   } catch (error) {
     console.error(error);
@@ -135,8 +153,12 @@ export const updateVoucherUsageForUser = async (req, res) => {
 
 export const getVoucher = async (req, res) => {
   const { voucherId } = req.params;
+  const cacheKey = `GET:/v1/vouchers/${voucherId}`;
   try {
-    const voucher = await Voucher.findById(voucherId);
+    const voucher = await getOrSetCachedData(cacheKey, async () => {
+      const data = await Voucher.findById(voucherId);
+      return data;
+    });
     if (!voucher) {
       return res.status(404).json({ message: "voucher not found" });
     }
@@ -148,17 +170,23 @@ export const getVoucher = async (req, res) => {
 
 export const getAvailableVouchersForOrders = async (req, res) => {
   const totalOfCart = Number(req.query.totalOfCart);
+
   if (isNaN(totalOfCart)) {
     return res.status(400).json({ message: "Invalid tempTotal" });
   }
 
+  const cacheKey = `GET:/v1/vouchers/available/for-orders?totalOfCart=${totalOfCart}`;
+
   try {
-    const availableVouchers = await Voucher.find({
-      minimumPrice: { $lte: totalOfCart },
-      isActive: true,
-      type: "Order",
-      $expr: { $lt: ["$usageCount", "$maxUsage"] },
-      expiryDate: { $gte: new Date() }, // current time in UTC
+    const availableVouchers = await getOrSetCachedData(cacheKey, async () => {
+      const data = await Voucher.find({
+        minimumPrice: { $lte: totalOfCart },
+        isActive: true,
+        type: "Order",
+        $expr: { $lt: ["$usageCount", "$maxUsage"] },
+        expiryDate: { $gte: new Date() }, // current time in UTC
+      });
+      return data;
     });
 
     return res.status(200).json(availableVouchers);
@@ -173,13 +201,18 @@ export const getAvailableVouchersForShipment = async (req, res) => {
     return res.status(400).json({ message: "Invalid shipmentFee" });
   }
 
+  const cacheKey = `GET:/v1/vouchers/available/for-shipments?shipmentFee=${shipmentFee}`;
+
   try {
-    const availableVouchers = await Voucher.find({
-      minimumPrice: { $lte: shipmentFee },
-      isActive: true,
-      type: "Shipment",
-      $expr: { $lt: ["$usageCount", "$maxUsage"] },
-      expiryDate: { $gte: new Date() }, // current time in UTC
+    const availableVouchers = await getOrSetCachedData(cacheKey, async () => {
+      const data = await Voucher.find({
+        minimumPrice: { $lte: shipmentFee },
+        isActive: true,
+        type: "Shipment",
+        $expr: { $lt: ["$usageCount", "$maxUsage"] },
+        expiryDate: { $gte: new Date() }, // current time in UTC
+      });
+      return data;
     });
 
     return res.status(200).json(availableVouchers);

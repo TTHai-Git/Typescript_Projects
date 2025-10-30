@@ -10,7 +10,7 @@ import { isAdmin } from "../middleware/isAdmin.js";
 const statsRoutes = Router();
 statsRoutes.get("/revenue", authMiddleware, isAdmin, revenueStatistics);
 statsRoutes.get(
-  "/selling-best-products",
+  "/best-selling-products",
   authMiddleware,
   isAdmin,
   getBestSellingProducts
@@ -50,7 +50,7 @@ statsRoutes.get(
  *       type: apiKey
  *       in: header
  *       name: adminKey
- *       description: > 
+ *       description: >
  *         To protect methods POST, PUT, PATCH, DELETE for APIs of Admin.
  */
 
@@ -111,7 +111,7 @@ statsRoutes.get(
 
 /**
  * @swagger
- * /v1/admin/stats/selling-best-products:
+ * /v1/admin/stats/best-selling-products:
  *   get:
  *     summary: Get top 10 best-selling products
  *     description: >

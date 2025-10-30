@@ -16,7 +16,7 @@ commentRoutes.post("/", authMiddleware, csrfMiddleware, addComment);
 commentRoutes.get("/product/:productId", getCommentsByProduct);
 commentRoutes.get("/:commentId", getComment);
 commentRoutes.get(
-  "/check/is-make-orders-and-paid",
+  "/user/:userId/product/:productId/is-make-orders-and-paid",
   authMiddleware,
   checkIsOrderAndIsPayment
 );
@@ -56,7 +56,7 @@ commentRoutes.put("/:commentId", authMiddleware, csrfMiddleware, updateComment);
  *       type: apiKey
  *       in: header
  *       name: adminKey
- *       description: > 
+ *       description: >
  *         To protect methods POST, PUT, PATCH, DELETE for APIs of Admin.
  */
 

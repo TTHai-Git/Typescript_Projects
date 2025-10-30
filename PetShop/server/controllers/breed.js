@@ -1,38 +1,35 @@
-import getRedisClient from "../config/redisCloud.config.js";
 import Breed from "../models/breed.js";
+import { clearCacheByKeyword, getOrSetCachedData } from "./redis.js";
 
 export const getAllBreeds = async (req, res) => {
   try {
-    const cacheKey = "getAllBreeds";
+    const cacheKey = "GET:/v1/breeds";
 
-    // 🧠 1️⃣ Kiểm tra cache trước
-    const cachedData = await getRedisClient.get(cacheKey);
-    if (cachedData) {
-      console.log("✅ Cache hit: getAllBreeds");
-      return res.status(200).json(JSON.parse(cachedData));
-    }
+    const breeds = await getOrSetCachedData(cacheKey, async () => {
+      const data = await Breed.find();
+      return data;
+    });
 
-    // 🧩 2️⃣ Lấy từ MongoDB nếu chưa có cache
-    const breeds = await Breed.find();
     if (!breeds || breeds.length === 0) {
       return res.status(404).json({ message: "No breeds found" });
     }
 
-    // 💾 3️⃣ Lưu vào cache trong 300s (5 phút)
-    await getRedisClient.set(cacheKey, JSON.stringify(breeds), { EX: 300 });
-
-    console.log("💾 Cache miss → saved to Redis");
     return res.status(200).json(breeds);
   } catch (error) {
-    res.status(500).json({ message: "Internal server error" });
+    console.error("❌ Error fetching breeds:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
 export const getBreedById = async (req, res) => {
   const { breedId } = req.params;
+  const cacheKey = `GET:/v1/breeds/${breedId}`;
   try {
-    const breed = await Breed.findById(breedId);
-    if (!breed) {
+    const breed = await getOrSetCachedData(cacheKey, async () => {
+      const data = await Breed.findById(breedId);
+      return data;
+    });
+    if (!breed || breed.length === 0) {
       return res.status(400).json({ message: "Breed not found" });
     }
     return res.status(200).json(breed);
@@ -55,6 +52,10 @@ export const createdBreed = async (req, res) => {
   try {
     const breed = new Breed({ name, description });
     await breed.save();
+
+    // clear all data of breeds
+    await clearCacheByKeyword("breeds");
+
     return res
       .status(201)
       .json({ doc: breed, message: "Breed created successfully" });
@@ -80,6 +81,10 @@ export const updateBreed = async (req, res) => {
     if (!updateBreed) {
       return res.status(400).json({ message: "Breed not found" });
     }
+
+    // clear all data of breeds
+    await clearCacheByKeyword("breeds");
+
     return res.status(200).json(updateBreed);
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
@@ -94,6 +99,10 @@ export const deleteBreedById = async (req, res) => {
       return res.status(400).json({ message: "Breed not found" });
     }
     await breed.deleteOne();
+
+    // clear all data of breeds
+    await clearCacheByKeyword("breeds");
+
     return res.status(200).json({ message: "Breed deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
