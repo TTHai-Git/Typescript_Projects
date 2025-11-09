@@ -3,17 +3,10 @@ import CommentDetails from "../models/commentdetails.js";
 import User from "../models/user.js";
 import Order from "../models/order.js";
 import OrderDetails from "../models/orderdetails.js";
-import cloudinary from "cloudinary";
 import { deleteImageOnCloudinary } from "./commentdetails.js";
 import Payment from "../models/payment.js";
 import "../config/dotenv.config.js"; // ✅ loads environment variables once
 import { clearCacheByKeyword, getOrSetCachedData } from "./redis.js";
-cloudinary.config({
-  cloud_name: process.env.REACT_APP_CLOUD_NAME,
-  api_key: process.env.REACT_APP_CLOUDINARY_API_KEY,
-  api_secret: process.env.REACT_APP_CLOUDINARY_API_SECRET,
-  secure: true,
-});
 
 export const getComment = async (req, res) => {
   const { commentId } = req.params;
