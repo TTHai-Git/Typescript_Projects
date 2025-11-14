@@ -15,7 +15,7 @@ export const endpoints = {
   authMe: "/auth/me",
   refreshAccessToken: "/auth/refresh",
   verifyEmail: "/auth/verify-email",
-  getProductById: (type, productId) => `/products/${type}/${productId}`,
+  getProductById: (productId) => `/products/${productId}`,
   uploadAvatarToCloudinary: (baseURLCloud, cloudName, dirCloud) =>
     `${baseURLCloud}${cloudName}${dirCloud}`,
   register: "/auth/register",

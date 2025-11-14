@@ -5,50 +5,80 @@ import Product from "../models/product.js";
 import Vendor from "../models/vendor.js";
 import { clearCacheByKeyword, getOrSetCachedData } from "./redis.js";
 
+// ---------------------------------------------------------
+// Utility: Clear all Favorite-related cache for a user/product
+// ---------------------------------------------------------
+const clearFavoriteCache = async (userId, productId) => {
+  await clearCacheByKeyword(`GET:/v1/favorites/user/${userId}`);
+  await clearCacheByKeyword(`GET:/v1/favorites/product/${productId}`);
+  await clearCacheByKeyword(`GET:/v1/products/${productId}`); // Product detail cached data
+};
+
+// ---------------------------------------------------------
+// Create or Delete a Favorite (Toggle Mode)
+// ---------------------------------------------------------
 export const createOrUpdateFavorite = async (req, res) => {
   const { userId, productId } = req.body;
+
   if (!userId || !productId) {
-    return res
-      .status(400)
-      .json({ message: "Request body must userId and productId" });
+    return res.status(400).json({
+      message: "Request body must contain userId and productId",
+    });
   }
-  const existsFavorite = await Favorite.findOne({
-    user: userId,
-    product: productId,
-  });
 
-  //clear cache data of favorites and products
-  await clearCacheByKeyword("favorites");
-  // await clearCacheByKeyword("products");
-
-  if (!existsFavorite) {
-    const newFavorite = await Favorite.create({
+  try {
+    const existsFavorite = await Favorite.findOne({
       user: userId,
       product: productId,
     });
-    return res.status(201).json({
-      doc: true,
-      message: "Add Product To Favorite List Success",
-    });
-  } else {
-    const deleteFavorite = await Favorite.findByIdAndDelete(existsFavorite._id);
+
+    // ---------------------------------------------------------
+    // Create Favorite
+    // ---------------------------------------------------------
+    if (!existsFavorite) {
+      await Favorite.create({ user: userId, product: productId });
+
+      await clearFavoriteCache(userId, productId);
+
+      return res.status(201).json({
+        doc: true,
+        message: "Add Product To Favorite List Success",
+      });
+    }
+
+    // ---------------------------------------------------------
+    // Delete Favorite (toggle)
+    // ---------------------------------------------------------
+    await Favorite.findByIdAndDelete(existsFavorite._id);
+
+    await clearFavoriteCache(userId, productId);
+
     return res.status(200).json({
       doc: false,
-      message: "Remove Product To Favorite List Success",
+      message: "Remove Product From Favorite List Success",
     });
+  } catch (error) {
+    return res.status(500).json({ message: `Server Error: ${error.message}` });
+  } finally {
+    await clearFavoriteCache(userId, productId);
   }
 };
 
+// ---------------------------------------------------------
+// Check if product is favorite for user
+// ---------------------------------------------------------
 export const getFavoriteProductOfUser = async (req, res) => {
   const { productId, userId } = req.params;
-  const cacheKey = `GET:/v1/favorites/product/${productId}/user/${userId}`;
-  try {
-    if (!userId || !productId) {
-      return res
-        .status(400)
-        .json({ message: "Request body must userId and productId" });
-    }
 
+  if (!userId || !productId) {
+    return res.status(400).json({
+      message: "Request body must contain userId and productId",
+    });
+  }
+
+  const cacheKey = `GET:/v1/favorites/product/${productId}/user/${userId}`;
+
+  try {
     const isFavorite = await getOrSetCachedData(cacheKey, async () => {
       const exists = await Favorite.exists({
         product: productId,
@@ -56,34 +86,40 @@ export const getFavoriteProductOfUser = async (req, res) => {
       });
       return Boolean(exists);
     });
-    return res.status(200).json({ isFavorite: isFavorite });
+
+    return res.status(200).json({ isFavorite });
   } catch (error) {
-    return res.status(500).json({ message: `Server Error: ${error} ` });
+    return res.status(500).json({ message: `Server Error: ${error.message}` });
   }
 };
 
+// ---------------------------------------------------------
+// Paginated + Filtered + Sorted Favorite Products List
+// ---------------------------------------------------------
 export const getFavoriteProductsList = async (req, res) => {
   const { userId } = req.params;
   const perPage = parseInt(req.query.limit) || 5;
   const page = parseInt(req.query.page) || 1;
+
   const { category, search, sort } = req.query;
 
   if (!userId) {
-    return res
-      .status(400)
-      .json({ message: "Request body must include userId" });
+    return res.status(400).json({ message: "Request must include userId" });
   }
 
   try {
-    // 🧩 Step 1: Build unique cache key
     const cacheKey = `GET:/v1/favorites/user/${userId}?page=${page}&limit=${perPage}&category=${
       category || "all"
     }&search=${search || "none"}&sort=${sort || "none"}`;
 
-    // 🧠 Step 2: Wrap DB logic inside caching function
     const result = await getOrSetCachedData(cacheKey, async () => {
+      // ---------------------------------------------------------
+      // Build product search filter
+      // ---------------------------------------------------------
       const productFilter = {};
+
       if (category) productFilter.category = category;
+
       if (search) {
         productFilter.$or = [
           { name: { $regex: search, $options: "i" } },
@@ -91,22 +127,24 @@ export const getFavoriteProductsList = async (req, res) => {
         ];
       }
 
-      // Step 3: Find matching product IDs
-      const matchedProducts = await Product.find(productFilter).select("_id");
-      const matchedProductIds = matchedProducts.map((p) => p._id);
+      const matchedProductIds = await Product.find(productFilter).distinct(
+        "_id"
+      );
 
-      // Step 4: Sorting logic for favorites
-      let favoriteSort = { createdAt: -1 }; // default newest
-      if (sort === "latest") favoriteSort = { createdAt: -1 };
-      else if (sort === "oldest") favoriteSort = { createdAt: 1 };
+      // ---------------------------------------------------------
+      // Sorting Favorites by Date
+      // ---------------------------------------------------------
+      const sortOption =
+        sort === "oldest" ? { createdAt: 1 } : { createdAt: -1 };
 
-      // Step 5: Find favorites for this user
+      // ---------------------------------------------------------
+      // Find Favorites (paginated)
+      // ---------------------------------------------------------
       const favorites = await Favorite.find({
         user: userId,
-        isFavorite: true,
         product: { $in: matchedProductIds },
       })
-        .sort(favoriteSort)
+        .sort(sortOption)
         .skip(perPage * (page - 1))
         .limit(perPage);
 
@@ -114,17 +152,19 @@ export const getFavoriteProductsList = async (req, res) => {
         return { results: [], current: page, pages: 0, total: 0 };
       }
 
-      // Step 6: Load related products
-      const productIds = favorites.map((fav) => fav.product);
+      // ---------------------------------------------------------
+      // Load product details in bulk
+      // ---------------------------------------------------------
+      const productIds = favorites.map((f) => f.product);
       const products = await Product.find({ _id: { $in: productIds } });
-      const productsMap = new Map(
-        products.map((prod) => [prod._id.toString(), prod])
-      );
 
-      // Step 7: Compose combined data
-      const combinedData = [];
-      for (const favorite of favorites) {
-        const product = productsMap.get(favorite.product.toString());
+      // Map for quick access
+      const map = new Map(products.map((p) => [p._id.toString(), p]));
+
+      const combined = [];
+
+      for (const fav of favorites) {
+        const product = map.get(fav.product.toString());
         if (!product) continue;
 
         const [brand, vendor, categoryObj] = await Promise.all([
@@ -133,60 +173,47 @@ export const getFavoriteProductsList = async (req, res) => {
           Category.findById(product.category),
         ]);
 
-        combinedData.push({
-          _id: favorite._id,
-          userId: favorite.user,
-          isFavorite: favorite.isFavorite,
-          createdAt: favorite.createdAt,
-          updatedAt: favorite.updatedAt,
+        combined.push({
+          _id: fav._id,
+          userId,
+          createdAt: fav.createdAt,
+          updatedAt: fav.updatedAt,
           product: {
-            _id: product._id,
-            type: product.__t,
-            name: product.name,
-            description: product.description,
-            price: product.price,
-            imageUrl: product.imageUrl,
-            status: product.status,
-            createdAt: product.createdAt,
-            updatedAt: product.updatedAt,
-            category: categoryObj,
-            vendor,
+            ...product.toObject(),
             brand,
+            vendor,
+            category: categoryObj,
           },
         });
       }
 
-      // Step 8: Optional in-memory sorting
+      // ---------------------------------------------------------
+      // Client-side sorting
+      // ---------------------------------------------------------
       if (sort === "price_asc")
-        combinedData.sort((a, b) => a.product.price - b.product.price);
-      else if (sort === "price_desc")
-        combinedData.sort((a, b) => b.product.price - a.product.price);
-      else if (sort === "az")
-        combinedData.sort((a, b) =>
-          a.product.name.localeCompare(b.product.name)
-        );
-      else if (sort === "za")
-        combinedData.sort((a, b) =>
-          b.product.name.localeCompare(a.product.name)
-        );
+        combined.sort((a, b) => a.product.price - b.product.price);
+      if (sort === "price_desc")
+        combined.sort((a, b) => b.product.price - a.product.price);
+      if (sort === "az")
+        combined.sort((a, b) => a.product.name.localeCompare(b.product.name));
+      if (sort === "za")
+        combined.sort((a, b) => b.product.name.localeCompare(a.product.name));
 
-      // Step 9: Count total favorites
-      const totalFavorites = await Favorite.countDocuments({
+      // Count total
+      const total = await Favorite.countDocuments({
         user: userId,
-        isFavorite: true,
         product: { $in: matchedProductIds },
       });
 
       return {
-        results: combinedData,
+        results: combined,
         current: page,
-        pages: Math.ceil(totalFavorites / perPage),
-        total: totalFavorites,
+        pages: Math.ceil(total / perPage),
+        total,
       };
     });
 
-    // 🧾 Step 10: Return cached or fresh data
-    if (!result.results || result.results.length === 0) {
+    if (!result.results?.length) {
       return res.status(200).json({ message: "No Favorite Product Found" });
     }
 
@@ -197,35 +224,40 @@ export const getFavoriteProductsList = async (req, res) => {
   }
 };
 
+// ---------------------------------------------------------
+// Delete Favorite Explicitly
+// ---------------------------------------------------------
 export const deleteFavorite = async (req, res) => {
+  const { favoriteId } = req.params;
+  const favorite = await Favorite.findById(favoriteId);
+
   try {
-    const { favoriteId } = req.params;
-    const favorite = await Favorite.findById(favoriteId);
     if (!favorite) {
-      return res.status(404).json({ message: "Favorite not found to delete" });
+      return res.status(404).json({ message: "Favorite not found" });
     }
-    if (!req.user._id == favorite.user) {
+
+    // Correct authorization
+    if (req.user.id.toString() !== favorite.user.toString()) {
       return res
         .status(403)
         .json({ message: "You are not authorized to delete this favorite" });
     }
+
     await favorite.deleteOne();
+    await clearFavoriteCache(favorite.user, favorite.product);
 
-    // clear cache data of favorites and products
-    await clearCacheByKeyword("favorites");
-
-    res.status(204).send();
+    return res.status(204).send();
   } catch (error) {
-    console.error("Error delete Favorite:", error);
-    res.status(500).json({ message: "server error", error });
+    console.error("❌ Error deleting Favorite:", error);
+    return res.status(500).json({ message: error.message });
+  } finally {
+    await clearFavoriteCache(favorite.user, favorite.product);
   }
 };
 
+// ---------------------------------------------------------
+// Count Favorites For a Product
+// ---------------------------------------------------------
 export const countFavoriteOfProduct = async (productId) => {
-  const countFavoriteOfProduct = await Favorite.find({
-    product: productId,
-    isFavorite: true,
-  }).countDocuments();
-  // console.log("countFavoriteOfProduct", countFavoriteOfProduct)
-  return countFavoriteOfProduct;
+  return await Favorite.countDocuments({ product: productId });
 };

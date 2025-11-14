@@ -17,7 +17,7 @@ export const createOrderDetails = async (req, res) => {
     );
 
     // clear cache data of orders
-    // await clearCacheByKeyword("orderDetails");
+    await clearCacheByKeyword("orderDetails");
 
     res.status(201).json({
       doc: createdOrderDetails,

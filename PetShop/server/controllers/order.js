@@ -13,7 +13,7 @@ export const createOrder = async (req, res) => {
     const newOrder = await Order.create(req.body);
 
     // clear cache data of orders
-    // await clearCacheByKeyword("orders");
+    await clearCacheByKeyword("orders");
 
     return res
       .status(201)
@@ -199,7 +199,7 @@ export const updateStatusOfOrder = async (req, res) => {
     }
 
     // clear cache data of orders
-    // await clearCacheByKeyword("orders");
+    await clearCacheByKeyword("orders");
 
     return res.status(200).json({
       doc: updatedOrder,

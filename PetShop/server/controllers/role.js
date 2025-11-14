@@ -38,7 +38,7 @@ export const createRole = async (req, res) => {
     const newRole = await Role.create({ name });
 
     //clear data of roles
-    // await clearCacheByKeyword("roles");
+    await clearCacheByKeyword("roles");
 
     return res
       .status(201)
@@ -85,7 +85,7 @@ export const updateRole = async (req, res) => {
     }
 
     //clear data of roles
-    // await clearCacheByKeyword("roles");
+    await clearCacheByKeyword("roles");
 
     return res.status(200).json(role);
   } catch (error) {
@@ -112,7 +112,7 @@ export const deleteRole = async (req, res) => {
     await role.deleteOne();
 
     //clear data of roles
-    // await clearCacheByKeyword("roles");
+    await clearCacheByKeyword("roles");
 
     return res.status(204).send();
   } catch (error) {

@@ -49,7 +49,7 @@ export const getOrSetCachedData = async (key, callback, ttl = 300) => {
   return freshData;
 };
 
-export const clearCacheByKeyword = async (req, res) => {
+export const clearCacheByKeyword = async (keyword) => {
   try {
     let cursor = "0";
     let deletedCount = 0;

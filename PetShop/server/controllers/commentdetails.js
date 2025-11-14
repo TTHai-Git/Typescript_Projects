@@ -31,7 +31,7 @@ export const deleteCommentDetails = async (req, res) => {
           commentDetails.public_id
         );
         if (deletedUrls.result === "ok") {
-          // await clearCacheByKeyword("comments");
+          await clearCacheByKeyword("comments");
           return res
             .status(200)
             .json({ message: "Delete image on Cloudinary successfully" });

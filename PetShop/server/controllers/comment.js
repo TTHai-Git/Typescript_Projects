@@ -8,6 +8,25 @@ import Payment from "../models/payment.js";
 import "../config/dotenv.config.js"; // ✅ loads environment variables once
 import { clearCacheByKeyword, getOrSetCachedData } from "./redis.js";
 
+export const clearCommentCache = (comment) => {
+  if (!comment) return;
+
+  const productId = comment.product;
+  const userId = comment.user;
+  const commentId = comment._id;
+
+  // Xóa tất cả cache liên quan đến comment này
+  clearCacheByKeyword(`GET:/v1/comments/${commentId}`);
+
+  // Xóa list comments của product
+  clearCacheByKeyword(`GET:/v1/comments/product/${productId}`);
+
+  // Xóa kết quả check order
+  clearCacheByKeyword(
+    `GET:/v1/comments/user/${userId}/product/${productId}/check/is-make-orders-and-paid`
+  );
+};
+
 export const getComment = async (req, res) => {
   const { commentId } = req.params;
   const cacheKey = `GET:/v1/comments/${commentId}`;
@@ -154,8 +173,7 @@ export const addComment = async (req, res) => {
       }
     }
 
-    // clear all data of comments
-    clearCacheByKeyword("comments");
+    clearCommentCache(newComment);
 
     return res.status(201).json({
       _id: newComment._id,
@@ -204,8 +222,7 @@ export const deleteComment = async (req, res) => {
       await CommentDetails.deleteMany({ comment: commentId });
     }
 
-    // clear all data of comments
-    clearCacheByKeyword("comments");
+    clearCommentCache(comment);
 
     return res.status(204).send();
   } catch (error) {
@@ -239,8 +256,7 @@ export const updateComment = async (req, res) => {
       }
     }
 
-    // clear all data of comments
-    clearCacheByKeyword("comments");
+    clearCommentCache(comment);
 
     return res.status(200).json({
       _id: comment._id,

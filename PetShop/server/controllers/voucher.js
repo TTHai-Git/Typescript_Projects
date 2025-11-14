@@ -20,7 +20,7 @@ export const createVoucher = async (req, res) => {
     });
 
     // clear data of vouchers
-    // await clearCacheByKeyword("vouchers");
+    await clearCacheByKeyword("vouchers");
 
     res.status(201).json(voucher);
   } catch (error) {
@@ -53,7 +53,7 @@ export const createManyVouchers = async (req, res) => {
     const saved = await Voucher.insertMany(vouchers);
 
     // clear data of vouchers
-    // await clearCacheByKeyword("vouchers");
+    await clearCacheByKeyword("vouchers");
 
     res.status(201).json({
       message: `${saved.length} vouchers created successfully`,
@@ -75,7 +75,7 @@ export const deleteVoucher = async (req, res) => {
     await voucher.deleteOne();
 
     // clear data of vouchers
-    // await clearCacheByKeyword("vouchers");
+    await clearCacheByKeyword("vouchers");
 
     return res.status(204).send();
   } catch (error) {
@@ -107,7 +107,7 @@ export const updateVoucher = async (req, res) => {
     }
 
     // clear data of vouchers
-    // await clearCacheByKeyword("vouchers");
+    await clearCacheByKeyword("vouchers");
 
     return res.status(200).json(updatedVoucher);
   } catch (error) {
@@ -142,7 +142,7 @@ export const updateVoucherUsageForUser = async (req, res) => {
     await voucher.save();
 
     // clear data of vouchers
-    // await clearCacheByKeyword("vouchers");
+    await clearCacheByKeyword("vouchers");
 
     return res.status(200).json(voucher);
   } catch (error) {

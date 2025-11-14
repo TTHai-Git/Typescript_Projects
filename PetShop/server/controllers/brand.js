@@ -55,7 +55,7 @@ export const createBrand = async (req, res) => {
     const brand = await Brand.create({ name, description, logoUrl });
 
     // clear all cache data of brands
-    // await clearCacheByKeyword("brands");
+    await clearCacheByKeyword("brands");
 
     res.status(201).json({ doc: brand, message: "Brand created successfully" });
   } catch (error) {
@@ -83,7 +83,7 @@ export const updateBrand = async (req, res) => {
     }
 
     // clear all cache data of brands
-    // await clearCacheByKeyword("brands");
+    await clearCacheByKeyword("brands");
 
     res.status(200).json(brand);
   } catch (error) {
@@ -101,7 +101,7 @@ export const deleteBrand = async (req, res) => {
     await brand.deleteOne();
 
     // clear all cache data of brands
-    // await clearCacheByKeyword("brands");
+    await clearCacheByKeyword("brands");
 
     res.status(200).json({ message: "Brand deleted successfully" });
   } catch (error) {

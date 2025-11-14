@@ -8,7 +8,7 @@ export const createShipment = async (req, res) => {
     const shipment = await Shipment.create(req.body);
 
     //clear data of shipments
-    // await clearCacheByKeyword("shipments");
+    await clearCacheByKeyword("shipments");
 
     return res.status(201).json({
       message:

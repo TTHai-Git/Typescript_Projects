@@ -56,7 +56,7 @@ export const createCategory = async (req, res) => {
     const category = await Category.create({ name, description });
 
     // clear all data of categories
-    // await clearCacheByKeyword("categories");
+    await clearCacheByKeyword("categories");
 
     res
       .status(201)
@@ -86,7 +86,7 @@ export const updateCategory = async (req, res) => {
     }
 
     // clear all data of categories
-    // await clearCacheByKeyword("categories");
+    await clearCacheByKeyword("categories");
 
     res.status(200).json(category);
   } catch (error) {
@@ -105,7 +105,7 @@ export const deleteCategory = async (req, res) => {
     await category.deleteOne();
 
     // clear all data of categories
-    // await clearCacheByKeyword("categories");
+    await clearCacheByKeyword("categories");
 
     return res.status(204).send();
   } catch (error) {

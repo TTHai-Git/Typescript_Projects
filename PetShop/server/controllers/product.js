@@ -184,60 +184,67 @@ export const getAllProducts = async (req, res) => {
 
 export const getProductById = async (req, res) => {
   try {
-    const { type, product_id } = req.params;
-    const model = productTypes[type];
+    const { product_id } = req.params;
 
-    if (!model) {
-      return res.status(400).json({ message: "Invalid product type" });
+    if (!product_id) {
+      return res.status(400).json({ message: "Product not found" });
+    } else {
+      const baseModel = await Product.findById(product_id);
+      if (baseModel) {
+        const model = productTypes[baseModel.__t];
+        if (!model) {
+          return res.status(400).json({ message: "Invalid product type" });
+        }
+
+        // ✅ Use endpoint-based cache key
+        const cacheKey = `GET:/v1/products/${product_id}`;
+
+        // Use caching helper
+        const productData = await getOrSetCachedData(cacheKey, async () => {
+          const product = await model.findById(product_id);
+          if (!product) throw new Error("Product not found");
+
+          const [category, vendor, brand] = await Promise.all([
+            Category.findById(product.category),
+            Vendor.findById(product.vendor),
+            Brand.findById(product.brand),
+          ]);
+
+          if (!category || !vendor || !brand) {
+            throw new Error("Related entities not found");
+          }
+
+          let breed = null;
+          if (baseModel.__t === "dog") {
+            breed = await Breed.findById(product.breed);
+            if (!breed) throw new Error("Breed not found");
+          }
+
+          const [rating, totalOrder, countFavorite] = await Promise.all([
+            calculateRating(product._id),
+            calculateTotalOrderOfProduct(product._id),
+            countFavoriteOfProduct(product._id),
+          ]);
+
+          return {
+            product: {
+              ...product.toObject(),
+              breed,
+              category,
+              vendor,
+              brand,
+              totalRating: rating.totalRating,
+              beforeTotalRatingRounded: rating.beforeTotalRatingRounded,
+              totalOrder,
+              countFavorite,
+            },
+          };
+        });
+
+        // ✅ Return response here (after caching)
+        return res.status(200).json(productData);
+      }
     }
-
-    // ✅ Use endpoint-based cache key
-    const cacheKey = `GET:/v1/products/${product_id}`;
-
-    // Use caching helper
-    const productData = await getOrSetCachedData(cacheKey, async () => {
-      const product = await model.findById(product_id);
-      if (!product) throw new Error("Product not found");
-
-      const [category, vendor, brand] = await Promise.all([
-        Category.findById(product.category),
-        Vendor.findById(product.vendor),
-        Brand.findById(product.brand),
-      ]);
-
-      if (!category || !vendor || !brand) {
-        throw new Error("Related entities not found");
-      }
-
-      let breed = null;
-      if (type === "dog") {
-        breed = await Breed.findById(product.breed);
-        if (!breed) throw new Error("Breed not found");
-      }
-
-      const [rating, totalOrder, countFavorite] = await Promise.all([
-        calculateRating(product._id),
-        calculateTotalOrderOfProduct(product._id),
-        countFavoriteOfProduct(product._id),
-      ]);
-
-      return {
-        product: {
-          ...product.toObject(),
-          breed,
-          category,
-          vendor,
-          brand,
-          totalRating: rating.totalRating,
-          beforeTotalRatingRounded: rating.beforeTotalRatingRounded,
-          totalOrder,
-          countFavorite,
-        },
-      };
-    });
-
-    // ✅ Return response here (after caching)
-    return res.status(200).json(productData);
   } catch (error) {
     console.error("❌ Error in getProductById:", error);
     return res.status(500).json({ message: error.message });
@@ -277,7 +284,7 @@ export const createProduct = async (req, res) => {
     });
 
     //clear data of products
-    // await clearCacheByKeyword("products");
+    await clearCacheByKeyword("products");
 
     return res
       .status(201)
@@ -302,7 +309,7 @@ export const updateProduct = async (req, res) => {
     }
 
     //clear data of products
-    // await clearCacheByKeyword("products");
+    await clearCacheByKeyword("products");
 
     return res.status(200).json(product);
   } catch (error) {

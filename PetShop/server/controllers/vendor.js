@@ -56,7 +56,7 @@ export const createVendor = async (req, res) => {
     });
 
     // clear data of vendors
-    // await clearCacheByKeyword("vendors");
+    await clearCacheByKeyword("vendors");
 
     return res
       .status(201)
@@ -86,7 +86,7 @@ export const updateVendor = async (req, res) => {
     }
 
     // clear data of vendors
-    // await clearCacheByKeyword("vendors");
+    await clearCacheByKeyword("vendors");
 
     res.status(200).json(vendor);
   } catch (error) {
@@ -104,7 +104,7 @@ export const deleteVendor = async (req, res) => {
     await vendor.deleteOne();
 
     // clear data of vendors
-    // await clearCacheByKeyword("vendors");
+    await clearCacheByKeyword("vendors");
 
     return res.status(200).json({ message: "vendor deleted successfully" });
   } catch (error) {

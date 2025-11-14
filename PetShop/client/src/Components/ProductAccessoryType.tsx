@@ -58,7 +58,7 @@ const ProductAccessoryType = () => {
   const loadInfoDetailsOfProduct = async () => {
     try {
       setLoading(true);
-      const response = await APIs.get(endpoints.getProductById(type,product_id));
+      const response = await APIs.get(endpoints.getProductById(product_id));
       setProductAccessory(response.data.product);
       // console.log('Product Accessory: ', response.data.product);
     } catch (error) {
@@ -85,6 +85,7 @@ const ProductAccessoryType = () => {
       console.error(error);
     } finally {
       setLoading(false)
+      loadInfoDetailsOfProduct()
     }
   }
 

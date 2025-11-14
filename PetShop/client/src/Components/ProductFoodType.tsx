@@ -62,7 +62,7 @@ const ProductFoodType = () => {
   const loadInfoDetailsOfProduct = async () => {
     try {
       setLoading(true);
-      const response = await APIs.get(endpoints.getProductById(type, product_id));
+      const response = await APIs.get(endpoints.getProductById(product_id));
       setProductFoods(response.data.product);
     } catch (error) {
       console.error(error);
@@ -110,6 +110,7 @@ const ProductFoodType = () => {
         console.error(error);
       } finally {
         setLoading(false)
+        loadInfoDetailsOfProduct()
       }
     }
   

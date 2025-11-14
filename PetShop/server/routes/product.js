@@ -13,7 +13,7 @@ import { csrfMiddleware } from "../middleware/csrf.js";
 const productRoutes = Router();
 
 productRoutes.get("/", getAllProducts);
-productRoutes.get("/:type/:product_id", getProductById);
+productRoutes.get("/:product_id", getProductById);
 productRoutes.post("/", authMiddleware, csrfMiddleware, isAdmin, createProduct);
 productRoutes.put("/:product_id", authMiddleware, isAdmin, updateProduct);
 productRoutes.delete(
@@ -53,7 +53,7 @@ productRoutes.delete(
  *       type: apiKey
  *       in: header
  *       name: adminKey
- *       description: > 
+ *       description: >
  *         To protect methods POST, PUT, PATCH, DELETE for APIs of Admin.
  */
 

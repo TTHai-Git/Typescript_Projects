@@ -74,6 +74,7 @@ const ProductDogType: React.FC = () => {
         console.error(error);
       } finally {
         setLoading(false)
+        loadInfoDetailsOfProduct()
       }
     }
   
@@ -102,7 +103,7 @@ const ProductDogType: React.FC = () => {
       
       try {
         setLoading(true)
-        const response = await APIs.get(endpoints.getProductById(type, product_id));
+        const response = await APIs.get(endpoints.getProductById(product_id));
         setDog(response.data.product);
       } catch (error) {
         console.error('Error fetching dog:', error);

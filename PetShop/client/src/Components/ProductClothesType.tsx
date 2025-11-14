@@ -50,7 +50,7 @@ const ProductClothesType = () => {
   const loadInfoDetailsOfProduct = async () => {
     try {
       setLoading(true);
-      const response = await APIs.get(endpoints.getProductById(type, product_id));
+      const response = await APIs.get(endpoints.getProductById(product_id));
       setProductClothes(response.data.product);
       // console.log('Product Clothes: ', response.data.product);
     } catch (error) {
@@ -99,6 +99,7 @@ const ProductClothesType = () => {
         console.error(error);
       } finally {
         setLoading(false)
+        loadInfoDetailsOfProduct()
       }
     }
   

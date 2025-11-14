@@ -7,7 +7,7 @@ export const createNotification = async (req, res) => {
     const notif = await Notification.create(req.body);
 
     // clear cache data of notifications
-    // await clearCacheByKeyword("notifications");
+    await clearCacheByKeyword("notifications");
 
     return res
       .status(201)
@@ -75,7 +75,7 @@ export const markANotificationAsRead = async (req, res) => {
     );
 
     // clear cache data of notifications
-    // await clearCacheByKeyword("notifications");
+    await clearCacheByKeyword("notifications");
 
     return res
       .status(200)

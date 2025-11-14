@@ -90,6 +90,7 @@ const FavoriteList = () => {
   const removeFavorite = async (favoriteId: string) => {
     if (!window.confirm('Are you sure you want to remove this item from favorites?')) return;
     try {
+      setLoading(true)
       const res = await authApi.delete(endpoints.deleteFavorite(favoriteId));
       if (res.status === 204) {
         showNotification(t("Favorite deleted successfully"), "success")
@@ -100,6 +101,9 @@ const FavoriteList = () => {
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      getFavoriteProductsList()
+      setLoading(false)
     }
   };
 
