@@ -3,7 +3,7 @@ import { welcomeToAPIOfPetShop, welcomeToServer } from "../controllers/base.js";
 
 const baseRoutes = new Router();
 
-baseRoutes.get("/", welcomeToServer)
-baseRoutes.get("/v1", welcomeToAPIOfPetShop)
+baseRoutes.get("/healthz", welcomeToServer);
+baseRoutes.get("/v1/healthz", welcomeToAPIOfPetShop);
 
 export default baseRoutes;
