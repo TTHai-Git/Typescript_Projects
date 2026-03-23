@@ -162,7 +162,7 @@ const FavoriteList = () => {
       >
         {t("Go Back")}
       </Button>
-      <Typography variant="h4" mb={4} fontWeight="bold" color="primary">
+      <Typography variant="h3" mb={5} fontWeight="900" sx={{ color: '#3e2723' }}>
         {t("Your Favorite Products")}
       </Typography>
       <Box sx={{ mb: 4, display: 'flex', flexDirection: 'column', gap: 3 }}>
@@ -360,87 +360,82 @@ const FavoriteList = () => {
                   <Grid item xs={12} sm={6} md={6} key={fav._id}>
                     <Card
                       sx={{
-                        borderRadius: 3,
-                        boxShadow: 5,
+                        borderRadius: "24px",
+                        boxShadow: "0 8px 25px rgba(0,0,0,0.04)",
+                        backgroundColor: '#fff',
+                        border: "2px solid transparent",
+                        transition: 'all 0.3s ease',
                         position: 'relative',
-                        backgroundColor: '#fafafa',
-                        transition: '0.3s',
+                        overflow: 'hidden',
+                        display: 'flex',
+                        flexDirection: 'column',
                         height: '100%',
                         '&:hover': {
-                          transform: 'scale(1.03)',
-                          boxShadow: 10,
+                          transform: 'translateY(-8px)',
+                          boxShadow: "0 20px 40px rgba(255, 152, 0, 0.15)",
+                          borderColor: "rgba(255, 152, 0, 0.2)",
                         },
                       }}
                     >
-                      <CardMedia
-                        component="img"
-                        height="200"
-                        image={fav.product.imageUrl}
-                        alt={fav.product.name}
-                        sx={{ objectFit: 'cover' }}
-                      />
-                      <CardContent sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-                        <Box display="flex" justifyContent="space-between" alignItems="center">
-                          <Typography variant="h6" component="div" noWrap>
+                      {/* Avatar/Image area */}
+                      <Box sx={{ position: 'relative', pt: "75%", width: '100%', overflow: 'hidden', bgcolor: '#fdfbf7' }}>
+                        <CardMedia
+                          component="img"
+                          image={fav.product.imageUrl}
+                          alt={fav.product.name}
+                          sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'contain', p: 3, transition: 'transform 0.5s ease', '&:hover': { transform: 'scale(1.1)' } }}
+                        />
+                        <Tooltip title="Favorite" arrow>
+                          <FavoriteIcon sx={{ color: pink[500], position: 'absolute', top: 16, right: 16, fontSize: 28, zIndex: 2, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }} />
+                        </Tooltip>
+                      </Box>
+                      <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', p: { xs: 2, md: 3 } }}>
+                        <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={1}>
+                          <Typography variant="h6" fontWeight="800" sx={{ color: '#3e2723', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                             {fav.product.name}
                           </Typography>
-                          <Tooltip title="Favorite" arrow>
-                            <FavoriteIcon sx={{ color: pink[500] }} />
-                          </Tooltip>
                         </Box>
-      
-                        <Stack spacing={1} mt={2}>
+
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 2, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                          {fav.product.description}
+                        </Typography>
+
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                           <Typography variant="h5" fontWeight="900" sx={{ color: '#ff9800' }}>
+                             {fav.product.price.toLocaleString()} VND
+                           </Typography>
+                        </Box>
+
+                        <Stack spacing={1} mb={3}>
                           <Box display="flex" alignItems="center" gap={1}>
-                            <DescriptionIcon sx={{ color: deepPurple[400] }} />
+                            <CategoryIcon sx={{ color: '#29b6f6', fontSize: 18 }} />
                             <Typography variant="body2" color="text.secondary">
-                              {fav.product.description}
+                              <Box component="span" fontWeight="600">{t("Category")}:</Box> {t(fav.product.category?.name || "")}
                             </Typography>
                           </Box>
-      
                           <Box display="flex" alignItems="center" gap={1}>
-                            <AttachMoneyIcon sx={{ color: green[600] }} />
-                            <Typography variant="body2" fontWeight="bold" color="secondary">
-                              ${fav.product.price}
-                            </Typography>
+                              <BrandingWatermarkIcon sx={{ color: pink[600], fontSize: 18 }} />
+                              <Typography variant="body2" color="text.secondary">
+                                <Box component="span" fontWeight="600">{t("Brand")}:</Box> {fav.product.brand?.name}
+                              </Typography>
                           </Box>
-      
-                        <Box display="flex" alignItems="center" gap={1}>
-                          <CategoryIcon sx={{ color: blue[600] }} />
-                          <Typography variant="body2" color="text.secondary">
-                            {t("Category")}: {fav.product.category?.name}
-                          </Typography>
-                        </Box>
-
-                        <Box display="flex" alignItems="center" gap={1}>
-                          <StoreIcon sx={{ color: blue[800] }} />
-                          <Typography variant="body2" color="text.secondary">
-                            {t("Vendor")}: {fav.product.vendor?.name}
-                          </Typography>
-                        </Box>
-
-                        <Box display="flex" alignItems="center" gap={1}>
-                          <BrandingWatermarkIcon sx={{ color: pink[600] }} />
-                          <Typography variant="body2" color="text.secondary">
-                            {t("Brand")}: {fav.product.brand?.name}
-                          </Typography>
-                        </Box>
-
                         </Stack>
       
-                        <Box display="flex" justifyContent="space-between" alignItems="center" mt={3}>
+                        <Box display="flex" justifyContent="space-between" alignItems="center" mt="auto">
                           <Tooltip title="View Details" arrow>
                             <Button
                               variant="outlined"
                               size="small"
                               startIcon={<VisibilityIcon />}
                               onClick={() => viewProductDetails(fav.product._id, fav.product.__t)}
+                              sx={{ color: '#ff9800', borderColor: '#ff9800', borderRadius: "20px", '&:hover': { bgcolor: '#fff3e0' } }}
                             >
                               {t("View")}
                             </Button>
                           </Tooltip>
       
                           <Tooltip title="Remove Favorite" arrow>
-                            <IconButton onClick={() => removeFavorite(fav._id)}>
+                            <IconButton onClick={() => removeFavorite(fav._id)} sx={{ bgcolor: '#ffebee', '&:hover': { bgcolor: '#ffcdd2' } }}>
                               <DeleteIcon sx={{ color: red[500] }} />
                             </IconButton>
                           </Tooltip>

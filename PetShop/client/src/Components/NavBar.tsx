@@ -13,8 +13,17 @@ import {
   Grow,
   Divider,
   ListItemIcon,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  Collapse,
 } from '@mui/material';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import CloseIcon from '@mui/icons-material/Close';
 import PersonIcon from '@mui/icons-material/Person';
+import MenuIcon from '@mui/icons-material/Menu';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -43,6 +52,15 @@ const NavBar = () => {
   const dispatch = useDispatch();
 
   const timeoutRef = useRef<number | undefined>(undefined);
+
+  // mobile drawer state
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
+
+  const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
+    if (event && event.type === 'keydown' && ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')) return;
+    setDrawerOpen(open);
+  };
 
   // avatar dropdown state
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -90,21 +108,140 @@ const NavBar = () => {
   };
 
   return (
-    <AppBar position="static" color="default" elevation={2}>
-      <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', px: 2 }}>
+    <AppBar position="sticky" elevation={0} sx={{ bgcolor: '#fff', borderBottom: '1px solid #ffe8cc', top: 0, zIndex: 1100 }}>
+      {/* Mobile Drawer */}
+      <Drawer
+        anchor="left"
+        open={drawerOpen}
+        onClose={toggleDrawer(false)}
+        PaperProps={{ sx: { width: 280, bgcolor: '#fdfbf7', borderRight: '1px solid #ffe8cc' } }}
+      >
+        <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #ffe8cc', bgcolor: '#fff' }}>
+          <Box sx={{ width: 40 }} /> {/* Spacer */}
+          <img
+            src={`https://res.cloudinary.com/${process.env.REACT_APP_CLOUD_NAME}${process.env.REACT_APP_DIR_CLOUD}v1747206698/${process.env.REACT_APP_FOLDER_CLOUD}/p8fsrneompfetgd4h0qh.jpg`}
+            alt="DOGSHOP"
+            style={{ height: 40, borderRadius: 8 }}
+          />
+          <IconButton onClick={toggleDrawer(false)} sx={{ color: '#888', '&:hover': { bgcolor: '#ffebee', color: '#d32f2f' } }}>
+            <CloseIcon />
+          </IconButton>
+        </Box>
+        <List sx={{ pt: 2 }}>
+          <ListItem disablePadding>
+            <ListItemButton component={Link} to="/" onClick={toggleDrawer(false)}>
+              <ListItemIcon><PetsIcon sx={{ color: '#ffbd59' }} /></ListItemIcon>
+              <ListItemText primary={t("Introduction")} primaryTypographyProps={{ fontWeight: 800, color: '#3e2723' }} />
+            </ListItemButton>
+          </ListItem>
+          
+          <ListItem disablePadding>
+            <ListItemButton component={Link} to="/products" onClick={toggleDrawer(false)}>
+              <ListItemIcon><HomeIcon sx={{ color: '#ffbd59' }} /></ListItemIcon>
+              <ListItemText primary={t("Home")} primaryTypographyProps={{ fontWeight: 800, color: '#3e2723' }}/>
+            </ListItemButton>
+          </ListItem>
+
+          {/* Hierarchical User Account Section */}
+          {user && user.isAuthenticated ? (
+            <>
+              <ListItem disablePadding>
+                <ListItemButton onClick={() => setAccountOpen(!accountOpen)}>
+                  <ListItemIcon><PersonIcon sx={{ color: '#ffbd59' }} /></ListItemIcon>
+                  <ListItemText primary={t("My Account")} primaryTypographyProps={{ fontWeight: 800, color: '#3e2723' }} />
+                  {accountOpen ? <ExpandLess sx={{ color: '#ffbd59' }} /> : <ExpandMore sx={{ color: '#ffbd59' }} />}
+                </ListItemButton>
+              </ListItem>
+              <Collapse in={accountOpen} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding sx={{ bgcolor: '#fff3e0' }}>
+                  <ListItemButton sx={{ pl: 4 }} component={Link} to="/userinfo" onClick={toggleDrawer(false)}>
+                    <ListItemIcon><PersonIcon fontSize="small" sx={{ color: '#555' }} /></ListItemIcon>
+                    <ListItemText primary={t("User Info")} primaryTypographyProps={{ fontSize: 14, color: '#555', fontWeight: 600 }} />
+                  </ListItemButton>
+                  <ListItemButton sx={{ pl: 4 }} component={Link} to={`/userinfo/${user?._id}/orders?page=1`} onClick={toggleDrawer(false)}>
+                    <ListItemIcon><AssignmentIcon fontSize="small" sx={{ color: '#555' }} /></ListItemIcon>
+                    <ListItemText primary={t("Follow Orders")} primaryTypographyProps={{ fontSize: 14, color: '#555', fontWeight: 600 }} />
+                  </ListItemButton>
+                  <ListItemButton sx={{ pl: 4 }} component={Link} to={`/userinfo/${user?._id}/favoritelist?page=1`} onClick={toggleDrawer(false)}>
+                    <ListItemIcon><FavoriteIcon fontSize="small" sx={{ color: '#555' }} /></ListItemIcon>
+                    <ListItemText primary={t("Favorites List")} primaryTypographyProps={{ fontSize: 14, color: '#555', fontWeight: 600 }} />
+                  </ListItemButton>
+                  <ListItemButton sx={{ pl: 4 }} component={Link} to={`/admin-dashboard`} onClick={toggleDrawer(false)}>
+                    <ListItemIcon><AdminPanelSettings fontSize="small" sx={{ color: '#555' }} /></ListItemIcon>
+                    <ListItemText primary={t("Dashboard Management")} primaryTypographyProps={{ fontSize: 14, color: '#555', fontWeight: 600 }} />
+                  </ListItemButton>
+                </List>
+              </Collapse>
+
+              <ListItem disablePadding>
+                <ListItemButton onClick={() => { handleLogOut(); toggleDrawer(false)({} as any); }}>
+                  <ListItemIcon><LogoutIcon color="error" /></ListItemIcon>
+                  <ListItemText primary={t("Logout")} primaryTypographyProps={{ fontWeight: 800, color: '#d32f2f' }} />
+                </ListItemButton>
+              </ListItem>
+            </>
+          ) : (
+            <>
+              <ListItem disablePadding>
+                <ListItemButton component={Link} to="/login" onClick={toggleDrawer(false)}>
+                  <ListItemIcon><LoginIcon sx={{ color: '#ffbd59' }} /></ListItemIcon>
+                  <ListItemText primary={t("Login")} primaryTypographyProps={{ fontWeight: 800, color: '#3e2723' }} />
+                </ListItemButton>
+              </ListItem>
+              <ListItem disablePadding>
+                <ListItemButton component={Link} to="/register" onClick={toggleDrawer(false)}>
+                  <ListItemIcon><PersonAddIcon sx={{ color: '#ffbd59' }} /></ListItemIcon>
+                  <ListItemText primary={t("Register")} primaryTypographyProps={{ fontWeight: 800, color: '#3e2723' }} />
+                </ListItemButton>
+              </ListItem>
+            </>
+          )}
+
+          <Divider sx={{ my: 2 }} />
+          
+          <Box sx={{ px: 2, display: "flex", justifyContent: "center", gap: 3 }}>
+            <img
+              src={`https://res.cloudinary.com/${process.env.REACT_APP_CLOUD_NAME}${process.env.REACT_APP_DIR_CLOUD}v1757477860/${process.env.REACT_APP_FOLDER_CLOUD}/Flag_of_the_United_States.svg_pc3v3s.png`}
+              alt="English"
+              width={34}
+              style={{ cursor: "pointer", border: i18n.language === "en" ? "2px solid #ff9800" : "2px solid transparent", borderRadius: '4px' }}
+              onClick={() => { changeLanguage("en"); toggleDrawer(false)({} as any); }}
+            />
+            <img
+              src={`https://res.cloudinary.com/${process.env.REACT_APP_CLOUD_NAME}${process.env.REACT_APP_DIR_CLOUD}v1757477859/${process.env.REACT_APP_FOLDER_CLOUD}/Flag_of_Vietnam.svg_zgxhdt.png`}
+              alt="Vietnamese"
+              width={34}
+              style={{ cursor: "pointer", border: i18n.language === "vi" ? "2px solid #ff9800" : "2px solid transparent", borderRadius: '4px' }}
+              onClick={() => { changeLanguage("vi"); toggleDrawer(false)({} as any); }}
+            />
+          </Box>
+        </List>
+      </Drawer>
+
+      <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', px: { xs: 2, md: 5 }, height: '70px' }}>
+        {/* Mobile Hamburger Icon */}
+        <Box sx={{ display: { xs: 'flex', md: 'none' }, alignItems: 'center' }}>
+          <IconButton
+            onClick={toggleDrawer(true)}
+            sx={{ color: '#ff9800', p: 1, mr: 1, '&:hover': { bgcolor: '#fff3e0' } }}
+          >
+            <MenuIcon sx={{ fontSize: 32 }} />
+          </IconButton>
+        </Box>
+
         {/* Logo Section */}
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
             <img
               src={`https://res.cloudinary.com/${process.env.REACT_APP_CLOUD_NAME}${process.env.REACT_APP_DIR_CLOUD}v1747206698/${process.env.REACT_APP_FOLDER_CLOUD}/p8fsrneompfetgd4h0qh.jpg`}
               alt="DOGSHOP"
-              style={{ height: 48, borderRadius: 8 }}
+              style={{ height: 40, borderRadius: 8 }}
             />
           </Link>
         </Box>
 
-        {/* Main Links */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+        {/* Main Links - Desktop Only */}
+        <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 3 }}>
           <Button component={Link} to="/" startIcon={<PetsIcon />} sx={{ textTransform: 'none' }}>
             {t("Introduction")}
           </Button>
@@ -121,26 +258,28 @@ const NavBar = () => {
         {/* Action Section */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           {/* Cart */}
-          <IconButton component={Link} to="/cart" color="primary">
+          <IconButton component={Link} to="/cart" color="primary" sx={{ display: "flex", gap: 0.5 }}>
             <Badge badgeContent={cartItems.length} color="secondary">
               <ShoppingCartIcon />
             </Badge>
-            {t("Cart")}
+            <Box sx={{ display: { xs: 'none', md: 'block' }, fontSize: 14 }}>
+              {t("Cart")}
+            </Box>
           </IconButton>
 
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: "center", gap: 1, mr: 1 }}>
             <img
               src={`https://res.cloudinary.com/${process.env.REACT_APP_CLOUD_NAME}${process.env.REACT_APP_DIR_CLOUD}v1757477860/${process.env.REACT_APP_FOLDER_CLOUD}/Flag_of_the_United_States.svg_pc3v3s.png`}
               alt="English"
               width={28}
-              style={{ cursor: "pointer", border: i18n.language === "en" ? "2px solid #1976d2" : "none" }}
+              style={{ cursor: "pointer", border: i18n.language === "en" ? "2px solid #ff9800" : "2px solid transparent", borderRadius: 4 }}
               onClick={() => changeLanguage("en")}
             />
             <img
               src={`https://res.cloudinary.com/${process.env.REACT_APP_CLOUD_NAME}${process.env.REACT_APP_DIR_CLOUD}v1757477859/${process.env.REACT_APP_FOLDER_CLOUD}/Flag_of_Vietnam.svg_zgxhdt.png`}
               alt="Vietnamese"
               width={28}
-              style={{ cursor: "pointer", border: i18n.language === "vi" ? "2px solid #1976d2" : "none" }}
+              style={{ cursor: "pointer", border: i18n.language === "vi" ? "2px solid #ff9800" : "2px solid transparent", borderRadius: 4 }}
               onClick={() => changeLanguage("vi")}
             />
           </Box>
@@ -265,7 +404,7 @@ const NavBar = () => {
                 component={Link}
                 to="/login"
                 startIcon={<LoginIcon />}
-                sx={{ textTransform: 'none' }}
+                sx={{ textTransform: 'none', display: { xs: 'none', sm: 'flex' } }}
               >
                 {t("Login")}
               </Button>
@@ -273,7 +412,7 @@ const NavBar = () => {
                 component={Link}
                 to="/register"
                 startIcon={<PersonAddIcon />}
-                sx={{ textTransform: 'none' }}
+                sx={{ textTransform: 'none', display: { xs: 'none', sm: 'flex' } }}
               >
                 {t("Register")}
               </Button>

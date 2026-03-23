@@ -144,14 +144,22 @@ const ProductDogType: React.FC = () => {
   }
 
   return (
-  <Box sx={{ flexGrow: 1, p: { xs: 2, md: 5 }, backgroundColor: '#f9f9f9' }}>
+  <Box sx={{ flexGrow: 1, p: { xs: 2, md: 5 }, backgroundColor: 'var(--pet-bg)', minHeight: '100vh' }}>
     <Button
       variant="contained"
-      color="inherit"
-      size="large"
       startIcon={<ArrowBack />}
       onClick={() => navigate(-1)}
-      sx={{ borderRadius: 3, px: 4, textTransform: 'none', fontWeight: 'bold', boxShadow: 2 }}
+      sx={{
+        borderRadius: "30px",
+        bgcolor: '#fff',
+        color: '#ff9800',
+        boxShadow: '0 8px 20px rgba(0,0,0,0.05)',
+        textTransform: "none",
+        fontWeight: "bold",
+        mb: 4,
+        px: 4,
+        '&:hover': { bgcolor: '#fff3e0' }
+      }}
     >
       {t("Go Back")}
     </Button>
@@ -159,21 +167,21 @@ const ProductDogType: React.FC = () => {
     <Grid container spacing={4}>
       {/* Dog Image */}
       <Grid item xs={12} md={5}>
-        <Card sx={{ borderRadius: 4, boxShadow: 3 }}>
+        <Card elevation={0} sx={{ borderRadius: '32px', boxShadow: '0 10px 40px rgba(0,0,0,0.04)', border: '1px solid #f0f0f0', overflow: 'hidden', bgcolor: '#fff', p: 2 }}>
           <CardMedia
             component="img"
             image={dog.imageUrl}
             alt={dog.name}
-            sx={{ height: "auto", objectFit: 'cover', borderRadius: 2 }}
+            sx={{ height: "auto", objectFit: 'cover', borderRadius: '24px' }}
           />
         </Card>
       </Grid>
 
       {/* Dog Info */}
       <Grid item xs={12} md={7}>
-        <Card sx={{ p: 3, borderRadius: 4, boxShadow: 3 }}>
+        <Card elevation={0} sx={{ p: { xs: 1, md: 3 }, borderRadius: '32px', boxShadow: '0 20px 60px rgba(0,0,0,0.08)', bgcolor: '#fff', border: '1px solid #f0f0f0' }}>
           <CardContent>
-            <Typography variant="h4" fontWeight="bold" gutterBottom>
+            <Typography variant="h3" fontWeight="900" sx={{ color: '#3e2723', mb: 2 }}>
               {dog.name}
             </Typography>
 
@@ -228,27 +236,30 @@ const ProductDogType: React.FC = () => {
             <Divider sx={{ my: 2 }} />
 
             {/* Price & Inventory */}
-            <Typography variant="h6" color="primary" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-              <AttachMoneyIcon sx={{ mr: 1 }} />
-              {t("Price")}: {dog.price.toLocaleString()} VND
-            </Typography>
-            <Typography variant="h6" gutterBottom>
-              <Inventory sx={{ mr: 1 }} /> {t("Inventory")}: {dog.stock} {t("items")}
-            </Typography>
-            <Typography variant="subtitle2" fontWeight="bold" color="primary">
-              <AddShoppingCartIcon fontSize="small" /> {dog.totalOrder} {t("Orders")}
-            </Typography>
+            <Box sx={{ bgcolor: '#fffbf7', p: 3, borderRadius: '24px', border: '1px solid #ffe8cc', mb: 3 }}>
+              <Typography variant="h4" fontWeight="900" sx={{ color: '#ff9800', display: 'flex', alignItems: 'center', mb: 1 }}>
+                {dog.price.toLocaleString()} VND
+              </Typography>
+              <Stack direction="row" spacing={3} sx={{ color: '#555' }}>
+                <Typography variant="body1" fontWeight="600" sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Inventory sx={{ mr: 1, color: '#8d6e63' }} fontSize="small" /> {t("Inventory")}: <Box component="span" sx={{ color: '#3e2723', ml: 0.5 }}>{dog.stock}</Box>
+                </Typography>
+                <Typography variant="body1" fontWeight="600" sx={{ display: 'flex', alignItems: 'center' }}>
+                  <AddShoppingCartIcon sx={{ mr: 1, color: '#8d6e63' }} fontSize="small" /> {t("Orders")}: <Box component="span" sx={{ color: '#3e2723', ml: 0.5 }}>{dog.totalOrder}</Box>
+                </Typography>
+              </Stack>
+            </Box>
 
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+            <Typography variant="body1" sx={{ color: '#555', lineHeight: 1.8, mb: 4, fontSize: '1.1rem' }}>
               {dog.description}
             </Typography>
 
-            <Stack direction="row" spacing={2} alignItems="center" mb={2}>
-              <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center' }}>
-                <CalendarTodayIcon sx={{ mr: 0.5 }} /> {t("Born")}: {new Date(dog.createdAt).toLocaleDateString()}
+            <Stack direction="row" spacing={3} alignItems="center" mb={4}>
+              <Typography variant="body2" fontWeight="600" color="text.secondary" sx={{ display: 'flex', alignItems: 'center' }}>
+                <CalendarTodayIcon sx={{ mr: 1, color: '#ffbd59' }} /> {t("Born")}: {new Date(dog.createdAt).toLocaleDateString()}
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center' }}>
-                <CalendarTodayIcon sx={{ mr: 0.5 }} /> {t("Listed")}: {new Date(dog.updatedAt).toLocaleDateString()}
+              <Typography variant="body2" fontWeight="600" color="text.secondary" sx={{ display: 'flex', alignItems: 'center' }}>
+                <CalendarTodayIcon sx={{ mr: 1, color: '#ffbd59' }} /> {t("Listed")}: {new Date(dog.updatedAt).toLocaleDateString()}
               </Typography>
             </Stack>
 
@@ -257,11 +268,10 @@ const ProductDogType: React.FC = () => {
               <NumberInput min={1} defaultValue={1} onChange={(value) => setSelectedQuantity(value)} />
               <Button
                 variant="contained"
-                color="success"
                 size="large"
                 startIcon={<AddShoppingCartIcon />}
                 onClick={() => handleAddToCart(dog, selectedQuantity)}
-                sx={{ borderRadius: 3, px: 4, textTransform: 'none', fontWeight: 'bold', boxShadow: 2 }}
+                sx={{ py: 1.5, px: 4, fontSize: '1.1rem', fontWeight: 800, bgcolor: '#ff9800', color: '#fff', borderRadius: '30px', boxShadow: '0 8px 20px rgba(255, 152, 0, 0.3)', '&:hover': { bgcolor: '#f57c00', transform: 'translateY(-2px)' }, transition: 'all 0.2s' }}
               >
                 {t("Add to Cart")}
               </Button>
@@ -293,35 +303,30 @@ const ProductDogType: React.FC = () => {
     ) : (
       <Box sx={{
         maxWidth: '100%',
-        margin: '5% 1%',
-        padding: 4,
-        border: '1px solid #ddd',
-        borderRadius: 3,
-        backgroundColor: '#f9f9f9',
-        boxShadow: 2,
+        margin: { xs: '2rem 0', md: '3rem 0' },
+        padding: 6,
+        border: '1px dashed #ccc',
+        borderRadius: '32px',
+        backgroundColor: '#fff',
         textAlign: 'center',
       }}>
-        <Typography variant="h6" color="text.secondary" align="center" mt={4}>
+        <Typography variant="h5" fontWeight="800" sx={{ color: '#3e2723', mb: 3 }}>
+          {t("Join the Conversation")}
+        </Typography>
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
           {t("Please log in to leave a comment.")}
         </Typography>
         <Button
-          variant="outlined"
-          onClick={() =>handleNavigateToLogin() }
+          variant="contained"
+          onClick={() => handleNavigateToLogin()}
+          sx={{ borderRadius: '30px', fontWeight: 'bold', px: 4, py: 1.5, bgcolor: '#ff9800', '&:hover': { bgcolor: '#f57c00' } }}
         >
           {t("Go To Login")}
         </Button>
       </Box>
     )}
 
-    <Box sx={{
-      maxWidth: '100%',
-      margin: '5% 1%',
-      padding: 4,
-      border: '1px solid #ddd',
-      borderRadius: 3,
-      backgroundColor: '#f9f9f9',
-      boxShadow: 2,
-    }}>
+    <Box>
       <CommentsByProduct
         productId={dog._id}
         totalRating={dog.totalRating ?? 0}

@@ -205,15 +205,15 @@ return (
     onSubmit={addComment}
     sx={{
       maxWidth: '100%',
-      margin: '5% 1%',
-      padding: 4,
-      border: '1px solid #ddd',
-      borderRadius: 3,
-      backgroundColor: '#f9f9f9',
-      boxShadow: 2
+      margin: { xs: '2rem 0', md: '3rem 0' },
+      padding: { xs: 3, md: 5 },
+      border: '1px solid #ffe8cc',
+      borderRadius: '32px',
+      backgroundColor: '#fff',
+      boxShadow: '0 20px 40px rgba(0,0,0,0.04)'
     }}
   >
-    <Typography variant="h5" fontWeight="bold" gutterBottom>
+    <Typography variant="h4" fontWeight="800" sx={{ color: '#3e2723', mb: 1 }}>
       {t("Leave A Comment")}
     </Typography>
 
@@ -237,10 +237,10 @@ return (
       variant="outlined"
       value={comment.content}
       onChange={handleChange}
-      sx={{ mb: 2 }}
+      sx={{ mb: 3, '& .MuiOutlinedInput-root': { borderRadius: '16px' } }}
     />
 
-    <Button variant="contained" component="label" sx={{ mb: 2 }}>
+    <Button variant="outlined" component="label" sx={{ mb: 3, borderRadius: '20px', fontWeight: 'bold', color: '#ff9800', borderColor: '#ff9800', '&:hover': { borderColor: '#f57c00', bgcolor: '#fff3e0' } }}>
       {t("Upload Images")}
       <input
         type="file"
@@ -278,10 +278,10 @@ return (
     <Button
       type="submit"
       variant="contained"
-      color="primary"
       fullWidth
       disabled={loading}
-      startIcon={loading && <CircularProgress size={20} />}
+      startIcon={loading && <CircularProgress size={20} color="inherit" />}
+      sx={{ mt: 2, py: 1.5, fontSize: '1.1rem', fontWeight: 800, bgcolor: '#ff9800', color: '#fff', borderRadius: '30px', boxShadow: '0 8px 20px rgba(255, 152, 0, 0.3)', '&:hover': { bgcolor: '#f57c00', transform: 'translateY(-2px)' }, transition: 'all 0.2s' }}
     >
       {loading ? t("Submitting...") : t("Submit Comment")}
     </Button>

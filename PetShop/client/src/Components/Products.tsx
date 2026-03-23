@@ -281,7 +281,8 @@ const Products = () => {
                 />
               )}
               sx={{
-                width: 300,
+                width: { xs: '100%', sm: 300 },
+                mt: { xs: 2, sm: 0 },
                 bgcolor: "white",
                 borderRadius: 2,
                 boxShadow: 2,
@@ -339,95 +340,96 @@ const Products = () => {
               <Grid item xs={12} sm={6} md={6} key={item._id}>
 
                 <Card
-                
                   sx={{
-                    borderRadius: 3,
-                    boxShadow: 5,
-                    backgroundColor: '#fafafa',
-                    transition: '0.3s',
+                    borderRadius: "24px",
+                    boxShadow: "0 8px 25px rgba(0,0,0,0.04)",
+                    backgroundColor: '#fff',
+                    border: "2px solid transparent",
+                    transition: 'all 0.3s ease',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '100%',
                     '&:hover': {
-                      transform: 'scale(1.03)',
-                      boxShadow: 10,
+                      transform: 'translateY(-8px)',
+                      boxShadow: "0 20px 40px rgba(255, 152, 0, 0.15)",
+                      borderColor: "rgba(255, 152, 0, 0.2)",
                     },
                     cursor: "pointer",
-                    
                   }}
                   onClick={() => handleAddToRecentLyViewedProducts(item)}
                 >
-                  <Box sx={{ p: 2, display: 'flex', gap: 2, alignItems: 'center' }} >
-                    <Avatar
-                      variant="rounded"
-                      src={item.imageUrl}
-                      alt={item.name}
-                      sx={{ width: 80, height: 80 }}
-                    />
-                    <Box>
-                      <Typography variant="h6" noWrap>
-                        <LabelOutlinedIcon fontSize="small" /> {item.name}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" noWrap>
-                        <ChatBubbleOutlineIcon fontSize="small" /> {item.description}
-                      </Typography>
-                      <Typography variant="subtitle1" fontWeight="bold" color="primary">
-                        <AttachMoneyIcon fontSize="small" /> {item.price.toLocaleString()} VND
-                      </Typography>
-                      <Typography variant="h6" gutterBottom>
-                        <Inventory sx={{ mr: 1 }} /> {t("Inventory")}: {item.stock} {t("items")}
-                      </Typography>
-                      <Typography variant="subtitle2" fontWeight="bold" color="primary">
-                        <AddShoppingCartIcon fontSize="small" /> {item.totalOrder} {t("Orders")}
-                      </Typography>
-                      <Box>
+                  {/* Status Badge */}
+                  <Box sx={{ position: "absolute", top: 12, left: 12, zIndex: 2 }}>
                     <Chip
-                      key={item._id}
-                      label={
-                        <Stack direction="row" alignItems="center" spacing={0.5}>
-                          <span>{item.beforeTotalRatingRounded}</span>
-                          {Array.from({ length: 5 }).map((_, i) => {
-                            const rating = item.totalRating ?? 0;
-                            if (rating === 0) {
-                              return <StarBorderIcon key={i} sx={{ color: '#ccc', fontSize: 18 }} />;
-                            } else if (i + 1 <= Math.floor(rating)) {
-                              return <StarIcon key={i} sx={{ color: '#fdd835', fontSize: 18 }} />;
-                            } else if (i < rating) {
-                              return <StarHalfIcon key={i} sx={{ color: '#fdd835', fontSize: 18 }} />;
-                            } else {
-                              return <StarBorderIcon key={i} sx={{ color: '#ccc', fontSize: 18 }} />;
-                            }
-                          })}
-                        </Stack>
-                      }
+                      icon={item.status ? <CheckCircleOutlineIcon fontSize="small"/> : <CancelOutlinedIcon fontSize="small"/>}
+                      label={item.status ? t("Active") : t('Inactive')}
+                      size="small"
+                      sx={{ 
+                        fontWeight: 700, 
+                        bgcolor: item.status ? 'rgba(76, 175, 80, 0.9)' : 'rgba(244, 67, 54, 0.9)', 
+                        color: '#fff',
+                        backdropFilter: "blur(4px)"
+                      }}
                     />
-                  </Box>
-                    </Box>
-                    
                   </Box>
                   
-  
-                  <CardContent>
-                    <Stack spacing={1} mb={2}>
-                      <Chip icon={<CategoryIcon />} label={`${t("Category")}: ${t(`${item.category.name}`)}`} />
-                      <Chip icon={<FactoryIcon />} label={`${t("Brand")}: ${item.brand?.name}`} />
-                      <Chip icon={<LocalShippingIcon />} label={`${t("Vendor")}: ${item.vendor?.name}`} />
-                      <Chip
-                        icon={item.status ? <CheckCircleOutlineIcon /> : <CancelOutlinedIcon />}
-                        label={item.status ? t("Active") : t('Inactive')}
-                        color={item.status ? 'success' : 'default'}
-                      />
+                  {/* Avatar/Image area */}
+                  <Box sx={{ position: 'relative', pt: "75%", width: '100%', overflow: 'hidden', bgcolor: '#fdfbf7' }}>
+                    <Avatar
+                      variant="square"
+                      src={item.imageUrl}
+                      alt={item.name}
+                      sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'contain', p: 3, transition: 'transform 0.5s ease', '&:hover': { transform: 'scale(1.1)' } }}
+                    />
+                  </Box>
+                  
+                  <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', p: { xs: 2, md: 3 } }}>
+                    <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={1}>
+                      <Typography variant="h6" fontWeight="800" sx={{ color: '#3e2723', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                        {item.name}
+                      </Typography>
+                    </Box>
+
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                      {item.description}
+                    </Typography>
+
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                       <Typography variant="h5" fontWeight="900" sx={{ color: '#ff9800' }}>
+                         {item.price.toLocaleString()} VND
+                       </Typography>
+                    </Box>
+
+                    <Stack spacing={1} mb={3}>
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <Inventory sx={{ color: '#ab47bc', fontSize: 18 }} />
+                        <Typography variant="body2" color="text.secondary">
+                          <Box component="span" fontWeight="600">{t("Stock")}:</Box> {item.stock} {t("items")}
+                        </Typography>
+                      </Box>
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <CategoryIcon sx={{ color: '#29b6f6', fontSize: 18 }} />
+                        <Typography variant="body2" color="text.secondary">
+                          <Box component="span" fontWeight="600">{t("Category")}:</Box> {t(item.category?.name || "")}
+                        </Typography>
+                      </Box>
                     </Stack>
-  
-                    <Stack direction="row" spacing={1} justifyContent="center">
-                      <Tooltip title={t("View Details")} arrow>
-                        <Button
-                          variant="outlined"
-                          color="info"
-                          startIcon={<InfoIcon />}
-                          onClick={() => handleAddToRecentLyViewedProducts(item)}
-                        >
-                          {t("Details")}
-                        </Button>
-                      </Tooltip>
-                    </Stack>
+
+                    {/* Ratings */}
+                    <Box mt="auto" display="flex" justifyContent="space-between" alignItems="center">
+                      <Stack direction="row" alignItems="center" spacing={0.5}>
+                        <Typography variant="body2" fontWeight="700" sx={{ color: '#3e2723', mr: 0.5 }}>{item.beforeTotalRatingRounded}</Typography>
+                        {Array.from({ length: 5 }).map((_, i) => {
+                          const rating = item.totalRating ?? 0;
+                          return (i + 1 <= Math.floor(rating)) ? <StarIcon key={i} sx={{ color: '#ffc107', fontSize: 18 }} />
+                               : (i < rating) ? <StarHalfIcon key={i} sx={{ color: '#ffc107', fontSize: 18 }} />
+                               : <StarBorderIcon key={i} sx={{ color: '#e0e0e0', fontSize: 18 }} />;
+                        })}
+                        <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>({item.totalOrder} {t("Orders")})</Typography>
+                      </Stack>
+                    </Box>
                   </CardContent>
                 </Card>
               </Grid>

@@ -1,13 +1,45 @@
+:root {
+  --pet-primary: #ff9800; /* Warm vibrant orange */
+  --pet-primary-dark: #f57c00;
+  --pet-secondary: #4caf50; /* Fresh mint green */
+  --pet-bg: #fffbf7; /* Very soft warm white/cream */
+  --pet-text: #3e2723;
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: 'Nunito', 'Quicksand', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--pet-bg);
+  color: var(--pet-text);
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+/* Custom playful scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1; 
+}
+::-webkit-scrollbar-thumb {
+  background: #ffcc80; 
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #ffa726; 
+}
+
+/* Global button override for playful shape */
+.MuiButton-root {
+  border-radius: 30px !important;
+  text-transform: none !important;
+  font-weight: 700 !important;
 }

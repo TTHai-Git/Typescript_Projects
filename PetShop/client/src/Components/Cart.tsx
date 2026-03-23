@@ -14,8 +14,10 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Stack,
+  Paper
 } from '@mui/material';
-import { Add, Remove, Delete } from '@mui/icons-material';
+import { Add, Remove, DeleteOutline, Category, Storefront, ShoppingCartCheckout } from '@mui/icons-material';
 import { useCart } from '../Context/Cart';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
@@ -125,59 +127,77 @@ const Cart = () => {
   }, [selectedVoucherId]);
 
   return (
-    <Box p={4}>
-      <Typography variant="h4" gutterBottom>
-        {t("🛒 Your Cart")}
+    <Box sx={{ p: { xs: 2, md: 5 }, bgcolor: 'var(--pet-bg)', minHeight: '100vh' }}>
+      <Typography variant="h3" fontWeight="900" sx={{ color: '#3e2723', mb: 4, display: 'flex', alignItems: 'center' }}>
+        🛒 {t("Your Cart")}
       </Typography>
 
       {loading && (
-        <Box display="flex" justifyContent="center" my={2}>
-          <CircularProgress />
+        <Box display="flex" justifyContent="center" alignItems="center" my={4}>
+          <CircularProgress sx={{ color: '#ff9800' }} />
+          <Typography variant="h6" sx={{ ml: 2, color: '#ff9800', fontWeight: 'bold' }}>{t("Processing...")}</Typography>
         </Box>
       )}
 
       {cartItems.length === 0 ? (
-        <Typography variant="h6" color="textSecondary">{t("Your cart is empty.")}</Typography>
+        <Paper elevation={0} sx={{ p: 8, textAlign: 'center', borderRadius: '32px', border: '2px dashed #ffe8cc', bgcolor: '#fff' }}>
+          <Typography variant="h5" fontWeight="800" sx={{ color: '#8d6e63', mb: 2 }}>{t("Your cart is empty.")}</Typography>
+          <Button variant="contained" onClick={() => navigate('/products')} sx={{ borderRadius: '30px', bgcolor: '#ff9800', textTransform: 'none', fontWeight: 'bold', px: 4, py: 1.5, '&:hover': { bgcolor: '#f57c00' } }}>
+            {t("Continue Shopping")}
+          </Button>
+        </Paper>
       ) : (
-        <Grid container spacing={3}>
+        <Grid container spacing={4}>
           <Grid item xs={12} md={8}>
             {cartItems.map((item, index) => (
-              <Card key={item._id} sx={{ display: 'flex', mb: 2 }}>
-                <CardMedia
-                  component="img"
-                  image={item.imageUrl}
-                  alt={item.name}
-                  sx={{ width: 120, height: 120, objectFit: 'cover', borderRadius: 1 }}
-                />
-                <CardContent sx={{ flex: 1 }}>
-                  <Typography variant="h6">{item.name}</Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {t("Category")}: {t(item.category?.name)} | {t("Brand")}: {item.brand.name} | {t("Vendor")}: {item.vendor.name}
-                  </Typography>
-                  <Typography variant="body2" sx={{ my: 1 }}>
-                    {item.note?.split(" - ").map((line, i) => (
-                      <div key={i}>{line}</div>
-                    ))}
-                  </Typography>
-                  <Typography variant="subtitle1">{t("Price")}: {item.price.toLocaleString()} VND</Typography>
-                  <Typography variant="subtitle2">{t("Stock")}: {item.stock} {t("items")}</Typography>
-                  <Box display="flex" alignItems="center" mt={1}>
-                    <Tooltip title={t("Decrease")}>
-                      <IconButton onClick={() => decreaseQuantity(item._id)} color="warning">
-                        <Remove />
+              <Card key={item._id} elevation={0} sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, mb: 3, borderRadius: '24px', border: '1px solid #f0f0f0', boxShadow: '0 10px 40px rgba(0,0,0,0.04)', overflow: 'hidden', position: 'relative', transition: 'transform 0.2s', '&:hover': { transform: 'translateY(-4px)', boxShadow: '0 15px 50px rgba(0,0,0,0.08)' } }}>
+                <Box sx={{ p: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', bgcolor: '#fdfbf7' }}>
+                  <CardMedia
+                    component="img"
+                    image={item.imageUrl}
+                    alt={item.name}
+                    sx={{ width: { xs: '100%', sm: 140 }, height: { xs: 200, sm: 140 }, objectFit: 'cover', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
+                  />
+                </Box>
+                <CardContent sx={{ flex: 1, p: 3, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                  <Box display="flex" justifyContent="space-between" alignItems="flex-start">
+                    <Box pr={2}>
+                      <Typography variant="h6" fontWeight="800" sx={{ color: '#3e2723', mb: 0.5, lineHeight: 1.2 }}>{item.name}</Typography>
+                      <Typography variant="body2" sx={{ color: '#8d6e63', mb: 1, display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                        <Box component="span" sx={{ display: 'flex', alignItems: 'center' }}><Category sx={{ fontSize: 16, mr: 0.5, color: '#ffbd59' }} /> {t(item.category?.name)}</Box>
+                        •
+                        <Box component="span" sx={{ display: 'flex', alignItems: 'center' }}><Storefront sx={{ fontSize: 16, mr: 0.5, color: '#4caf50' }} /> {item.vendor.name}</Box>
+                      </Typography>
+                    </Box>
+                    <Tooltip title={t("Remove")} arrow>
+                      <IconButton onClick={() => removeFromCart(item._id)} sx={{ color: '#ff5252', bgcolor: '#ffebee', '&:hover': { bgcolor: '#ffcdd2' } }}>
+                        <DeleteOutline />
                       </IconButton>
                     </Tooltip>
-                    <Typography mx={1}>{item.quantity}</Typography>
-                    <Tooltip title={t("Increase")}>
-                      <IconButton onClick={() => increaseQuantity(item._id, item.stock)} color="primary">
-                        <Add />
+                  </Box>
+                  
+                  {item.note && (
+                    <Box sx={{ bgcolor: '#fffbf7', p: 1.5, borderRadius: '12px', border: '1px dashed #ffe8cc', mb: 2 }}>
+                      <Typography variant="caption" sx={{ color: '#555' }}>
+                        {item.note?.split(" - ").map((line, i) => <div key={i}>{line}</div>)}
+                      </Typography>
+                    </Box>
+                  )}
+
+                  <Box display="flex" justifyContent="space-between" alignItems="center" mt="auto" flexWrap="wrap" gap={2}>
+                    <Typography variant="h5" fontWeight="900" sx={{ color: '#ff9800' }}>
+                      {item.price.toLocaleString()} ₫
+                    </Typography>
+
+                    <Box display="flex" alignItems="center" sx={{ bgcolor: '#f5f5f5', borderRadius: '30px', p: 0.5, border: '1px solid #e0e0e0' }}>
+                      <IconButton onClick={() => decreaseQuantity(item._id)} size="small" sx={{ color: '#555', '&:hover': { bgcolor: '#e0e0e0' } }}>
+                        <Remove fontSize="small" />
                       </IconButton>
-                    </Tooltip>
-                    <Tooltip title={t("Remove")}>
-                      <IconButton onClick={() => removeFromCart(item._id)} color="error">
-                        <Delete />
+                      <Typography fontWeight="800" sx={{ mx: 2, minWidth: '20px', textAlign: 'center', color: '#3e2723' }}>{item.quantity}</Typography>
+                      <IconButton onClick={() => increaseQuantity(item._id, item.stock)} size="small" sx={{ color: '#ff9800', '&:hover': { bgcolor: '#fff3e0' } }}>
+                        <Add fontSize="small" />
                       </IconButton>
-                    </Tooltip>
+                    </Box>
                   </Box>
                 </CardContent>
               </Card>
@@ -186,55 +206,93 @@ const Cart = () => {
 
           {/* Checkout Summary */}
           <Grid item xs={12} md={4}>
-            <Card elevation={3} sx={{ p: 3 }}>
-              <Typography variant="h6">{t("Order Summary")}</Typography>
-              <Divider sx={{ my: 1 }} />
-              <Typography variant="subtitle1">{t("Total Amount Temporarily Calculated")}: {caculateTotalOfCart(0).toLocaleString()} VND</Typography>
-              <FormControl style={{ minWidth: 369 }}>
-                <InputLabel>{t("Search Vouchers")}</InputLabel>
-                <Select
-                  value={selectedVoucherId}
-                  onChange={(e) => setSelectedVoucherId(e.target.value as string)}
-                >
-                  {vouchers?.map((v) => (
-                    <MenuItem key={v._id} value={v._id}>
-                      {v.code} - {v.discount.toString()}% - {v.description}
-                    </MenuItem>
-                  ))}
-                  <MenuItem value="">{t("None")}</MenuItem>
-                </Select>
-              </FormControl>
-              <Typography variant="subtitle1">{t("Discount Price")}: - {caculateDiscountPrice(discount, caculateTotalOfCart(0)).toLocaleString()} VND</Typography>
-              <Typography variant="subtitle1">{t("Total Amount Temporarily Calculated After Using The Voucher")}: {caculateTotalOfCart(discount).toLocaleString()} VND</Typography>
-              {user?.isAuthenticated ? (
-                <>
+            <Box sx={{ position: 'sticky', top: 20 }}>
+              <Card elevation={0} sx={{ p: { xs: 3, md: 4 }, borderRadius: '32px', border: '1px solid #f0f0f0', boxShadow: '0 20px 60px rgba(0,0,0,0.06)', bgcolor: '#fff' }}>
+                <Typography variant="h5" fontWeight="900" sx={{ color: '#3e2723', mb: 3 }}>{t("Order Summary")}</Typography>
+                
+                <Stack spacing={2} sx={{ mb: 3 }}>
+                  <Box display="flex" justifyContent="space-between" alignItems="center">
+                    <Typography variant="body1" sx={{ color: '#888', fontWeight: 600 }}>{t("Subtotal")}</Typography>
+                    <Typography variant="h6" fontWeight="800" sx={{ color: '#3e2723' }}>{caculateTotalOfCart(0).toLocaleString()} ₫</Typography>
+                  </Box>
+
+                  <FormControl fullWidth sx={{ mt: 2, '& .MuiOutlinedInput-root': { borderRadius: '16px', bgcolor: '#fdfbf7' } }}>
+                    <InputLabel id="voucher-label">{t("Available Vouchers")}</InputLabel>
+                    <Select
+                      labelId="voucher-label"
+                      value={selectedVoucherId}
+                      label={t("Available Vouchers")}
+                      onChange={(e) => setSelectedVoucherId(e.target.value as string)}
+                    >
+                      <MenuItem value=""><em>{t("None")}</em></MenuItem>
+                      {vouchers?.map((v) => (
+                        <MenuItem key={v._id} value={v._id}>
+                          <strong>{v.code}</strong> &nbsp;—&nbsp; {v.discount.toString()}% &nbsp;({v.description})
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+                  {discount > 0 && (
+                    <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ color: '#4caf50', bgcolor: '#e8f5e9', p: 1.5, borderRadius: '12px' }}>
+                      <Typography variant="body2" fontWeight="700">{t("Discount Price")}</Typography>
+                      <Typography variant="body1" fontWeight="800">- {caculateDiscountPrice(discount, caculateTotalOfCart(0)).toLocaleString()} ₫</Typography>
+                    </Box>
+                  )}
+                </Stack>
+                
+                <Divider sx={{ borderStyle: 'dashed', my: 2 }} />
+                
+                <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mb: 4, mt: 2 }}>
+                  <Typography variant="subtitle1" sx={{ color: '#3e2723', fontWeight: 800 }}>{t("Total Amount")}</Typography>
+                  <Typography variant="h4" fontWeight="900" sx={{ color: '#ff9800' }}>
+                    {caculateTotalOfCart(discount).toLocaleString()} ₫
+                  </Typography>
+                </Box>
+
+                {user?.isAuthenticated ? (
                   <Button
                     fullWidth
                     variant="contained"
-                    color="success"
-                    startIcon={<AttachMoneyIcon />}
-                    sx={{ mt: 2 }}
+                    size="large"
+                    startIcon={<ShoppingCartCheckout />}
                     onClick={() => handleMakeOrder()}
+                    sx={{ 
+                      py: 2, 
+                      borderRadius: '30px', 
+                      fontSize: '1.2rem', 
+                      fontWeight: 900, 
+                      bgcolor: '#ff9800', 
+                      boxShadow: '0 8px 25px rgba(255, 152, 0, 0.4)',
+                      transition: 'all 0.2s',
+                      '&:hover': { bgcolor: '#f57c00', transform: 'translateY(-2px)', boxShadow: '0 12px 30px rgba(255, 152, 0, 0.5)' }
+                    }}
                   >
-                    {t("Make Order")}
+                    {t("Proceed to Checkout")}
                   </Button>
-                  
-                </>
-              ) : (
-                <Box mt={2}>
-                  <Typography variant="body2" color="text.secondary">{t("Please login to proceed make order.")}</Typography>
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    color="secondary"
-                    sx={{ mt: 1 }}
-                    onClick={() => navigate('/login', { state: "/cart" })}
-                  >
-                    {t("Login To Make Shipment Info")}
-                  </Button>
-                </Box>
-              )}
-            </Card>
+                ) : (
+                  <Box mt={2}>
+                    <Typography variant="body2" sx={{ color: '#ff5252', mb: 2, textAlign: 'center', fontWeight: 600 }}>{t("Please login to proceed make order.")}</Typography>
+                    <Button
+                      fullWidth
+                      variant="outlined"
+                      size="large"
+                      onClick={() => navigate('/login', { state: "/cart" })}
+                      sx={{ 
+                        py: 1.5,
+                        borderRadius: '30px', 
+                        fontWeight: 800, 
+                        color: '#ff9800', 
+                        border: '2px solid #ff9800',
+                        '&:hover': { bgcolor: '#fff3e0', border: '2px solid #f57c00', color: '#f57c00' }
+                      }}
+                    >
+                      {t("Login to Checkout")}
+                    </Button>
+                  </Box>
+                )}
+              </Card>
+            </Box>
           </Grid>
         </Grid>
       )}
@@ -242,4 +300,5 @@ const Cart = () => {
     
   );
 };
+
 export default Cart;

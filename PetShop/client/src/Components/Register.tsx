@@ -7,6 +7,10 @@ import axios from "axios";
 import { useTranslation } from "react-i18next";
 import { useNotification } from "../Context/Notification";
 import { useSearchParams } from "react-router-dom";
+import { Box, Button, TextField, Typography, Container, Paper, Avatar, IconButton, Grid } from '@mui/material';
+import PetsIcon from '@mui/icons-material/Pets';
+import PhotoCamera from '@mui/icons-material/PhotoCamera';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -200,107 +204,74 @@ const Register = () => {
 
   /* ------------------- JSX ------------------- */
   return (
-    <div className="register-container">
-      {loading && <div className="loading-spinner"></div>}
-      <form className="register-form" onSubmit={handleRegister}>
-        <h2>{t("Register Account")}</h2>
+    <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'var(--pet-bg)', p: { xs: 2, md: 5 } }}>
+      {loading && <Box className="loading-spinner"></Box>}
+      <Container maxWidth="md">
+        <Paper elevation={0} sx={{ p: { xs: 3, md: 5 }, borderRadius: '32px', boxShadow: '0 20px 60px rgba(0,0,0,0.08)', bgcolor: '#fff' }}>
+          
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, position: 'relative' }}>
+            <IconButton onClick={() => handleRedirectToLogin()} sx={{ position: 'absolute', left: 0, color: '#ff9800', bgcolor: '#fff3e0', '&:hover': { bgcolor: '#ffe0b2' } }}>
+              <ArrowBackIcon />
+            </IconButton>
+            <Box sx={{ width: '100%', textAlign: 'center' }}>
+              <Typography variant="h4" fontWeight="900" sx={{ color: '#3e2723' }}>{t("Create Account")}</Typography>
+              <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>{t("Join our pet-loving community today!")}</Typography>
+            </Box>
+          </Box>
+          
+          <Box component="form" onSubmit={handleRegister} sx={{ mt: 2 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
+              <Box sx={{ position: 'relative' }}>
+                <Avatar
+                  src={previewAvatar || ""}
+                  alt="Avatar Preview"
+                  sx={{ width: 120, height: 120, bgcolor: '#fdfbf7', border: '3px dashed #ffb74d' }}
+                >
+                  {!previewAvatar && <PetsIcon sx={{ fontSize: 40, color: '#ffe0b2' }} />}
+                </Avatar>
+                <IconButton color="primary" aria-label="upload picture" component="label" sx={{ position: 'absolute', bottom: 0, right: 0, bgcolor: '#ff9800', color: '#fff', '&:hover': { bgcolor: '#f57c00' }, boxShadow: '0 4px 10px rgba(0,0,0,0.2)' }}>
+                  <input hidden accept="image/*" type="file" name="avatar" onChange={handleSetState} />
+                  <PhotoCamera />
+                </IconButton>
+              </Box>
+            </Box>
 
-        <label htmlFor="username">{t("Username")}:</label>
-        <input
-          type="text"
-          id="username"
-          name="username"
-          required
-          value={userRegister.username}
-          onChange={handleSetState}
-        />
-
-        <label htmlFor="password">{t("Password")}:</label>
-        <input
-          type="password"
-          id="password"
-          name="password"
-          required
-          value={userRegister.password}
-          onChange={handleSetState}
-        />
-
-        <label htmlFor="name">{t("Full Name")}:</label>
-        <input
-          type="text"
-          id="name"
-          name="name"
-          required
-          value={userRegister.name}
-          onChange={handleSetState}
-        />
-
-        <label>{t("Avatar")}:</label>
-        <input
-          type="file"
-          name="avatar"
-          accept="image/*"
-          onChange={handleSetState}
-        />
-        {previewAvatar && (
-          <img
-            src={previewAvatar}
-            alt="Avatar Preview"
-            style={{
-              width: 120,
-              height: 120,
-              borderRadius: "50%",
-              objectFit: "cover",
-              marginTop: 10,
-            }}
-          />
-        )}
-
-        <label htmlFor="email">{t("Email")}:</label>
-        <input
-          type="email"
-          id="email"
-          name="email"
-          required
-          value={userRegister.email}
-          onChange={handleSetState}
-        />
-
-        <label htmlFor="phone">{t("Phone")}:</label>
-        <input
-          type="tel"
-          id="phone"
-          name="phone"
-          required
-          value={userRegister.phone}
-          onChange={handleSetState}
-        />
-
-        <label htmlFor="address">{t("Address")}:</label>
-        <input
-          type="text"
-          id="address"
-          name="address"
-          required
-          value={userRegister.address}
-          onChange={handleSetState}
-        />
-
-        <div className="form-group">
-          <button className="register-button" type="submit" disabled={loading}>
-            {t("Register")}
-          </button>
-          <div className="line"></div>
-          <button
-            type="button"
-            className="back-button"
-            onClick={() => handleRedirectToLogin()}
-          >
-            {t("Back To Login")}
-          </button>
-        </div>
-      </form>
-    </div>
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={6}>
+                <TextField fullWidth label={t("Username")} name="username" value={userRegister.username} onChange={handleSetState} required sx={{ '& .MuiOutlinedInput-root': { borderRadius: '16px' } }} />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField fullWidth type="password" label={t("Password")} name="password" value={userRegister.password} onChange={handleSetState} required sx={{ '& .MuiOutlinedInput-root': { borderRadius: '16px' } }} />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField fullWidth label={t("Full Name")} name="name" value={userRegister.name} onChange={handleSetState} required sx={{ '& .MuiOutlinedInput-root': { borderRadius: '16px' } }} />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField fullWidth type="email" label={t("Email")} name="email" value={userRegister.email} onChange={handleSetState} required sx={{ '& .MuiOutlinedInput-root': { borderRadius: '16px' } }} />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField fullWidth type="tel" label={t("Phone")} name="phone" value={userRegister.phone} onChange={handleSetState} required sx={{ '& .MuiOutlinedInput-root': { borderRadius: '16px' } }} />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField fullWidth label={t("Address")} name="address" value={userRegister.address} onChange={handleSetState} required sx={{ '& .MuiOutlinedInput-root': { borderRadius: '16px' } }} multiline rows={2} />
+              </Grid>
+              
+              <Grid item xs={12}>
+                <Button 
+                  type="submit" 
+                  variant="contained" 
+                  fullWidth 
+                  disabled={loading}
+                  sx={{ mt: 2, py: 1.8, fontSize: '1.1rem', fontWeight: 800, bgcolor: '#ff9800', color: '#fff', borderRadius: '30px', boxShadow: '0 8px 20px rgba(255, 152, 0, 0.3)', '&:hover': { bgcolor: '#f57c00', transform: 'translateY(-2px)' }, transition: 'all 0.2s' }}
+                >
+                  {t("Register")}
+                </Button>
+              </Grid>
+            </Grid>
+          </Box>
+        </Paper>
+      </Container>
+    </Box>
   );
 };
 

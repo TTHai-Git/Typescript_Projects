@@ -6,7 +6,8 @@ import { AppDispatch } from '../store';
 import '../Assets/CSS/Login.css';
 import { useNavigate } from 'react-router';
 import { UserState } from '../Interface/Users';
-import { Alert } from '@mui/material';
+import { Alert, Box, Button, TextField, Typography, Container, Paper, Divider } from '@mui/material';
+import PetsIcon from '@mui/icons-material/Pets';
 import APIs, { endpoints, fetchCsrfToken } from '../Config/APIs';
 import { useNotification } from '../Context/Notification';
 import { useTranslation } from 'react-i18next';
@@ -86,63 +87,84 @@ const Login: React.FC = () => {
   }, [isError])
 
   return (
-    <div className="login-container">
-      {loading && <div className="loading-spinner"></div>}
-      <div className="login-box">
-        <h2>{t("Welcome Back")}</h2>
-        <p className="login-subtitle">{t("Please login to your account")}</p>
-        
-        <form onSubmit={handleLogin} className="login-form">
-          <div className="form-group">
-            <label htmlFor="username">{t("Username/Email/Phone")}</label>
-            <input
+    <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'var(--pet-bg)', p: 3 }}>
+      {loading && <Box className="loading-spinner"></Box>}
+      <Container maxWidth="sm">
+        <Paper elevation={0} sx={{ p: { xs: 4, md: 6 }, borderRadius: '32px', boxShadow: '0 20px 60px rgba(0,0,0,0.08)', bgcolor: '#fff', textAlign: 'center' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+            <Box sx={{ bgcolor: '#fff3e0', p: 2, borderRadius: '50%' }}>
+              <PetsIcon sx={{ fontSize: 40, color: '#ff9800' }} />
+            </Box>
+          </Box>
+          <Typography variant="h4" fontWeight="900" sx={{ color: '#3e2723', mb: 1 }}>{t("Welcome Back")}</Typography>
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>{t("Please login to your account")}</Typography>
+          
+          <Box component="form" onSubmit={handleLogin} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <TextField
               id="username"
-              type="text"
-              placeholder={t("Enter your username")}
+              label={t("Username/Email/Phone")}
+              variant="outlined"
+              fullWidth
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
+              sx={{ '& .MuiOutlinedInput-root': { borderRadius: '16px' } }}
             />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="password">{t("Password")}</label>
-            <input
-              id={t("password")}
+            
+            <TextField
+              id="password"
               type="password"
-              placeholder={t("Enter your password")}
+              label={t("Password")}
+              variant="outlined"
+              fullWidth
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              sx={{ '& .MuiOutlinedInput-root': { borderRadius: '16px' } }}
             />
-          </div>
-          <div className="form-group">
-            {isError && (
-                <Alert severity="error" sx={{ mb: 2 }}>
-                  {errorMessage}
-                </Alert>
-              )}  
-          </div>
-          <div className="form-group">
-          <a className="forgotpassword-subtitle"  onClick={() =>handleNavigateToGenerateOTPForForgotPassword() }>{t("Do you forgot your password?")}</a>
-          </div>
-          <div className="form-group">
-          <button type="submit" className="login-button">
-            {t("Login")}
-          </button>
-          <div className="line">
             
-          </div>
-          <button
-            className="register-button"
-            onClick={() => handleNavigateToRegister()}
-          >
-           {t("Register")}
-          </button>
-          </div>
-        </form>
-      </div>
-    </div>
+            {isError && (
+              <Alert severity="error" sx={{ borderRadius: '12px', textAlign: 'left' }}>
+                {errorMessage}
+              </Alert>
+            )}  
+            
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Typography 
+                component="a" 
+                onClick={() =>handleNavigateToGenerateOTPForForgotPassword() }
+                sx={{ cursor: 'pointer', color: '#ff9800', fontWeight: 700, fontSize: '0.95rem', '&:hover': { textDecoration: 'underline' } }}
+              >
+                {t("Forgot your password?")}
+              </Typography>
+            </Box>
+            
+            <Button 
+              type="submit" 
+              variant="contained" 
+              fullWidth 
+              disabled={loading}
+              sx={{ py: 1.5, fontSize: '1.1rem', fontWeight: 800, bgcolor: '#ff9800', color: '#fff', borderRadius: '30px', boxShadow: '0 8px 20px rgba(255, 152, 0, 0.3)', '&:hover': { bgcolor: '#f57c00', transform: 'translateY(-2px)' }, transition: 'all 0.2s' }}
+            >
+              {t("Login")}
+            </Button>
+            
+            <Divider sx={{ my: 2, '&::before, &::after': { borderColor: '#ffe0b2' } }}>
+              <Typography variant="body2" color="text.secondary" sx={{ px: 1, fontWeight: 600 }}>{t("Or")}</Typography>
+            </Divider>
+            
+            <Button
+              variant="outlined"
+              fullWidth
+              onClick={() => handleNavigateToRegister()}
+              sx={{ py: 1.5, fontSize: '1.1rem', fontWeight: 800, color: '#ff9800', borderColor: '#ff9800', borderRadius: '30px', '&:hover': { bgcolor: '#fff3e0', borderColor: '#f57c00' } }}
+            >
+             {t("Register")}
+            </Button>
+          </Box>
+        </Paper>
+      </Container>
+    </Box>
   );
 };
 

@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router';
 import { authApi, endpoints } from '../Config/APIs';
 import formatDate from '../Convert/formatDate';
 import { useTranslation } from 'react-i18next';
-import { Button } from '@mui/material';
+import { Button, Typography, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
 
  const ShipmentInfomation = () => {
@@ -43,63 +43,73 @@ import { ArrowBack } from '@mui/icons-material';
   }, [])
 
   return (
-  <div className="container mx-auto p-4">
-    <Button
-      variant="contained"
-      color="inherit"
-      size="large"
-      startIcon={<ArrowBack />}
-      onClick={() => navigate(-1)}
-      sx={{ borderRadius: 3, px: 4, textTransform: 'none', fontWeight: 'bold', boxShadow: 2 }}
-    >
-      {t("Go Back")}
-    </Button>
-    <h1 className="text-xl font-bold mb-4">{t("Shipment Information")}</h1>
+    <Box sx={{ p: { xs: 2, md: 4 }, bgcolor: 'var(--pet-bg)', minHeight: '100vh' }}>
+      <Button
+        variant="contained"
+        startIcon={<ArrowBack />}
+        onClick={() => navigate(-1)}
+        sx={{
+          borderRadius: "30px",
+          bgcolor: '#fff',
+          color: '#ff9800',
+          boxShadow: '0 8px 20px rgba(0,0,0,0.05)',
+          textTransform: "none",
+          fontWeight: "bold",
+          mb: 4,
+          '&:hover': { bgcolor: '#fff3e0' }
+        }}
+      >
+        {t("Go Back")}
+      </Button>
 
-    {loading ? (
-      <p className="loading">🔄 {t("Loading shipment info...")}</p>
-    ) : error ? (
-      <div className="text-red-600 bg-red-100 border border-red-300 p-4 rounded">
-        ⚠️ {errorMessage || t("Failed to load shipment information.")}
-      </div>
-    ) : shipmentInfo ? (
-      <table className="min-w-full border border-gray-300">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="border px-4 py-2">#</th>
-            <th className="border px-4 py-2">{t("Shipment ID")}</th>
-            <th className="border px-4 py-2">{t("Method")}</th>
-            <th className="border px-4 py-2">{t("Buyer Name")}</th>
-            <th className="border px-4 py-2">{t("Buyer Phone")}</th>
-            <th className="border px-4 py-2">{t("Buyer Address")}</th>
-            <th className="border px-4 py-2">{t("Shipment Fee")}</th>
-            <th className="border px-4 py-2">{t("Created Date")}</th>
-            <th className="border px-4 py-2">{t("Updated Date")}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr key={shipmentInfo._id} className="text-center">
-            <td className="border px-4 py-2">1</td>
-            <td className="border px-4 py-2">{shipmentInfo._id}</td>
-            <td className="border px-4 py-2">{t(shipmentInfo.method)}</td>
-            <td className="border px-4 py-2">{shipmentInfo.buyerName}</td>
-            <td className="border px-4 py-2">{shipmentInfo.buyerPhone}</td>
-            <td className="border px-4 py-2">{shipmentInfo.buyerAddress}</td>
-            <td className="border px-4 py-2">{shipmentInfo.fee.toLocaleString()} VND</td>
-            <td className="border px-4 py-2">
-              {shipmentInfo.createdAt ? formatDate(shipmentInfo.createdAt) : t("N/A")}
-            </td>
-            <td className="border px-4 py-2">
-              {shipmentInfo.updatedAt ? formatDate(shipmentInfo.updatedAt) : t("N/A")}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    ) : (
-      <p className="text-gray-500">{t("No shipment information available.")}</p>
-    )}
-  </div>
-);
+      <Typography variant="h4" fontWeight="900" sx={{ color: '#3e2723', mb: 4 }}>
+        {t("Shipment Information")}
+      </Typography>
+
+      {loading ? (
+        <Typography sx={{ color: '#ff9800', fontWeight: 'bold' }}>🔄 {t("Loading shipment info...")}</Typography>
+      ) : error ? (
+        <Box sx={{ color: '#d32f2f', bgcolor: '#ffebee', p: 2, borderRadius: '16px', fontWeight: 'bold' }}>
+          ⚠️ {errorMessage || t("Failed to load shipment information.")}
+        </Box>
+      ) : shipmentInfo ? (
+        <TableContainer component={Paper} elevation={0} sx={{ borderRadius: '24px', boxShadow: '0 10px 40px rgba(0,0,0,0.04)', border: '1px solid #f0f0f0', overflow: 'hidden' }}>
+          <Table sx={{ minWidth: 650 }}>
+            <TableHead>
+              <TableRow sx={{ bgcolor: '#fffbf7' }}>
+                <TableCell sx={{ fontWeight: 800, color: '#ff9800', borderBottom: '2px solid #ffe8cc' }}>#</TableCell>
+                <TableCell sx={{ fontWeight: 800, color: '#ff9800', borderBottom: '2px solid #ffe8cc' }}>{t("Shipment ID")}</TableCell>
+                <TableCell sx={{ fontWeight: 800, color: '#ff9800', borderBottom: '2px solid #ffe8cc' }}>{t("Method")}</TableCell>
+                <TableCell sx={{ fontWeight: 800, color: '#ff9800', borderBottom: '2px solid #ffe8cc' }}>{t("Buyer Name")}</TableCell>
+                <TableCell sx={{ fontWeight: 800, color: '#ff9800', borderBottom: '2px solid #ffe8cc' }}>{t("Buyer Phone")}</TableCell>
+                <TableCell sx={{ fontWeight: 800, color: '#ff9800', borderBottom: '2px solid #ffe8cc' }}>{t("Buyer Address")}</TableCell>
+                <TableCell sx={{ fontWeight: 800, color: '#ff9800', borderBottom: '2px solid #ffe8cc' }}>{t("Shipment Fee")}</TableCell>
+                <TableCell sx={{ fontWeight: 800, color: '#ff9800', borderBottom: '2px solid #ffe8cc' }}>{t("Created Date")}</TableCell>
+                <TableCell sx={{ fontWeight: 800, color: '#ff9800', borderBottom: '2px solid #ffe8cc' }}>{t("Updated Date")}</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 }, '&:hover': { bgcolor: '#fdfbf7' } }}>
+                <TableCell>1</TableCell>
+                <TableCell sx={{ fontWeight: 600, color: '#3e2723' }}>{shipmentInfo._id}</TableCell>
+                <TableCell>
+                  <Chip label={t(shipmentInfo.method)} sx={{ bgcolor: '#e3f2fd', color: '#1976d2', fontWeight: 700 }} />
+                </TableCell>
+                <TableCell>{shipmentInfo.buyerName}</TableCell>
+                <TableCell>{shipmentInfo.buyerPhone}</TableCell>
+                <TableCell>{shipmentInfo.buyerAddress}</TableCell>
+                <TableCell sx={{ fontWeight: 800, color: '#4caf50' }}>{shipmentInfo.fee.toLocaleString()} VND</TableCell>
+                <TableCell>{shipmentInfo.createdAt ? formatDate(shipmentInfo.createdAt) : t("N/A")}</TableCell>
+                <TableCell>{shipmentInfo.updatedAt ? formatDate(shipmentInfo.updatedAt) : t("N/A")}</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </TableContainer>
+      ) : (
+        <Typography color="text.secondary">{t("No shipment information available.")}</Typography>
+      )}
+    </Box>
+  );
 
 
 }

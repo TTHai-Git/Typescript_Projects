@@ -126,31 +126,37 @@ const Form2FA: React.FC = () => {
       justifyContent="center"
       alignItems="center"
       minHeight="100vh"
-      sx={{ backgroundColor: "#f8f9fb", position: "relative" }}
+      sx={{ bgcolor: 'var(--pet-bg)', p: 3, position: "relative" }}
     >
       <Button
-        variant="outlined"
+        variant="contained"
         startIcon={<ArrowBack />}
         onClick={() => navigate(-1)}
         sx={{
           position: "absolute",
-          top: 30,
-          left: 30,
-          borderRadius: 3,
+          top: { xs: 20, md: 40 },
+          left: { xs: 20, md: 40 },
+          borderRadius: "30px",
+          bgcolor: '#fff',
+          color: '#ff9800',
+          boxShadow: '0 8px 20px rgba(0,0,0,0.05)',
           textTransform: "none",
           fontWeight: "bold",
+          '&:hover': { bgcolor: '#fff3e0' }
         }}
       >
         {t("Go Back")}
       </Button>
 
       <Paper
-        elevation={3}
+        elevation={0}
         sx={{
-          p: 5,
-          borderRadius: 4,
-          width: { xs: "90%", sm: 400 },
+          p: { xs: 4, md: 5 },
+          borderRadius: '32px',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.08)',
+          width: { xs: "100%", sm: 480 },
           textAlign: "center",
+          bgcolor: '#fff'
         }}
       >
         <Typography variant="h5" fontWeight="600" mb={2}>
@@ -222,20 +228,24 @@ const Form2FA: React.FC = () => {
           Enter the 6-digit verification code from your authenticator app.
         </Typography>
 
-        <Grid container spacing={1} justifyContent="center" mb={3}>
+        <Grid container spacing={1.5} justifyContent="center" mb={4}>
           {otp.map((digit, index) => (
             <Grid item key={index}>
               <TextField
                 id={`otp-${index}`}
                 value={digit}
                 onChange={(e) => handleChange(e.target.value, index)}
+                sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
                 inputProps={{
                   maxLength: 1,
                   style: {
                     textAlign: "center",
-                    fontSize: "20px",
-                    width: "45px",
-                    height: "45px",
+                    fontSize: "24px",
+                    fontWeight: "800",
+                    width: "50px",
+                    height: "50px",
+                    padding: "10px",
+                    color: '#ff9800'
                   },
                 }}
               />
@@ -246,17 +256,16 @@ const Form2FA: React.FC = () => {
         <Button
           fullWidth
           variant="contained"
-          color={isAuthenticated2Fa ? "warning" : "primary"}
           onClick={handleSubmit}
           disabled={verifying || otp.join("").length !== 6}
-          sx={{ py: 1.2, fontWeight: 600 }}
+          sx={{ py: 1.5, fontSize: '1.1rem', fontWeight: 800, bgcolor: isAuthenticated2Fa ? '#f44336' : '#ff9800', color: '#fff', borderRadius: '30px', boxShadow: '0 8px 20px rgba(0, 0, 0, 0.1)', '&:hover': { bgcolor: isAuthenticated2Fa ? '#d32f2f' : '#f57c00', transform: 'translateY(-2px)' }, transition: 'all 0.2s' }}
         >
           {verifying ? (
-            <CircularProgress size={24} />
+            <CircularProgress size={24} color="inherit" />
           ) : isAuthenticated2Fa ? (
-            "Verify & Disable 2FA"
+            t("Verify & Disable 2FA")
           ) : (
-            "Verify & Enable 2FA"
+            t("Verify & Enable 2FA")
           )}
         </Button>
       </Paper>

@@ -1,5 +1,5 @@
 import './App.css';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import Home from './Components/Home';
 import { CartProvider } from './Context/Cart';
 import Login from './Components/Login';
@@ -57,17 +57,42 @@ import { VerifyTOTP2FA } from './Components/VerifyTOTP2FA';
 
 
 
+const StoreLayoutWrapper = ({ children }: { children: React.ReactNode }) => {
+  const location = useLocation();
+  const isManagementPage = location.pathname.startsWith('/admin-dashboard') || location.pathname.startsWith('/userinfo');
+
+  return (
+    <>
+      <NavBar />
+      
+      {isManagementPage ? (
+        <div className='page-container'>
+          <Breadcrumbs />
+          {children}
+        </div>
+      ) : (
+        <RecentlyViewedProductsProvider>
+          <div className='page-container'>
+            <Breadcrumbs />
+            {children}
+          </div>
+          <ListOfRecentlyViewedProducts />
+        </RecentlyViewedProductsProvider>
+      )}
+
+      <Chatbot />
+      <Footer />
+    </>
+  );
+};
+
 function App() {
   return (
     <Provider store={store}>
       <Router>
         <NotificationProvider>
         <CartProvider>
-          <RecentlyViewedProductsProvider>
-            
-          <NavBar />
-          <div className='page-container'>
-            <Breadcrumbs />
+          <StoreLayoutWrapper>
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/cart" element={<Cart />} />
@@ -114,11 +139,7 @@ function App() {
               <Route path="/admin-dashboard/vendors" element={<RequireAdmin><AdminVendors /></RequireAdmin>} />
               <Route path="/admin-dashboard/vouchers" element={<RequireAdmin><AdminVouchers /></RequireAdmin>} />
             </Routes>
-          </div>
-          <Chatbot/>
-          <ListOfRecentlyViewedProducts/>
-          <Footer/>
-          </RecentlyViewedProductsProvider>
+          </StoreLayoutWrapper>
         </CartProvider>
         </NotificationProvider>
       </Router>

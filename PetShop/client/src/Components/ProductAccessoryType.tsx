@@ -134,49 +134,63 @@ const ProductAccessoryType = () => {
   }
 
   return (
-  <Container>
+  <Box sx={{ flexGrow: 1, p: { xs: 2, md: 5 }, backgroundColor: 'var(--pet-bg)', minHeight: '100vh' }}>
     <Button
       variant="contained"
-      color="inherit"
-      size="large"
       startIcon={<ArrowBack />}
       onClick={() => navigate(-1)}
-      sx={{ borderRadius: 3, px: 4, textTransform: 'none', fontWeight: 'bold', boxShadow: 2 }}
+      sx={{
+        borderRadius: "30px",
+        bgcolor: '#fff',
+        color: '#ff9800',
+        boxShadow: '0 8px 20px rgba(0,0,0,0.05)',
+        textTransform: "none",
+        fontWeight: "bold",
+        mb: 4,
+        px: 4,
+        '&:hover': { bgcolor: '#fff3e0' }
+      }}
     >
       {t("Go Back")}
     </Button>
+
     <Grid container spacing={4}>
       {/* Image */}
       <Grid item xs={12} md={6}>
-        <Card elevation={10}>
+        <Card elevation={0} sx={{ borderRadius: '32px', boxShadow: '0 10px 40px rgba(0,0,0,0.04)', border: '1px solid #f0f0f0', overflow: 'hidden', bgcolor: '#fff', p: 2 }}>
           <CardMedia
             component="img"
             height="auto"
             image={productAccessory.imageUrl}
             alt={productAccessory.name}
-            style={{ borderRadius: '8px', objectFit: 'cover' }}
+            style={{ borderRadius: '24px', objectFit: 'cover' }}
           />
         </Card>
       </Grid>
 
       {/* Info */}
       <Grid item xs={12} md={6}>
-        <Card elevation={12} sx={{ backgroundColor: '#f0f4ff' }}>
+        <Card elevation={0} sx={{ p: { xs: 1, md: 3 }, borderRadius: '32px', boxShadow: '0 20px 60px rgba(0,0,0,0.08)', bgcolor: '#fff', border: '1px solid #f0f0f0' }}>
           <CardContent>
-            <Typography variant="h4" color="primary" gutterBottom>
+            <Typography variant="h3" fontWeight="900" sx={{ color: '#3e2723', mb: 2 }}>
               {productAccessory.name}
             </Typography>
-            <Typography variant="body1" paragraph>
+            <Box sx={{ bgcolor: '#fffbf7', p: 3, borderRadius: '24px', border: '1px solid #ffe8cc', mb: 3 }}>
+              <Typography variant="h4" fontWeight="900" sx={{ color: '#ff9800', display: 'flex', alignItems: 'center', mb: 1 }}>
+                {productAccessory.price.toLocaleString()} VND
+              </Typography>
+              <Box display="flex" gap={3} sx={{ color: '#555' }}>
+                <Typography variant="body1" fontWeight="600" sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Inventory sx={{ mr: 1, color: '#8d6e63' }} fontSize="small" /> {t("Inventory")}: <Box component="span" sx={{ color: '#3e2723', ml: 0.5 }}>{productAccessory.stock}</Box>
+                </Typography>
+                <Typography variant="body1" fontWeight="600" sx={{ display: 'flex', alignItems: 'center' }}>
+                  <AddShoppingCartIcon sx={{ mr: 1, color: '#8d6e63' }} fontSize="small" /> {t("Orders")}: <Box component="span" sx={{ color: '#3e2723', ml: 0.5 }}>{productAccessory.totalOrder}</Box>
+                </Typography>
+              </Box>
+            </Box>
+
+            <Typography variant="body1" sx={{ color: '#555', lineHeight: 1.8, mb: 4, fontSize: '1.1rem' }}>
               {productAccessory.description}
-            </Typography>
-            <Typography variant="h5" color="secondary" gutterBottom>
-              {productAccessory.price.toLocaleString()} VND
-            </Typography>
-            <Typography variant="h6" gutterBottom>
-              <Inventory sx={{ mr: 1 }} /> {t("Inventory")}: {productAccessory.stock} {t("items")}
-            </Typography>
-            <Typography variant="subtitle2" fontWeight="bold" color="primary">
-              <AddShoppingCartIcon fontSize="small" /> {productAccessory.totalOrder} {t("Orders")}
             </Typography>
 
             {/* Extra Fields */}
@@ -224,13 +238,16 @@ const ProductAccessoryType = () => {
 
             {/* Actions */}
             <Box mt={2} display="flex" alignItems="center" gap={2} mb={2}>
-              
-              <Tooltip title={t("Add to Cart")}>
-                <IconButton color="primary" onClick={() => handleAddToCart(productAccessory, selectedQuantity)}>
-                  <ShoppingCart />
-                </IconButton>
-              </Tooltip>
               <NumberInput min={1} defaultValue={1} onChange={(value) => setSelectedQuantity(value)} />
+              <Button
+                variant="contained"
+                size="large"
+                startIcon={<ShoppingCart />}
+                onClick={() => handleAddToCart(productAccessory, selectedQuantity)}
+                sx={{ py: 1.5, px: 4, fontSize: '1.1rem', fontWeight: 800, bgcolor: '#ff9800', color: '#fff', borderRadius: '30px', boxShadow: '0 8px 20px rgba(255, 152, 0, 0.3)', '&:hover': { bgcolor: '#f57c00', transform: 'translateY(-2px)' }, transition: 'all 0.2s' }}
+              >
+                {t("Add to Cart")}
+              </Button>
               {user && (
               <Tooltip title={checkFavorite ? t("Remove Product To FavoriteList") : t("Add Product To FavoriteList")}>
                 <IconButton
@@ -251,45 +268,34 @@ const ProductAccessoryType = () => {
     </Grid>
 
     {user ? (
-      <UserComment userId={user._id} productId={productAccessory._id} loadInfoDetailsOfProduct={loadInfoDetailsOfProduct} />
+      <UserComment userId={user._id} productId={productAccessory._id} loadInfoDetailsOfProduct={loadInfoDetailsOfProduct}/>
     ) : (
-      <Box
-        sx={{
-          maxWidth: '100%',
-          margin: '5% 1%',
-          padding: 4,
-          border: '1px solid #ddd',
-          borderRadius: 3,
-          backgroundColor: '#f9f9f9',
-          boxShadow: 2,
-          textAlign: 'center',
-        }}
-      >
-        <Typography variant="h6" color="text.secondary" align="center" mt={4}>
+      <Box sx={{
+        maxWidth: '100%',
+        margin: { xs: '2rem 0', md: '3rem 0' },
+        padding: 6,
+        border: '1px dashed #ccc',
+        borderRadius: '32px',
+        backgroundColor: '#fff',
+        textAlign: 'center',
+      }}>
+        <Typography variant="h5" fontWeight="800" sx={{ color: '#3e2723', mb: 3 }}>
+          {t("Join the Conversation")}
+        </Typography>
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
           {t("Please log in to leave a comment.")}
         </Typography>
         <Button
-          variant="outlined"
-          onClick={() =>
-            handleNavigateToLogin()
-          }
+          variant="contained"
+          onClick={() => handleNavigateToLogin()}
+          sx={{ borderRadius: '30px', fontWeight: 'bold', px: 4, py: 1.5, bgcolor: '#ff9800', '&:hover': { bgcolor: '#f57c00' } }}
         >
           {t("Go To Login")}
         </Button>
       </Box>
     )}
 
-    <Box
-      sx={{
-        maxWidth: '100%',
-        margin: '5% 1%',
-        padding: 4,
-        border: '1px solid #ddd',
-        borderRadius: 3,
-        backgroundColor: '#f9f9f9',
-        boxShadow: 2,
-      }}
-    >
+    <Box>
       <CommentsByProduct
         productId={productAccessory._id}
         totalRating={productAccessory.totalRating ?? 0}
@@ -297,7 +303,7 @@ const ProductAccessoryType = () => {
         loadInfoDetailsOfProduct={loadInfoDetailsOfProduct}
       />
     </Box>
-  </Container>
+  </Box>
 );
 
 };

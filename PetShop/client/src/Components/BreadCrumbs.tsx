@@ -1,5 +1,8 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+import { Breadcrumbs as MUIBreadcrumbs, Box, Typography } from "@mui/material";
+import HomeIcon from "@mui/icons-material/Home";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 
 const routeNameMap: { [key: string]: string } = {
   "": "Home",
@@ -45,50 +48,34 @@ function Breadcrumbs() {
   
 
   return (
-    <nav aria-label="breadcrumb" style={{ margin: "1rem 0" }}>
-      <ol
-        style={{
-          listStyle: "none",
-          display: "flex",
-          gap: "0.5rem",
-          padding: 0,
-          flexWrap: "wrap",
-        }}
-      >
-        <li>
-          <Link to="/">Home</Link>
-          {pathnames.length > 0 && <span> / </span>}
-        </li>
-
+    <Box sx={{ margin: { xs: "1rem 1rem", md: "1.5rem 3rem" }, display: 'flex', alignItems: 'center', bgcolor: '#fffbf7', p: 1.5, borderRadius: '20px', border: '1px solid #ffe8cc', boxShadow: '0 4px 15px rgba(0,0,0,0.03)', width: 'fit-content' }}>
+      <MUIBreadcrumbs separator={<NavigateNextIcon fontSize="small" sx={{ color: '#ffbd59' }} />} aria-label="breadcrumb">
+        <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', color: '#ff9800', fontWeight: 800 }}>
+          <HomeIcon sx={{ mr: 0.5 }} fontSize="small" />
+          Home
+        </Link>
         {pathnames.map((segment, index) => {
           accumulatedPath += `/${segment}`;
 
-          // If segment looks like an ID, **skip displaying it** (show nothing)
           if (isIdSegment(segment)) {
-            // Just don't render anything for this breadcrumb segment
             return null;
           }
 
-          // Show mapped name if available, else segment text
           const name = routeNameMap[segment] || segment;
-
           const isLast = index === pathnames.length - 1;
 
-          return (
-            <li key={accumulatedPath}>
-              {isLast ? (
-                <span>{name}</span>
-              ) : (
-                <>
-                  <Link to={accumulatedPath}>{name}</Link>
-                  <span> / </span>
-                </>
-              )}
-            </li>
+          return isLast ? (
+            <Typography key={accumulatedPath} color="text.primary" sx={{ display: 'flex', alignItems: 'center', fontWeight: 600, color: '#3e2723' }}>
+              {name}
+            </Typography>
+          ) : (
+            <Link key={accumulatedPath} to={accumulatedPath} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', color: '#8d6e63', fontWeight: 600, transition: 'all 0.2s' }}>
+              {name}
+            </Link>
           );
         })}
-      </ol>
-    </nav>
+      </MUIBreadcrumbs>
+    </Box>
   );
 }
 

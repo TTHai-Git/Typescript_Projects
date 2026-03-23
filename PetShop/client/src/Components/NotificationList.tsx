@@ -89,47 +89,52 @@ const NotificationList = () => {
 
 
   return (
-  <Box sx={{ width: 360, bgcolor: 'background.paper' }}>
+  <Box sx={{ width: 380, bgcolor: '#fff', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 10px 40px rgba(0,0,0,0.08)' }}>
     {/* Tabs */}
-    <Tabs value={tab} onChange={handleTabChange} variant="fullWidth">
-      <Tab label={t("All")} value="all" />
-      <Tab label={t("Unread")} value="unread" />
+    <Tabs value={tab} onChange={handleTabChange} variant="fullWidth" sx={{ '& .MuiTabs-indicator': { backgroundColor: '#ff9800' } }}>
+      <Tab label={t("All")} value="all" sx={{ fontWeight: 'bold', '&.Mui-selected': { color: '#ff9800' } }} />
+      <Tab label={t("Unread")} value="unread" sx={{ fontWeight: 'bold', '&.Mui-selected': { color: '#ff9800' } }} />
     </Tabs>
 
     {!filteredItems.length ? (
-      <Box sx={{ p: 2, textAlign: 'center', color: 'text.secondary' }}>
-        <NotificationsNoneIcon sx={{ fontSize: 40, color: 'grey.400' }} />
-        <Typography variant="body2">{t("No notifications")}</Typography>
+      <Box sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>
+        <NotificationsNoneIcon sx={{ fontSize: 60, color: '#e0e0e0', mb: 1 }} />
+        <Typography variant="body1" fontWeight="600">{t("No notifications")}</Typography>
       </Box>
     ) : (
-      <>
+      <Box sx={{ maxHeight: 400, overflowY: 'auto' }}>
         {/* Notification groups */}
         {Object.entries(groups).map(([label, items]) =>
           items.length ? (
             <Box key={label}>
-              <Typography variant="subtitle2" sx={{ px: 2, py: 1, color: 'text.secondary' }}>
+              <Typography variant="subtitle2" sx={{ px: 2, py: 1.5, color: '#3e2723', fontWeight: '800', bgcolor: '#fdfbf7' }}>
                 {label}
               </Typography>
-              <List>
+              <List sx={{ px: 1 }}>
                 {items.map((n) => (
                   <React.Fragment key={n._id}>
                     <ListItem
                       alignItems="flex-start"
                       disablePadding
                       sx={{
-                        bgcolor: !n.isRead ? 'action.hover' : 'transparent',
-                        borderRadius: 2,
+                        bgcolor: !n.isRead ? '#fffbf7' : 'transparent',
+                        borderRadius: '16px',
                         mb: 0.5,
+                        transition: 'all 0.2s',
+                        border: !n.isRead ? '1px solid #ffe8cc' : '1px solid transparent',
+                        '&:hover': {
+                          bgcolor: '#fff3e0'
+                        }
                       }}
                     >
-                      <ListItemButton onClick={() => markANotificationAsRead(n._id)}>
+                      <ListItemButton onClick={() => markANotificationAsRead(n._id)} sx={{ borderRadius: '16px', py: 1.5 }}>
                         <ListItemAvatar>
-                          <Avatar>{getIcon(n.type)}</Avatar>
+                          <Avatar sx={{ bgcolor: !n.isRead ? '#ff9800' : '#e0e0e0', color: !n.isRead ? '#fff' : '#757575', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>{getIcon(n.type)}</Avatar>
                         </ListItemAvatar>
                         <ListItemText
                           primary={
                             <Typography
-                              sx={{ fontWeight: !n.isRead ? 600 : 400 }}
+                              sx={{ fontWeight: !n.isRead ? 800 : 500, color: '#3e2723' }}
                               variant="body2"
                             >
                               {n.title}
@@ -154,12 +159,10 @@ const NotificationList = () => {
                           }
                         />
                         {!n.isRead && (
-                          <CircleIcon color="primary" sx={{ fontSize: 12, ml: 1 }} />
+                          <CircleIcon sx={{ fontSize: 12, ml: 1, color: '#ff9800' }} />
                         )}
                       </ListItemButton>
                     </ListItem>
-
-                    <Divider component="li" />
                   </React.Fragment>
                 ))}
               </List>
@@ -169,19 +172,19 @@ const NotificationList = () => {
 
         {/* Footer to use for paginating */}
         {currentPage < totalPages ? (
-          <Box sx={{ textAlign: 'center', p: 1 }}>
-            <Button size="small" onClick={handleLoadMoreNotificaions}>
+          <Box sx={{ textAlign: 'center', p: 2, borderTop: '1px solid #f0f0f0' }}>
+            <Button size="small" onClick={handleLoadMoreNotificaions} sx={{ borderRadius: '20px', fontWeight: 'bold', color: '#ff9800' }}>
               {t("View more notifications")} {`(${total - filteredItems.length})`}
             </Button>
           </Box>
         ) : (
-          <Box sx={{ textAlign: 'center', p: 1 }}>
-            <Button size="small" onClick={handleLoadMoreNotificaions}>
+          <Box sx={{ textAlign: 'center', p: 2, borderTop: '1px solid #f0f0f0' }}>
+            <Button size="small" onClick={handleLoadMoreNotificaions} sx={{ borderRadius: '20px', fontWeight: 'bold', color: '#757575' }}>
               {t("Collapse notifications")}
             </Button>
           </Box>
         )}
-      </>
+      </Box>
     )}
   </Box>
 );

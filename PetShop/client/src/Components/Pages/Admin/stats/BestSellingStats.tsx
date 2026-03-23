@@ -145,7 +145,7 @@ const BestSellingStats = ({ data = [] }: { data?: BestSellingProduct[] }) => {
       </Typography>
 
       {/* Chart Controls */}
-      <Box display="flex" gap={3} mb={3}>
+      <Box display="flex" flexWrap="wrap" gap={3} mb={3}>
         <FormControl size="small">
           <InputLabel>{t("Chart Type")}</InputLabel>
           <Select

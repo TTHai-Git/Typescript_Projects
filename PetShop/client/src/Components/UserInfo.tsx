@@ -109,38 +109,31 @@ const UserInfo = () => {
     <Box
       display="flex"
       justifyContent="center"
-      alignItems="center"
+      alignItems="flex-start"
       minHeight="100vh"
-      bgcolor="#f0f2f5"
-      p={2}
+      bgcolor="var(--pet-bg)"
+      p={{ xs: 2, md: 6 }}
     >
-      <Card sx={{ maxWidth: "50%", width: "100%", borderRadius: 4, boxShadow: 3 }}>
-        <CardContent>
-          {/* Header */}
-          <Stack
-            direction="row"
-            alignItems="center"
-            justifyContent="space-between"
-            mb={2}
-          >
-            <Typography variant="h5" fontWeight={600}>
-              {t("User Information")}
-            </Typography>
-            <IconButton onClick={handleEditToggle} size="small">
-              <EditIcon color="primary" />
-            </IconButton>
-          </Stack>
+      <Card sx={{ maxWidth: "800px", width: "100%", borderRadius: "24px", boxShadow: "0 10px 40px rgba(0,0,0,0.05)", overflow: "hidden" }}>
+        {/* Banner Cover Image */}
+        <Box sx={{ height: 160, width: "100%", background: "linear-gradient(135deg, #ffb74d 0%, #ff9800 100%)", position: "relative" }}>
+          {/* Decorative paw prints could go here */}
+        </Box>
 
+        <CardContent sx={{ px: { xs: 3, md: 6 }, pb: 6, mt: -8, position: "relative" }}>
           {/* User Content */}
           {user && (
             <Box>
-              <Stack alignItems="center" mb={3}>
-                <Avatar
-                  src={user.avatar}
-                  alt="User Avatar"
-                  sx={{ width: 100, height: 100, mb: 1 }}
-                />
-                <Typography variant="subtitle1">{user.username}</Typography>
+              <Stack alignItems="center" mb={4}>
+                <Box sx={{ p: 1, bgcolor: "#fff", borderRadius: "50%", display: "inline-block", boxShadow: "0 8px 24px rgba(0,0,0,0.12)", mb: 2 }}>
+                  <Avatar
+                    src={user.avatar}
+                    alt="User Avatar"
+                    sx={{ width: 120, height: 120 }}
+                  />
+                </Box>
+                <Typography variant="h4" fontWeight="800" sx={{ color: "#3e2723", mb: 0.5 }}>{user.name || user.username}</Typography>
+                <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>{user.email}</Typography>
 
                 <Tooltip
                   title={
@@ -166,60 +159,39 @@ const UserInfo = () => {
                   />
                 </Tooltip>
               </Stack>
-              <Stack
-                direction="row"
-                alignItems="center"
-                justifyContent="center"
-                spacing={4} // controls equal spacing between switches
-                mb={2}
-              >
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={user.isAuthenticated2Fa}
-                      size="small"
-                      onChange={() => handleEnableOrDisable2FA()}
-                    />
-                  }
-                  label={
-                    user?.isAuthenticated2Fa
-                      ? t("Enable 2FA")
-                      : t("Disable 2FA")
-                  }
-                />
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={user.isVerified}
-                      size="small"
-                      onChange={() => handleEnableOrDisableVerifyEmail()}
-                    />
-                  }
-                  label={
-                    user?.isVerified
-                      ? t("Enable Verified Email")
-                      : t("Disable Verified Email")
-                  }
-                />
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={user.isVerified}
-                      size="small"
-                      onChange={() => handleEnableOrDisableVerifyPhone()}
-                    />
-                  }
-                  label={
-                    user?.isVerified
-                      ? t("Enable Verified Phone")
-                      : t("Disable Verified Phone")
-                  }
-                />
+              <Box sx={{ p: 3, bgcolor: "#fffbf7", borderRadius: "20px", border: "1px solid #ffe0b2", mb: 5 }}>
+                <Typography variant="subtitle1" fontWeight="800" sx={{ color: "#3e2723", mb: 2 }}>
+                  {t("Security & Verification")}
+                </Typography>
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3} justifyContent="space-around">
+                  <FormControlLabel
+                    control={<Switch checked={user.isAuthenticated2Fa} onChange={() => handleEnableOrDisable2FA()} color="warning" />}
+                    label={<Typography variant="body2" fontWeight="600">{user?.isAuthenticated2Fa ? t("2FA Enabled") : t("2FA Disabled")}</Typography>}
+                  />
+                  <FormControlLabel
+                    control={<Switch checked={user.isVerified} onChange={() => handleEnableOrDisableVerifyEmail()} color="warning" />}
+                    label={<Typography variant="body2" fontWeight="600">{user?.isVerified ? t("Email Verified") : t("Email Unverified")}</Typography>}
+                  />
+                  <FormControlLabel
+                    control={<Switch checked={user.isVerified} onChange={() => handleEnableOrDisableVerifyPhone()} color="warning" />}
+                    label={<Typography variant="body2" fontWeight="600">{user?.isVerified ? t("Phone Verified") : t("Phone Unverified")}</Typography>}
+                  />
+                </Stack>
+              </Box>
+
+              {/* Editable User Info Title */}
+              <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
+                <Typography variant="h6" fontWeight="800" sx={{ color: "#3e2723" }}>
+                  {t("Personal Information")}
+                </Typography>
+                <Button 
+                  startIcon={<EditIcon />} 
+                  onClick={handleEditToggle} 
+                  sx={{ color: '#ff9800', fontWeight: "700" }}
+                >
+                  {isEditing ? t("Cancel Edit") : t("Edit Details")}
+                </Button>
               </Stack>
-
-              
-
-              {/* Editable User Info */}
               <Grid container spacing={2}>
                 <Grid item xs={12}>
                   <TextField
@@ -284,60 +256,61 @@ const UserInfo = () => {
           )}
 
           {/* Actions */}
-          <Stack
-            direction="row"
-            spacing={2}
-            mt={4}
-            justifyContent="space-between"
-          >
-            <Button
-              variant="outlined"
-              color="error"
-              startIcon={<LogoutIcon />}
-              fullWidth
-              onClick={handleLogOut}
-              
-            >
-              {t("Logout")}
-            </Button>
-            <Button
-              variant="contained"
-              color="secondary"
-              startIcon={<ReceiptIcon />}
-              fullWidth
-              onClick={() =>
-               navigate(`${user?._id}/orders?page=1`)
-              }
-            >
-              {t("Follow Orders")}
-            </Button>
-            <Button
-              variant="contained"
-              color="info"
-              startIcon={<Favorite />}
-              fullWidth
-              onClick={() =>
-                navigate(`${user?._id}/favoritelist?page=1`)
-              }
-            >
-              {t("Follow Favoritelist")}
-            </Button>
-
-            {user?.role.name === "Admin" && (
-              <Button
-                variant="outlined"
-                color="warning"
-                startIcon={<AdminPanelSettings />}
-                fullWidth
-                onClick={() =>
-                  navigate(`/admin-dashboard`)
-                }
-                
-              >
-                {t("Dashboard Management")}
-              </Button>
-            )}
-          </Stack>
+          {/* Actions */}
+          <Box mt={6} pt={4} sx={{ borderTop: "1px dashed #e0e0e0" }}>
+            <Typography variant="h6" fontWeight="800" sx={{ color: "#3e2723", mb: 3 }}>
+              {t("Quick Links")}
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={4}>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  startIcon={<ReceiptIcon />}
+                  onClick={() => navigate(`${user?._id}/orders?page=1`)}
+                  sx={{ bgcolor: "#4caf50", color: "#fff", py: 1.5, "&:hover": { bgcolor: "#388e3c" } }}
+                >
+                  {t("My Orders")}
+                </Button>
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  startIcon={<Favorite />}
+                  onClick={() => navigate(`${user?._id}/favoritelist?page=1`)}
+                  sx={{ bgcolor: "#e91e63", color: "#fff", py: 1.5, "&:hover": { bgcolor: "#c2185b" } }}
+                >
+                  {t("Favorites")}
+                </Button>
+              </Grid>
+              {user?.role.name === "Admin" && (
+                <Grid item xs={12} sm={4}>
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    startIcon={<AdminPanelSettings />}
+                    onClick={() => navigate(`/admin-dashboard`)}
+                    sx={{ bgcolor: "#2196f3", color: "#fff", py: 1.5, "&:hover": { bgcolor: "#1976d2" } }}
+                  >
+                    {t("Dashboard")}
+                  </Button>
+                </Grid>
+              )}
+              <Grid item xs={12} sm={user?.role.name === "Admin" ? 12 : 4}>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  fullWidth
+                  startIcon={<LogoutIcon />}
+                  onClick={handleLogOut}
+                  sx={{ py: 1.5 }}
+                >
+                  {t("Logout")}
+                </Button>
+              </Grid>
+            </Grid>
+          </Box>
         </CardContent>
       </Card>
     </Box>

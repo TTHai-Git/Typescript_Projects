@@ -127,9 +127,9 @@ const CheckOut = () => {
     }, []);
   return (
   <Grid item xs={12} md={4}>
-    <Card elevation={3} sx={{ p: 3 }}>
-      <Typography variant="h6">{t("Order Summary")}</Typography>
-      <Divider sx={{ my: 1 }} />
+    <Card elevation={0} sx={{ p: 3, borderRadius: '24px', boxShadow: '0 8px 30px rgba(0,0,0,0.05)', border: '1px solid #f0f0f0' }}>
+      <Typography variant="h6" fontWeight="800" sx={{ color: '#3e2723' }}>{t("Order Summary")}</Typography>
+      <Divider sx={{ my: 2, borderColor: '#ffe8cc' }} />
 
       <Typography variant="subtitle1">
         {t("Total")}: {totalPrice} VND
@@ -142,7 +142,7 @@ const CheckOut = () => {
             variant="contained"
             color="success"
             startIcon={<AttachMoneyIcon />}
-            sx={{ mt: 2 }}
+            sx={{ mt: 2, py: 1.5, borderRadius: '30px', fontWeight: 'bold', boxShadow: '0 8px 20px rgba(76, 175, 80, 0.3)', '&:hover': { transform: 'translateY(-2px)' }, transition: 'all 0.2s' }}
             onClick={() => handleMakePayment("CASH")}
           >
             {t("Pay with Cash")}
@@ -151,7 +151,7 @@ const CheckOut = () => {
             fullWidth
             variant="contained"
             color="primary"
-            sx={{ mt: 2 }}
+            sx={{ mt: 2, py: 1.5, borderRadius: '30px', fontWeight: 'bold', bgcolor: '#0061e0', '&:hover': { bgcolor: '#004fc0', transform: 'translateY(-2px)' }, boxShadow: '0 8px 20px rgba(0, 97, 224, 0.3)', transition: 'all 0.2s' }}
             onClick={() => handleMakePayment("VNPAY")}
           >
             <img
@@ -164,7 +164,7 @@ const CheckOut = () => {
           <Button
             fullWidth
             variant="outlined"
-            sx={{ mt: 2 }}
+            sx={{ mt: 2, py: 1.5, borderRadius: '30px', fontWeight: 'bold', '&:hover': { bgcolor: '#fdfbf7' } }}
             onClick={generateVIETQRCODE}
           >
             {t("Generate QR Code")}
@@ -172,7 +172,7 @@ const CheckOut = () => {
           <Button
             fullWidth
             variant="outlined"
-            sx={{ mt: 2 }}
+            sx={{ mt: 2, py: 1.5, borderRadius: '30px', fontWeight: 'bold', color: '#111', borderColor: '#ccc', '&:hover': { borderColor: '#888', bgcolor: '#f9f9f9' } }}
             onClick={() => handleMakePayment("PAYOS")}
           >
             {t("Pay with PayOs")}

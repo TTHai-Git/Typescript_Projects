@@ -287,27 +287,29 @@ const Shipment: React.FC = () => {
 
   /** ---------- Render ---------- */
   return (
-    <Box sx={{ maxWidth: 800, mx: 'auto', mt: 4, p: 3 }}>
-      <Paper elevation={3} sx={{ p: 4 }}>
-        <Typography variant="h5" gutterBottom fontWeight="bold">
+    <Box sx={{ maxWidth: 900, mx: 'auto', my: { xs: 4, md: 8 }, p: { xs: 2, md: 0 } }}>
+      <Paper elevation={0} sx={{ p: { xs: 3, md: 5 }, borderRadius: '32px', boxShadow: '0 20px 60px rgba(0,0,0,0.08)', bgcolor: '#fff' }}>
+        <Typography variant="h4" fontWeight="900" sx={{ color: '#3e2723', mb: 4, textAlign: 'center' }}>
           {t('Shipping Information')}
         </Typography>
 
-        <Grid container spacing={2}>
+        <Grid container spacing={3}>
           <Grid item xs={12} sm={6}>
             <TextField fullWidth label={t('Recipient Name')}
               value={buyerName}
+              sx={{ '& .MuiOutlinedInput-root': { borderRadius: '16px' } }}
               onChange={e => setBuyerName(e.target.value)} />
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField fullWidth label={t('Phone Number')}
               value={buyerPhone}
+              sx={{ '& .MuiOutlinedInput-root': { borderRadius: '16px' } }}
               onChange={e => setBuyerPhone(e.target.value)} />
           </Grid>
 
           {/* Location Selects */}
           <Grid item xs={12} sm={4}>
-            <FormControl fullWidth>
+            <FormControl fullWidth sx={{ '& .MuiOutlinedInput-root': { borderRadius: '16px' } }}>
               <InputLabel>{t('City/Province')}</InputLabel>
               <Select<string>                       
                 value={order.city_id || ""}
@@ -321,7 +323,7 @@ const Shipment: React.FC = () => {
             </FormControl>
           </Grid>
           <Grid item xs={12} sm={4}>
-            <FormControl fullWidth disabled={!order.city_id}>
+            <FormControl fullWidth disabled={!order.city_id} sx={{ '& .MuiOutlinedInput-root': { borderRadius: '16px' } }}>
               <InputLabel>{t('District')}</InputLabel>
               <Select<string>
                 value={order.district_id || ""}
@@ -335,7 +337,7 @@ const Shipment: React.FC = () => {
             </FormControl>
           </Grid>
           <Grid item xs={12} sm={4}>
-            <FormControl fullWidth disabled={!order.district_id}>
+            <FormControl fullWidth disabled={!order.district_id} sx={{ '& .MuiOutlinedInput-root': { borderRadius: '16px' } }}>
               <InputLabel>{t('Ward/Commune')}</InputLabel>
               <Select<string>
                 value={order.ward_id || ""}
@@ -354,12 +356,13 @@ const Shipment: React.FC = () => {
               fullWidth
               label={t('Recipient Address (Only house number and street name)')}
               value={buyerAddress}
+              sx={{ '& .MuiOutlinedInput-root': { borderRadius: '16px' } }}
               onChange={e => setBuyerAddress(e.target.value)}
             />
           </Grid>
 
           <Grid item xs={12} sm={6}>
-            <FormControl fullWidth>
+            <FormControl fullWidth sx={{ '& .MuiOutlinedInput-root': { borderRadius: '16px' } }}>
               <InputLabel>{t('Shipping Method')}</InputLabel>
               <Select value={method} onChange={e => setMethod(e.target.value)}>
                 <MenuItem value="At the store">{t('At the store')}</MenuItem>
@@ -368,7 +371,7 @@ const Shipment: React.FC = () => {
             </FormControl>
           </Grid>
           <Grid item xs={12} sm={6}>
-            <FormControl fullWidth>
+            <FormControl fullWidth sx={{ '& .MuiOutlinedInput-root': { borderRadius: '16px' } }}>
               <InputLabel>{t('Search Vouchers')}</InputLabel>
               <Select value={selectedVoucherId}
                 onChange={e => setSelectedVoucherId(e.target.value as string)}>
@@ -383,39 +386,45 @@ const Shipment: React.FC = () => {
           </Grid>
 
           <Grid item xs={12} sm={8}>
-            <Button variant="outlined" onClick={calculateDistance} sx={{ height: '100%' }}>
+            <Button variant="outlined" onClick={calculateDistance} sx={{ height: '56px', borderRadius: '16px', fontWeight: 'bold' }}>
               {t('Calculate Distance')}
             </Button>
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <Typography>{t('Distance')}: {distance ? `${distance.toFixed(2)} km` : t('Not determined')}</Typography>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Typography>{t('Temporary Shipping Fee')}: {tempShipmentFee > 0 ? `${tempShipmentFee.toLocaleString()} VND` : t('Not available')}</Typography>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Typography>
-              {t('Discount Shipping Fee')}: 
-              {tempShipmentFee > 0 && fee > 0
-                ? `${(tempShipmentFee - fee).toLocaleString()} VND`
-                : t('Not available')}
-            </Typography>
-          </Grid>
-
-          <Grid item xs={12} sm={6}>
-            <Typography>{t('Shipping Fee')}: {fee > 0 ? `${fee.toLocaleString()} VND` : t('Not available')}</Typography>
-          </Grid>
-
+          <Grid item xs={12} sm={4}></Grid>
+          
           <Grid item xs={12}>
+            <Grid container spacing={2} sx={{ mt: 1, p: 3, bgcolor: '#fffbf7', borderRadius: '16px', border: '1px solid #ffe8cc' }}>
+              <Grid item xs={12} sm={6}>
+                <Typography fontWeight="600" color="text.secondary">{t('Distance')}: <Box component="span" sx={{ color: '#3e2723', fontWeight: '800' }}>{distance ? `${distance.toFixed(2)} km` : t('Not determined')}</Box></Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography fontWeight="600" color="text.secondary">{t('Temporary Shipping Fee')}: <Box component="span" sx={{ color: '#3e2723', fontWeight: '800' }}>{tempShipmentFee > 0 ? `${tempShipmentFee.toLocaleString()} VND` : t('Not available')}</Box></Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography fontWeight="600" color="text.secondary">
+                  {t('Discount Shipping Fee')}: 
+                  <Box component="span" sx={{ color: '#4caf50', fontWeight: '800', ml: 1 }}>{tempShipmentFee > 0 && fee > 0
+                    ? `-${(tempShipmentFee - fee).toLocaleString()} VND`
+                    : t('Not available')}
+                  </Box>
+                </Typography>
+              </Grid>
+    
+              <Grid item xs={12} sm={6}>
+                <Typography fontWeight="800" sx={{ color: '#ff9800', fontSize: '1.1rem' }}>{t('Final Shipping Fee')}: {fee > 0 ? `${fee.toLocaleString()} VND` : t('Not available')}</Typography>
+              </Grid>
+            </Grid>
+          </Grid>
+
+          <Grid item xs={12} mt={2}>
             <Button
               variant="contained"
-              color="primary"
               onClick={handleMakeShipment}
               disabled={loading}
               fullWidth
-              sx={{ mt: 2 }}
+              sx={{ py: 1.8, fontSize: '1.2rem', fontWeight: 800, bgcolor: '#ff9800', color: '#fff', borderRadius: '30px', boxShadow: '0 8px 20px rgba(255, 152, 0, 0.3)', '&:hover': { bgcolor: '#f57c00', transform: 'translateY(-2px)' }, transition: 'all 0.2s' }}
             >
-              {loading ? <CircularProgress size={24} /> : t('Confirm Shipping Information')}
+              {loading ? <CircularProgress size={24} color="inherit" /> : t('Confirm Shipping Information')}
             </Button>
           </Grid>
         </Grid>

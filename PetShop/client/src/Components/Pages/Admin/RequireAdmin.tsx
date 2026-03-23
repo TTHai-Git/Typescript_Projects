@@ -2,7 +2,7 @@ import { useSelector } from 'react-redux';
 import { Navigate } from 'react-router-dom';
 import { RootState } from '../../../store';
 import { JSX } from 'react';
-
+import AdminLayout from './AdminLayout';
 
 const RequireAdmin: React.FC<{ children: JSX.Element }> = ({ children }) => {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -11,7 +11,7 @@ const RequireAdmin: React.FC<{ children: JSX.Element }> = ({ children }) => {
     return <Navigate to="/login" />;
   }
 
-  return children;
+  return <AdminLayout>{children}</AdminLayout>;
 };
 
 export default RequireAdmin;

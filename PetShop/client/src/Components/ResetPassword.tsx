@@ -7,7 +7,8 @@ import {
   Grid,
   TextField,
   Typography,
-  CircularProgress
+  CircularProgress,
+  Paper
 } from '@mui/material';
 // import axios from 'axios';
 import APIs, { endpoints } from '../Config/APIs';
@@ -108,74 +109,89 @@ const ResetPassword = () => {
   }
 
   return (
-  <Container maxWidth="sm">
-    <Box mt={8} p={4} boxShadow={3} borderRadius={3} bgcolor="background.paper">
-      <Typography variant="h4" gutterBottom color="primary">
-        {t("Reset Password")}
-      </Typography>
-      <Typography variant="body1" color="text.secondary" gutterBottom>
-        {t("Enter your new password and the 6-digit OTP sent to your email.")}
-      </Typography>
-      <form onSubmit={handleResetPassword}>
-        <TextField
-          label={t("New Password")}
-          type="password"
-          fullWidth
-          margin="normal"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          required
-        />
-
-        <TextField
-          label={t("Confirm New Password")}
-          type="password"
-          fullWidth
-          margin="normal"
-          value={confirmNewPassword}
-          onChange={(e) => setConfirmNewPassword(e.target.value)}
-          required
-        />
-
-        <Box mt={3} mb={1}>
-          <Typography variant="subtitle1" gutterBottom>
-            {t("OTP Code")} <span style={{ float: 'right' }}>{t("Expires in")}: {formatTime(timeLeft)}</span>
+    <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'var(--pet-bg)', p: 3 }}>
+      <Container maxWidth="sm">
+        <Paper elevation={0} sx={{ p: { xs: 4, md: 6 }, borderRadius: '32px', boxShadow: '0 20px 60px rgba(0,0,0,0.08)', bgcolor: '#fff', position: 'relative' }}>
+          
+          <Typography variant="h4" fontWeight="900" sx={{ color: '#3e2723', mb: 1, textAlign: 'center' }}>
+            {t("Reset Password")}
           </Typography>
-          <Grid container spacing={1} justifyContent="center">
-            {otpDigits.map((digit, index) => (
-              <Grid item key={index}>
-                <TextField
-                  inputRef={(el) => (inputRefs.current[index] = el!)}
-                  value={digit}
-                  onChange={(e) => handleOtpChange(index, e.target.value)}
-                  inputProps={{
-                    maxLength: 1,
-                    style: { textAlign: 'center', fontSize: '20px' },
-                  }}
-                  sx={{ width: 48 }}
-                />
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 4, textAlign: 'center' }}>
+            {t("Enter your new password and the 6-digit OTP sent to your email.")}
+          </Typography>
+          
+          <Box component="form" onSubmit={handleResetPassword} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <TextField
+              label={t("New Password")}
+              type="password"
+              fullWidth
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              required
+              sx={{ '& .MuiOutlinedInput-root': { borderRadius: '16px' } }}
+            />
+    
+            <TextField
+              label={t("Confirm New Password")}
+              type="password"
+              fullWidth
+              value={confirmNewPassword}
+              onChange={(e) => setConfirmNewPassword(e.target.value)}
+              required
+              sx={{ '& .MuiOutlinedInput-root': { borderRadius: '16px' } }}
+            />
+    
+            <Box mt={1} mb={2}>
+              <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                <Typography variant="subtitle1" fontWeight="700" color="#3e2723">
+                  {t("OTP Code")}
+                </Typography>
+                <Typography variant="body2" fontWeight="600" color={timeLeft <= 60 ? 'error' : 'secondary'}>
+                  {t("Expires in")}: {formatTime(timeLeft)}
+                </Typography>
+              </Box>
+              
+              <Grid container spacing={1.5} justifyContent="center">
+                {otpDigits.map((digit, index) => (
+                  <Grid item key={index}>
+                    <TextField
+                      inputRef={(el) => (inputRefs.current[index] = el!)}
+                      value={digit}
+                      onChange={(e) => handleOtpChange(index, e.target.value)}
+                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
+                      inputProps={{
+                        maxLength: 1,
+                        style: {
+                          textAlign: "center",
+                          fontSize: "24px",
+                          fontWeight: "800",
+                          width: "40px",
+                          height: "40px",
+                          padding: "10px",
+                          color: '#ff9800'
+                        },
+                      }}
+                    />
+                  </Grid>
+                ))}
               </Grid>
-            ))}
-          </Grid>
-        </Box>
-
-        <Box mt={4}>
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            fullWidth
-            disabled={loading || timeLeft === 0}
-            endIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
-          >
-            {timeLeft === 0 ? t("OTP Expired") : t("Reset Password")}
-          </Button>
-        </Box>
-      </form>
+            </Box>
+    
+            <Button
+              type="submit"
+              variant="contained"
+              fullWidth
+              disabled={loading || timeLeft === 0 || otpDigits.join('').length !== 6}
+              endIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
+              sx={{ py: 1.5, fontSize: '1.1rem', fontWeight: 800, bgcolor: '#ff9800', color: '#fff', borderRadius: '30px', boxShadow: '0 8px 20px rgba(255, 152, 0, 0.3)', '&:hover': { bgcolor: '#f57c00', transform: 'translateY(-2px)' }, transition: 'all 0.2s' }}
+            >
+              {timeLeft === 0 ? t("OTP Expired") : t("Reset Password")}
+            </Button>
+          </Box>
+        </Paper>
+      </Container>
     </Box>
-  </Container>
-);
-
+  );
 };
 
 export default ResetPassword;

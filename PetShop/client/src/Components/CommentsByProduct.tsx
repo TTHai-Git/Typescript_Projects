@@ -209,7 +209,12 @@ const ratingOptions = [
         justifyContent: 'space-between',
         alignItems: 'center',
         gap: 2,
-        mb: 2,
+        mb: 4,
+        p: 2,
+        bgcolor: '#fff',
+        borderRadius: '24px',
+        boxShadow: '0 8px 30px rgba(0,0,0,0.03)',
+        border: '1px solid #f0f0f0'
       }}
     >
       {/* Rating Filter Chips */}
@@ -299,18 +304,18 @@ const ratingOptions = [
     ) : (
       <>
         {/* Comments List */}
-        <Grid container spacing={2}>
+        <Grid container spacing={3}>
           {comments.map((comment) => (
             <Grid item xs={12} key={comment._id}>
-              <Card sx={{ backgroundColor: '#fefefe', borderRadius: 3, boxShadow: 4 }}>
+              <Card elevation={0} sx={{ backgroundColor: '#fff', borderRadius: '24px', boxShadow: '0 10px 40px rgba(0,0,0,0.04)', border: '1px solid #f0f0f0', p: 1 }}>
                 <CardHeader
-                  avatar={<Avatar src={comment.user.avatar} alt={comment.user.name} />}
-                  title={comment.user.name}
-                  subheader={formatDate(comment.createdAt)}
+                  avatar={<Avatar src={comment.user.avatar} alt={comment.user.name} sx={{ width: 50, height: 50, boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }} />}
+                  title={<Typography fontWeight="800" sx={{ color: '#3e2723', fontSize: '1.1rem' }}>{comment.user.name}</Typography>}
+                  subheader={<Typography variant="body2" color="text.secondary">{formatDate(comment.createdAt)}</Typography>}
                 />
-                <CardContent>
-                  <Rating value={comment.rating} precision={0.5} readOnly />
-                  <Typography variant="body1" sx={{ mt: 1 }}>
+                <CardContent sx={{ pt: 0 }}>
+                  <Rating value={comment.rating} precision={0.5} readOnly size="small" sx={{ mb: 1.5 }} />
+                  <Typography variant="body1" sx={{ color: '#555', lineHeight: 1.6, bgcolor: '#fdfbf7', p: 2, borderRadius: '16px', border: '1px solid #ffe8cc' }}>
                     {comment.content}
                   </Typography>
                   {comment.urls?.length > 0 && (
@@ -341,10 +346,11 @@ const ratingOptions = [
                   )}
                 </CardContent>
                 {user && user._id === comment.user._id && (
-                  <Stack direction="row" spacing={2} justifyContent="flex-end" mb={2}>
+                  <Stack direction="row" spacing={2} justifyContent="flex-end" mb={2} px={2}>
                     <Button
                       variant="outlined"
                       color="error"
+                      sx={{ borderRadius: '20px', fontWeight: 'bold' }}
                       onClick={() => handleDeleteComment(comment._id)}
                     >
                       {t("Delete")}
@@ -352,6 +358,7 @@ const ratingOptions = [
                     <Button
                       variant="outlined"
                       color="info"
+                      sx={{ borderRadius: '20px', fontWeight: 'bold' }}
                       onClick={() =>
                         navigate(`/comments/${comment._id}/updateCommentForm`, {
                           state: { from: locaion.pathname + locaion.search },

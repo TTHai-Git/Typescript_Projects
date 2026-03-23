@@ -6,6 +6,10 @@ import {
   Typography,
   TableContainer,
   Paper,
+  Box,
+  Card,
+  CardContent,
+  Chip
 } from "@mui/material";
 import { Edit, Delete, ArrowUpward, ArrowDownward } from "@mui/icons-material";
 import { useState, useEffect } from "react";
@@ -319,11 +323,19 @@ const childModelFields: Record<string, string[]> = {
   };
 
   return (
-    <>
-      <Button variant="contained" color="primary" onClick={() => openDialog()}>
-        {t("Create New")} {model}
-      </Button>
-      <Stack direction="row" spacing={2} alignItems="center" mt={2}>
+    <Box>
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, mb: 4 }}>
+        <Typography variant="h5" fontWeight={700} sx={{ textTransform: 'capitalize', color: '#111827' }}>
+          {t("Manage")} {t(model)}
+        </Typography>
+        <Button variant="contained" color="primary" sx={{ mt: { xs: 2, sm: 0 }, borderRadius: 2, textTransform: 'none', px: 3, boxShadow: '0 4px 14px rgba(74, 144, 226, 0.3)' }} onClick={() => openDialog()}>
+          + {t("Create New")} {t(model)}
+        </Button>
+      </Box>
+
+      <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.03)', mb: 4, border: '1px solid rgba(0,0,0,0.05)', overflow: 'visible' }}>
+        <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+      <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ xs: 'stretch', md: 'center' }} sx={{ mb: 3, pb: 2, borderBottom: '1px dashed #e2e8f0', flexWrap: 'wrap' }}>
           <TextField
             label={t("Search")}
             variant="outlined"
@@ -435,31 +447,38 @@ const childModelFields: Record<string, string[]> = {
           </Stack>
 
       {loading ? (
-        <CircularProgress sx={{ mt: 2 }} />
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+          <CircularProgress />
+        </Box>
       ) : (
         <TableContainer
-            component={Paper}
             sx={{
               maxHeight: 500,
               overflowX: "auto",
+              border: '1px solid #f1f5f9',
               borderRadius: 2,
-              boxShadow: 3,
             }}
           >
             <Table stickyHeader sx={{ minWidth: 800 }}>
               <TableHead>
-                <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
+                <TableRow>
                   {fields.map((field) => (
                     <TableCell
                       key={field}
                     
                       sx={{
-                        fontWeight: "bold",
+                        backgroundColor: "#f8fafc",
+                        fontWeight: 600,
+                        color: '#475569',
+                        textTransform: 'uppercase',
+                        fontSize: '0.75rem',
+                        letterSpacing: '0.05em',
+                        borderBottom: '2px solid #e2e8f0',
                         whiteSpace: "nowrap",
                         cursor: sortableFields.includes(field) ? "pointer" : "default",
                         userSelect: "none",
                         '&:hover': {
-                          backgroundColor: sortableFields.includes(field) ? "#ececec" : "inherit",
+                          backgroundColor: sortableFields.includes(field) ? "#f1f5f9" : "#f8fafc",
                         }
                       }}
                     >
@@ -475,7 +494,7 @@ const childModelFields: Record<string, string[]> = {
                       </Stack>
                     </TableCell>
                   ))}
-                  <TableCell sx={{ fontWeight: "bold", whiteSpace: "nowrap" }}>{t("Actions")}</TableCell>
+                  <TableCell sx={{ backgroundColor: "#f8fafc", fontWeight: 600, color: '#475569', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.05em', borderBottom: '2px solid #e2e8f0', whiteSpace: "nowrap" }}>{t("Actions")}</TableCell>
                 </TableRow>
               </TableHead>
 
@@ -512,9 +531,17 @@ const childModelFields: Record<string, string[]> = {
                               </Typography>
                             )
                           ) : ["status", "isVerified", "isFavorite"].includes(field) ? (
-                            <Typography variant="body2" color={value ? "success.main" : "error.main"}>
-                              {value ? t("Active") : t("Inactive")}
-                            </Typography>
+                            <Chip 
+                              label={value ? t("Active") : t("Inactive")} 
+                              size="small" 
+                              sx={{ 
+                                fontWeight: 600, 
+                                bgcolor: value ? 'rgba(16, 185, 129, 0.1)' : 'rgba(100, 116, 139, 0.1)', 
+                                color: value ? '#10b981' : '#64748b',
+                                border: '1px solid',
+                                borderColor: value ? 'rgba(16, 185, 129, 0.2)' : 'rgba(100, 116, 139, 0.2)',
+                              }} 
+                            />
                           ) : ["createdAt", "updatedAt"].includes(field) ? (
                             <Typography variant="body2">
                               {value ? formatDate(value) : "—"}
@@ -540,18 +567,22 @@ const childModelFields: Record<string, string[]> = {
                 ))}
               </TableBody>
             </Table>
-</TableContainer>
+        </TableContainer>
       )}
       {/* Pagination */}
-      <Stack direction="row" spacing={2} justifyContent="center" mt={4}>
-        <Button onClick={() => changePage(1)} disabled={currentPage === 1}>{t("First")}</Button>
-        <Button onClick={() => changePage(currentPage - 1)} disabled={currentPage === 1}>{t("Previous")}</Button>
-        <Typography variant="body1">{t("Page")} {currentPage} {t("of")} {pages}</Typography>
-        <Button onClick={() => changePage(currentPage + 1)} disabled={currentPage === pages}>{t("Next")}</Button>
-        <Button onClick={() => changePage(pages)} disabled={currentPage === pages}>{t("Last")}</Button>
+      <Stack direction="row" spacing={1} justifyContent="center" mt={4} sx={{ flexWrap: 'wrap' }}>
+        <Button variant="outlined" color="inherit" onClick={() => changePage(1)} disabled={currentPage === 1} sx={{ textTransform: 'none', borderRadius: 2 }}>{t("First")}</Button>
+        <Button variant="outlined" color="inherit" onClick={() => changePage(currentPage - 1)} disabled={currentPage === 1} sx={{ textTransform: 'none', borderRadius: 2 }}>{t("Previous")}</Button>
+        <Box sx={{ display: 'flex', alignItems: 'center', px: 2 }}>
+          <Typography variant="body2" fontWeight={600} color="text.secondary">{t("Page")} {currentPage} {t("of")} {pages}</Typography>
+        </Box>
+        <Button variant="outlined" color="inherit" onClick={() => changePage(currentPage + 1)} disabled={currentPage === pages} sx={{ textTransform: 'none', borderRadius: 2 }}>{t("Next")}</Button>
+        <Button variant="outlined" color="inherit" onClick={() => changePage(pages)} disabled={currentPage === pages} sx={{ textTransform: 'none', borderRadius: 2 }}>{t("Last")}</Button>
       </Stack>
+      </CardContent>
+    </Card>
 
-      <Dialog open={open} onClose={() => setOpen(false)} fullWidth>
+    <Dialog open={open} onClose={() => setOpen(false)} fullWidth>
         <DialogTitle>{editing ? "Edit" : "Create"} {model}</DialogTitle>
         <DialogContent>
           {model === "products" &&(
@@ -663,7 +694,7 @@ const childModelFields: Record<string, string[]> = {
           <Button variant="contained" onClick={handleSubmit}>{t("Save")}</Button>
         </DialogActions>
       </Dialog>
-    </>
+    </Box>
   );
 };
 

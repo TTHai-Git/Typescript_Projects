@@ -120,11 +120,11 @@ const ListOrders = () => {
         size="large"
         startIcon={<ArrowBack />}
         onClick={() => navigate(-1)}
-        sx={{ borderRadius: 3, px: 4, textTransform: 'none', fontWeight: 'bold', boxShadow: 2 }}
+        sx={{ borderRadius: "30px", px: 4, mb: 4, textTransform: 'none', fontWeight: 'bold', boxShadow: "0 4px 14px rgba(0,0,0,0.05)" }}
       >
         {t("Go Back")}
       </Button>
-      <h1 className="text-xl font-bold mb-4">{t("List Orders")}</h1>
+      <h1 className="text-3xl font-extrabold mb-6 text-[#3e2723]">{t("List Orders")}</h1>
 
       
       <Box sx={{ mb: 4, display: "flex", flexDirection: "column", gap: 3 }}>
@@ -273,80 +273,78 @@ const ListOrders = () => {
 
       {/* Table */}
       {loading ? (
-        <p className="loading">🔄 {t("Loading order details...")}</p>
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}><Box className="loading">🔄 {t("Loading order details...")}</Box></Box>
       ) : (
-        <table className="min-w-full border border-gray-300">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="border px-4 py-2">#</th>
-              <th className="border px-4 py-2">{t("Order ID")}</th>
-              <th className="border px-4 py-2">{t("Total Price")}</th>
-              <th className="border px-4 py-2">{t("Status")}</th>
-              <th className="border px-4 py-2">{t("Created Date")}</th>
-              <th className="border px-4 py-2">{t("Updated Date")}</th>
-              <th className="border px-4 py-2">{t("Check Order Details")}</th>
-              <th className="border px-4 py-2">{t("Check Payment")}</th>
-              <th className="border px-4 py-2">{t("Check Shipment")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.length > 0 ? (
-              orders.map((order) => (
-                <tr key={order._id} className="text-center">
-                  <td className="border px-4 py-2">{count++}</td>
-                  <td className="border px-4 py-2">{order._id}</td>
-                  <td className="border px-4 py-2">${order.totalPrice}</td>
-                  <td className="border px-4 py-2">{t(order.status)}</td>
-                  <td className="border px-4 py-2">
-                    {formatDate(order.createdAt)}
-                  </td>
-                  <td className="border px-4 py-2">
-                    {formatDate(order.updatedAt)}
-                  </td>
-                  <td className="border px-4 py-2">
-                    <button
-                      className="btn btn-primary"
-                      onClick={() =>
-                        navigate(`/userinfo/${user_id}/orders/${order._id}/orderDetails?page=${1}`)
-                      }
-                    >
-                      <RemoveRedEyeIcon /> {t("View")}
-                    </button>
-                  </td>
-                  <td className="border px-4 py-2">
-                    <button
-                      className="btn btn-primary"
-                      onClick={() =>
-                        navigate(`/userinfo/${user_id}/orders/${order._id}/paymentInfo`)
-                      }
-                    >
-                      <RemoveRedEyeIcon /> {t("View")}
-                    </button>
-                  </td>
-                  <td className="border px-4 py-2">
-                    <button
-                      className="btn btn-primary"
-                      onClick={() =>
-                       navigate(`/userinfo/${user_id}/orders/${order._id}/shipmentInfo`)
-                      }
-                    >
-                      <RemoveRedEyeIcon /> {t("View")}
-                    </button>
-                  </td>
+        <Box sx={{ bgcolor: '#fff', borderRadius: '24px', boxShadow: '0 10px 40px rgba(0,0,0,0.03)', overflow: 'hidden', border: '1px solid #f1f5f9', mb: 4 }}>
+          <Box sx={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+              <thead>
+                <tr style={{ backgroundColor: '#fffbf7', borderBottom: '2px solid #ffe8cc' }}>
+                  {["#", "Order ID", "Total Price", "Status", "Date", "Details", "Payment", "Shipment"].map((head, idx) => (
+                    <th key={idx} style={{ padding: '16px', color: '#5d4037', fontWeight: 800, textTransform: 'uppercase', fontSize: '0.85rem', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>
+                      {t(head)}
+                    </th>
+                  ))}
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan={9}
-                  className="border px-4 py-2 text-center text-gray-500"
-                >
-                  {t("No orders available")}
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              </thead>
+              <tbody>
+                {orders.length > 0 ? (
+                  orders.map((order, index) => (
+                    <tr key={order._id} style={{ borderBottom: '1px solid #f1f5f9', transition: 'background-color 0.2s', cursor: 'default' }} onMouseOver={e => e.currentTarget.style.backgroundColor = '#fffcf9'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
+                      <td style={{ padding: '16px', color: '#64748b' }}>{count + index}</td>
+                      <td style={{ padding: '16px', fontWeight: 600, color: '#3e2723' }}>{order._id.substring(0, 8)}...</td>
+                      <td style={{ padding: '16px', fontWeight: 800, color: '#ff9800' }}>${order.totalPrice}</td>
+                      <td style={{ padding: '16px' }}>
+                        <Box sx={{ display: 'inline-block', px: 2, py: 0.5, borderRadius: '50px', fontSize: '0.85rem', fontWeight: 700, bgcolor: 'rgba(255,152,0,0.1)', color: '#f57c00' }}>
+                          {t(order.status)}
+                        </Box>
+                      </td>
+                      <td style={{ padding: '16px', color: '#64748b', whiteSpace: 'nowrap' }}>
+                        {formatDate(order.createdAt)}
+                      </td>
+                      <td style={{ padding: '16px' }}>
+                        <Button
+                          variant="outlined" size="small"
+                          onClick={() => navigate(`/userinfo/${user_id}/orders/${order._id}/orderDetails?page=${1}`)}
+                          sx={{ textTransform: 'none', borderRadius: '20px', color: '#4caf50', borderColor: '#4caf50', '&:hover': { bgcolor: '#e8f5e9' } }}
+                        >
+                           {t("View")}
+                        </Button>
+                      </td>
+                      <td style={{ padding: '16px' }}>
+                        <Button
+                          variant="outlined" size="small"
+                          onClick={() => navigate(`/userinfo/${user_id}/orders/${order._id}/paymentInfo`)}
+                          sx={{ textTransform: 'none', borderRadius: '20px', color: '#2196f3', borderColor: '#2196f3', '&:hover': { bgcolor: '#e3f2fd' } }}
+                        >
+                          {t("Payment")}
+                        </Button>
+                      </td>
+                      <td style={{ padding: '16px' }}>
+                        <Button
+                          variant="outlined" size="small"
+                          onClick={() => navigate(`/userinfo/${user_id}/orders/${order._id}/shipmentInfo`)}
+                          sx={{ textTransform: 'none', borderRadius: '20px', color: '#9c27b0', borderColor: '#9c27b0', '&:hover': { bgcolor: '#f3e5f5' } }}
+                        >
+                          {t("Shipment")}
+                        </Button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan={8}
+                      style={{ padding: '32px', textAlign: 'center', color: '#94a3b8' }}
+                    >
+                      {t("No orders available")}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </Box>
+        </Box>
       )}
 
       {/* Footer */}
